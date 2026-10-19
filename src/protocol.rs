@@ -1,25 +1,27 @@
-//! 入站消息的类型化解析、按 thread 归属的拆分，以及服务端请求的应答构造。
+//! Typed parsing of inbound messages, splitting by thread ownership, and constructing
+//! replies to server requests.
 //!
-//! # 应答只从生成的响应类型来
+//! # Build replies from generated response types
 //!
-//! 服务端请求的每一种都有 schema 生成的响应类型（`CommandExecutionRequestApprovalResponse`、
-//! `PermissionsRequestApprovalResponse`……）。本模块**只**用那些类型构造应答，
-//! 不手写 `json!`：手写的形状没有编译期约束，schema 一变就悄悄发出服务端解析
-//! 不了的应答，而服务端解析不了就等于没收到——那个 turn 会永久卡住。
+//! Every server request has a schema-generated response type (such as
+//! `CommandExecutionRequestApprovalResponse` and `PermissionsRequestApprovalResponse`).
+//! This module constructs replies **only** from those types, never handwritten `json!`.
+//! A handwritten shape has no compile-time checks and could silently become invalid when
+//! the schema changes; the server would then never receive a valid reply and the turn
+//! could remain blocked indefinitely.
 //!
-//! # 按 thread 归属拆分
+//! # Split by thread ownership
 //!
-//! [`split_notification`]/[`split_request`] 把生成的 `ServerNotification`/
-//! `ServerRequest` 按「属于某个 thread」还是「与任何 thread 都无关」拆成
-//! [`ThreadNotification`]/[`GlobalNotification`]、[`ThreadRequest`]/
-//! [`GlobalRequest`] 四个更窄的类型，供 [`crate::client::inbound::ThreadMessage`]/
-//! [`crate::client::inbound::GlobalMessage`] 使用。两个函数都是穷尽 match，协议
-//! 新增一种通知/请求时这里会编译不过——这不是巧合：曾经按
-//! `params.get("threadId")` 猜归属，猜漏了两类真实存在的协议形状——legacy 审批
-//! （`ApplyPatchApproval`/`ExecCommandApproval`）的归属字段叫 `conversationId`，
-//! `ThreadStarted` 的 id 嵌在 `thread.id` 里、顶层根本没有 `threadId`——这两类
-//! 消息因此永远进不了它们本该进的 thread 通道，只会静默漏到全局流。穷尽 match
-//! 从类型化字段取值，不会再犯同样的错，也不会在协议新增字段形状时悄悄漏第三次。
+//! [`split_notification`] and [`split_request`] split generated `ServerNotification` and
+//! `ServerRequest` values into narrower thread-owned and global types for
+//! [`crate::client::inbound::ThreadMessage`] and
+//! [`crate::client::inbound::GlobalMessage`]. Both functions use exhaustive matches, so a
+//! new protocol variant requires an explicit ownership decision. This is intentional:
+//! inferring ownership from `params.get("threadId")` previously missed two real shapes.
+//! Legacy approvals (`ApplyPatchApproval` and `ExecCommandApproval`) use
+//! `conversationId`, while `ThreadStarted` nests its ID in `thread.id`. Those messages
+//! were silently routed to the global stream instead of their thread channel. Exhaustive
+//! matches use typed fields and prevent similar omissions when the protocol evolves.
 
 use crate::envelope::Reply;
 use crate::generated::events::{ServerNotification, ServerRequest};
@@ -28,41 +30,43 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::time::Duration;
 
-/// 把信封拆出来的 `method` / `params` 重新装回带标签的形状。
+/// Reassemble the `method` and `params` extracted from an envelope into a tagged value.
 ///
-/// 生成的 `ServerNotification` / `ServerRequest` 是 `#[serde(tag = "method",
-/// content = "params")]`，解析它们需要这个形状。
+/// Generated `ServerNotification` and `ServerRequest` types use
+/// `#[serde(tag = "method", content = "params")]` and require this shape for parsing.
 pub(crate) fn tagged(method: &str, params: Value) -> Value {
     json!({ "method": method, "params": params })
 }
 
-/// 解析一条服务端通知。
+/// Parse a server notification.
 ///
-/// 解析失败**不是**错误：服务端随时可能新增字段或新增通知，一条读不懂的通知
-/// 绝不该让整条连接失败。读不懂时返回 `None`，调用方按「未知通知」处理即可。
+/// A parse failure is **not** an error: the server may add fields or notifications at any
+/// time, and an unrecognized notification must not fail the connection. Returns `None`
+/// for an unknown notification so the caller can handle it as such.
 ///
-/// 从 `&Value` 反序列化而不是 `from_value(value.clone())`：失败路径要把原样的
-/// JSON 交出去，成功路径不该为此先复制一份整棵树。
+/// Deserialize from `&Value` rather than `from_value(value.clone())`: the failure path
+/// must preserve the original JSON, and the success path should not clone the entire tree.
 pub(crate) fn parse_notification(tagged: &Value) -> Option<ServerNotification> {
     ServerNotification::deserialize(tagged).ok()
 }
 
-/// 解析一条服务端请求。
+/// Parse a server request.
 ///
-/// 同样是尽力而为，但后果不同：读不懂的请求**仍然必须回复**，否则服务端会一直
-/// 阻塞。返回 `None` 时调用方应当按方法名走 [`decline_by_method`]。
+/// Parsing is best-effort, but the consequence differs: an unrecognized request **still
+/// requires a reply** or the server remains blocked. If this returns `None`, the caller
+/// should use [`decline_by_method`] with the method name.
 pub(crate) fn parse_server_request(tagged: &Value) -> Option<ServerRequest> {
     ServerRequest::deserialize(tagged).ok()
 }
 
-/// 对本客户端解析不出来的通知，尽力猜一个 thread 归属。
+/// Best-effort thread ownership inference for a notification this client cannot parse.
 ///
-/// 只有 `parse_notification` 失败——协议新增了本客户端还不认识的通知——时才用
-/// 得到：已知的通知一律走 [`split_notification`] 的类型化字段，不靠猜。接的是
-/// [`tagged`] 装出来的 `{method, params}` 形状；三种已知归属形状挨个试：多数
-/// 通知的顶层 `threadId`，legacy 审批系的 `conversationId`，以及
-/// `thread/started` 那种嵌在 `thread.id` 里的。都没有就说明这条通知本来就与
-/// 任何 thread 无关，交给全局流。
+/// Use this only when `parse_notification` fails because the protocol added a notification
+/// this client does not know. Known notifications use typed fields in
+/// [`split_notification`] instead of inference. Given the `{method, params}` shape from
+/// [`tagged`], try the three known ownership shapes: top-level `threadId`,
+/// `conversationId` on legacy approvals, and nested `thread.id` on `thread/started`. If
+/// none is present, treat the notification as global.
 pub(crate) fn sniff_thread_id(tagged: &Value) -> Option<&str> {
     let params = tagged.get("params")?;
     params
@@ -72,10 +76,11 @@ pub(crate) fn sniff_thread_id(tagged: &Value) -> Option<&str> {
         .and_then(Value::as_str)
 }
 
-/// 与任何 thread 都无关的服务端通知：账号、进程、MCP 服务器生命周期、导入
-/// 任务等。三种字段里带 `Option<threadId>` 的通知（`McpServerOauthLoginCompleted`、
-/// `McpServerStartupStatusUpdated`、`Warning`）两边都有变体——具体某一条落在哪
-/// 边由 [`split_notification`] 在运行时按值决定，不是由类型决定。
+/// Server notifications unrelated to any thread, such as account state, processes, MCP
+/// server lifecycle, and import tasks. Notifications with `Option<threadId>` fields
+/// (`McpServerOauthLoginCompleted`, `McpServerStartupStatusUpdated`, and `Warning`) have
+/// variants on both sides; `split_notification` chooses the scope from the runtime
+/// value rather than the type.
 #[allow(clippy::large_enum_variant)]
 #[derive(Clone, Debug, Serialize)]
 #[serde(tag = "method", content = "params")]
@@ -130,9 +135,9 @@ pub enum GlobalNotification {
     AccountLoginCompleted(AccountLoginCompletedNotification),
 }
 
-/// 属于某个 thread 的服务端通知：item/turn 级事件流、thread 生命周期、
-/// realtime 会话等。归属由 [`split_notification`] 从各自的字段里取——多数是
-/// 顶层 `threadId`，`ThreadStarted` 是嵌在 `thread.id` 里的例外。
+/// Server notifications owned by a thread, such as item/turn event streams, thread
+/// lifecycle, and realtime sessions. `split_notification` reads ownership from each
+/// payload; most use a top-level `threadId`, while `ThreadStarted` nests it in `thread.id`.
 #[allow(clippy::large_enum_variant)]
 #[derive(Clone, Debug, Serialize)]
 #[serde(tag = "method", content = "params")]
@@ -267,7 +272,7 @@ pub enum ThreadNotification {
     ThreadRealtimeClosed(ThreadRealtimeClosedNotification),
 }
 
-/// [`split_notification`] 的判定结果。
+/// The result of [`split_notification`].
 #[allow(clippy::large_enum_variant)]
 pub(crate) enum NotificationScope {
     Global(GlobalNotification),
@@ -277,13 +282,12 @@ pub(crate) enum NotificationScope {
     },
 }
 
-/// 按 thread 归属拆分一条服务端通知。
+/// Split a server notification by thread ownership.
 ///
-/// **穷尽 match**：协议新增通知时这里会编译不过，逼着调用方显式决定新通知该
-/// 进 `GlobalNotification` 还是 `ThreadNotification`——而不是像原来那样按
-/// `params.get("threadId")` 猜，猜漏的两个真实教训是 `ApplyPatchApproval`/
-/// `ExecCommandApproval` 用的是 `conversationId` 而不是 `threadId`，
-/// `ThreadStarted` 的 id 嵌在 `thread.id` 里、顶层根本没有 `threadId` 字段。
+/// Uses an **exhaustive match** so adding a notification fails compilation until its
+/// scope is chosen as `GlobalNotification` or `ThreadNotification`. Do not guess with
+/// `params.get("threadId")`: legacy `ApplyPatchApproval` and `ExecCommandApproval` use
+/// `conversationId`, and `ThreadStarted` nests its ID in `thread.id`.
 pub(crate) fn split_notification(notification: ServerNotification) -> NotificationScope {
     match notification {
         ServerNotification::Error(p) => {
@@ -800,8 +804,8 @@ pub(crate) fn split_notification(notification: ServerNotification) -> Notificati
     }
 }
 
-/// 与任何 thread 都无关的服务端请求：MCP elicitation、ChatGPT token 刷新、
-/// attestation 生成。
+/// Server requests unrelated to any thread: MCP elicitation, ChatGPT token refresh, and
+/// attestation generation.
 #[derive(Clone, Debug)]
 pub enum GlobalRequest {
     McpServerElicitationRequest(McpServerElicitationRequestParams),
@@ -809,10 +813,10 @@ pub enum GlobalRequest {
     AttestationGenerate(AttestationGenerateParams),
 }
 
-/// 属于某个 thread 的服务端请求：五种审批 + `item/tool/requestUserInput` +
-/// `item/tool/call`。legacy 的两种（`ApplyPatchApproval`/`ExecCommandApproval`）
-/// 归属字段叫 `conversationId`，不叫 `threadId`——[`split_request`] 直接从
-/// 各自的类型化字段取值，不受字段改名影响。
+/// Server requests owned by a thread: five approval requests, `item/tool/requestUserInput`,
+/// and `item/tool/call`. The two legacy approvals (`ApplyPatchApproval` and
+/// `ExecCommandApproval`) use `conversationId` rather than `threadId`; `split_request`
+/// reads their typed fields and is unaffected by field renames.
 #[derive(Clone, Debug)]
 pub enum ThreadRequest {
     ItemCommandExecutionRequestApproval(CommandExecutionRequestApprovalParams),
@@ -824,7 +828,7 @@ pub enum ThreadRequest {
     ExecCommandApproval(ExecCommandApprovalParams),
 }
 
-/// [`split_request`] 的判定结果。
+/// The result of [`split_request`].
 pub(crate) enum RequestScope {
     Global(GlobalRequest),
     Thread {
@@ -833,7 +837,8 @@ pub(crate) enum RequestScope {
     },
 }
 
-/// 按 thread 归属拆分一条服务端请求。穷尽 match，理由同 [`split_notification`]。
+/// Split a server request by thread ownership. This is exhaustive for the same reason as
+/// [`split_notification`].
 pub(crate) fn split_request(request: ServerRequest) -> RequestScope {
     match request {
         ServerRequest::ItemCommandExecutionRequestApproval(p) => {
@@ -897,11 +902,11 @@ pub(crate) fn split_request(request: ServerRequest) -> RequestScope {
     }
 }
 
-/// 一条服务端请求的协议方法名。
+/// The protocol method name of a server request.
 ///
-/// 穷尽 match：协议新增一种服务端请求时这里会**编译不过**。届时
-/// [`decline_by_method`] 也必须补一条——那张表按字符串分派，漏了不会编译不过，
-/// 只会在运行时给出一个 JSON-RPC error 而不是一次得体的拒绝。
+/// Uses an exhaustive match so adding a server request **fails compilation** here. Add a
+/// corresponding entry to [`decline_by_method`] as well; that string-dispatched table
+/// would otherwise silently fall back to a JSON-RPC error instead of a useful refusal.
 pub(crate) const fn method_of(request: &ServerRequest) -> &'static str {
     match request {
         ServerRequest::ItemCommandExecutionRequestApproval(_) => {
@@ -919,9 +924,10 @@ pub(crate) const fn method_of(request: &ServerRequest) -> &'static str {
     }
 }
 
-/// 兜底拒绝的理由，会随协议一起交给 agent（legacy 审批的 `rejection` 是必填
-/// 字段）。这是**客户端自己**给不出决定时说的话，不是用户说的话——用户的措辞
-/// 由调用方随它的响应类型一起给出。
+/// The reason for a fallback refusal, sent to the agent as part of the protocol (legacy
+/// approval responses require a `rejection` field). This text is for cases where the
+/// **client itself** cannot decide; it is not user-facing copy. Callers provide their own
+/// wording through the corresponding response type.
 const NO_DECISION: &str = "The client could not obtain a decision for this request.";
 
 fn review_decision(approved: bool, rejection: &str) -> ReviewDecision {
@@ -934,18 +940,19 @@ fn review_decision(approved: bool, rejection: &str) -> ReviewDecision {
     }
 }
 
-/// 对一条服务端请求的保守应答：本客户端答不了、或者没人来答时用它。
+/// Conservative reply for a server request the client cannot answer or no one handles.
 ///
-/// 超时、没有 turn 认领、方法名解析不出来，以及 oneshot reply sender 被丢弃时
-/// 的拒绝都走这里——这些路径共用一张表，不会错开。
-/// 曾经有过两张手写的 `json!` 表，其中 legacy 审批的兜底拒绝少了必填的
-/// `rejection` 字段，服务端解析不了等于没收到，turn 永久卡住。
+/// Timeouts, requests with no claiming turn, unrecognized methods, and dropped one-shot
+/// reply senders all use this path and share the same table. Two separate handwritten
+/// `json!` tables once omitted the required `rejection` field from legacy approval
+/// refusals. The server could not parse those responses, leaving turns blocked.
 ///
-/// 按方法名而不是按请求类型分派：解析不出来的请求也必须应答，那时手里只有
-/// 名字。认不出来就回 JSON-RPC error——编造一个 result 会让服务端拿到假数据。
+/// Dispatch by method name rather than request type because unparseable requests still
+/// need a reply and only the name is available. Return a JSON-RPC error for unknown
+/// methods; fabricating a result would give the server false data.
 ///
-/// 审批一律 `decline` 而不是 `cancel`：前者让 agent 知道被拒后继续这个 turn
-/// 去找替代路径，后者会直接中断整个 turn。
+/// Use `decline`, not `cancel`, for approvals: the agent can continue the turn and find an
+/// alternative after a refusal, while cancellation interrupts the entire turn.
 pub(crate) fn decline_by_method(method: &str) -> Reply {
     match method {
         "item/commandExecution/requestApproval" => {
@@ -967,7 +974,8 @@ pub(crate) fn decline_by_method(method: &str) -> Reply {
         "execCommandApproval" => Reply::ok(ExecCommandApprovalResponse {
             decision: review_decision(false, NO_DECISION),
         }),
-        // 下面这些不是二元决定，本客户端拿不出内容，只能给出「什么也没答」。
+        // These are not binary decisions. The client cannot supply the required content,
+        // so it reports that it did not answer.
         "item/tool/requestUserInput" => Reply::ok(ToolRequestUserInputResponse {
             answers: std::collections::BTreeMap::new(),
         }),
@@ -980,7 +988,8 @@ pub(crate) fn decline_by_method(method: &str) -> Reply {
             content: None,
             _meta: None,
         }),
-        // 这两个要求客户端拿出真实凭据，不存在「拒绝」这一说。
+        // These two methods require real credentials from the client and have no refusal
+        // response.
         "account/chatgptAuthTokens/refresh" => {
             Reply::unsupported("client cannot refresh ChatGPT auth tokens")
         }
@@ -989,19 +998,20 @@ pub(crate) fn decline_by_method(method: &str) -> Reply {
     }
 }
 
-/// 重连退避：指数增长到上限，再叠加一半宽度的随机抖动。
+/// Reconnect backoff: exponential growth capped at the limit, plus jitter over half the
+/// cap's width.
 ///
-/// 下界是 `cap/2` 而不是 0——「全抖动」写法期望值虽然也在增长，但单次可以退回
-/// 到 1 毫秒，服务端没起来时会变成高频重试。抖动只是错开多个客户端，不该把退避
-/// 本身抹掉。
+/// The lower bound is `cap/2`, not zero. Full jitter has a growing expected delay but can
+/// still return 1 ms, causing rapid retries while the server is down. Jitter should spread
+/// clients out without eliminating the backoff itself.
 pub fn reconnect_delay(attempt: u32, max_ms: u64) -> Duration {
     let cap = 500u64
         .saturating_mul(2u64.saturating_pow(attempt.min(16)))
         .min(max_ms)
         .max(2);
     let half = cap / 2;
-    // 抖动取自时钟低位。它不是随机数发生器，但用途只是让同时重连的多个客户端
-    // 错开，而退避的下界已经由 `half` 保证了。
+    // Derive jitter from low clock bits. This is not a random number generator; it only
+    // spreads simultaneous reconnects, and `half` already guarantees the backoff floor.
     let jitter = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap_or_default()
@@ -1018,8 +1028,9 @@ mod tests {
 
     #[test]
     fn unknown_notifications_are_reported_as_unparsed_not_as_errors() {
-        // 服务端随时可能新增通知。读不懂时返回 None，由调用方原样保留原始
-        // JSON——绝不能让一条读不懂的通知拖垮整条连接。
+        // The server may add notifications at any time. Return None for unknown messages
+        // so the caller can preserve the original JSON; never let one unrecognized
+        // notification take down the connection.
         assert_eq!(
             parse_notification(&tagged(
                 "some/notification/from/the/future",
@@ -1035,60 +1046,67 @@ mod tests {
             "turn/completed",
             json!({"threadId":"t","turn":{"id":"u","items":[],"status":"completed"}}),
         ))
-        .expect("已知通知必须解析成功");
+        .expect("known notification must parse successfully");
         match parsed {
             ServerNotification::TurnCompleted(payload) => {
                 assert_eq!(payload.thread_id, "t");
                 assert_eq!(payload.turn.id, "u");
             }
-            other => panic!("解析成了 {other:?}"),
+            other => panic!("unexpected parse result: {other:?}"),
         }
     }
 
-    /// 每一条应答都必须能被它那条请求的生成响应类型接住。
+    /// Every reply must deserialize as the generated response type for its request.
     ///
-    /// 这是手写 JSON 与 schema 之间唯一的粘合点，也只有这里会悄悄错开：legacy
-    /// 审批的兜底拒绝就曾经少了必填的 `rejection` 字段，服务端解析不了等于没
-    /// 收到，turn 永久卡住。
+    /// This is the only glue between handwritten JSON and the schema, and mismatches can
+    /// occur here: a legacy approval fallback once omitted the required `rejection` field.
+    /// The server could not parse it, leaving the turn blocked.
     #[test]
     fn every_reply_matches_its_generated_response_type() {
         fn accepts<R: DeserializeOwned>(what: &str, reply: Reply) {
             match reply {
                 Reply::Result(value) => {
                     if let Err(error) = serde_json::from_value::<R>(value.clone()) {
-                        panic!("{what} 的应答 {value} 不符合它的响应类型：{error}");
+                        panic!("{what} reply {value} does not match its response type: {error}");
                     }
                 }
-                Reply::Error(error) => panic!("{what} 应当有一个成功应答，却给了 {error:?}"),
+                Reply::Error(error) => {
+                    panic!("{what} should have a successful reply, got {error:?}")
+                }
             }
         }
 
-        // 无人认领、解析不出请求、调用方主动拒绝——三条路径同一张表。
+        // Unclaimed requests, unparseable requests, and caller-initiated refusals all use
+        // the same table.
         accepts::<CommandExecutionRequestApprovalResponse>(
-            "兜底",
+            "fallback",
             decline_by_method("item/commandExecution/requestApproval"),
         );
         accepts::<FileChangeRequestApprovalResponse>(
-            "兜底",
+            "fallback",
             decline_by_method("item/fileChange/requestApproval"),
         );
         accepts::<PermissionsRequestApprovalResponse>(
-            "兜底",
+            "fallback",
             decline_by_method("item/permissions/requestApproval"),
         );
-        accepts::<ApplyPatchApprovalResponse>("兜底", decline_by_method("applyPatchApproval"));
-        accepts::<ExecCommandApprovalResponse>("兜底", decline_by_method("execCommandApproval"));
+        accepts::<ApplyPatchApprovalResponse>("fallback", decline_by_method("applyPatchApproval"));
+        accepts::<ExecCommandApprovalResponse>(
+            "fallback",
+            decline_by_method("execCommandApproval"),
+        );
         accepts::<ToolRequestUserInputResponse>(
-            "兜底",
+            "fallback",
             decline_by_method("item/tool/requestUserInput"),
         );
-        accepts::<DynamicToolCallResponse>("兜底", decline_by_method("item/tool/call"));
+        accepts::<DynamicToolCallResponse>("fallback", decline_by_method("item/tool/call"));
         accepts::<McpServerElicitationRequestResponse>(
-            "兜底",
+            "fallback",
             decline_by_method("mcpServer/elicitation/request"),
         );
 
-        // 要求真实凭据的两个请求不存在「拒绝」，只能明确报错。
+        // The two requests requiring real credentials have no refusal response; return an
+        // explicit error instead.
         for method in ["attestation/generate", "account/chatgptAuthTokens/refresh"] {
             assert!(
                 matches!(
@@ -1096,20 +1114,21 @@ mod tests {
                     Reply::Error(ErrorObject { code, .. })
                         if code == crate::envelope::METHOD_NOT_SUPPORTED
                 ),
-                "{method} 必须报错而不是编造 result"
+                "{method} must return an error instead of fabricating a result"
             );
         }
-        // 完全不认识的方法同样不许编造 result。
+        // Never fabricate a result for a completely unknown method either.
         assert!(matches!(
             decline_by_method("some/method/from/the/future"),
             Reply::Error(_)
         ));
     }
 
-    /// `method_of` 认得的每一个名字，`decline_by_method` 都必须认得。
+    /// `decline_by_method` must handle every method recognized by `method_of`.
     ///
-    /// 两者一个是穷尽 match、一个是字符串表：前者会因为协议新增请求而编译不过，
-    /// 后者不会。这条测试是把「补了一张、忘了另一张」变成红灯的地方。
+    /// One is an exhaustive match and the other a string table. The match fails to compile
+    /// when the protocol adds a request; the table does not. This test catches cases where
+    /// only one of them was updated.
     #[test]
     fn the_decline_table_covers_every_method_the_client_can_name() {
         const ALL: [&str; 10] = [
@@ -1131,7 +1150,7 @@ mod tests {
                     decline_by_method(method),
                     Reply::Error(ErrorObject { ref message, .. }) if *message == generic
                 ),
-                "{method} 落到了通用兜底，说明拒绝表漏了它"
+                "{method} reached the generic fallback; the refusal table is missing an entry"
             );
         }
     }
@@ -1142,14 +1161,15 @@ mod tests {
             let delay = reconnect_delay(attempt, 30_000).as_millis();
             assert!(
                 (low..=high).contains(&delay),
-                "第 {attempt} 次重连退避 {delay}ms 落在 {low}–{high}ms 之外"
+                "reconnect backoff #{attempt} of {delay}ms is outside {low}–{high}ms"
             );
         }
     }
 
-    /// legacy 审批的归属字段叫 `conversationId`，不叫 `threadId`。旧实现按
-    /// `params.get("threadId")` 猜归属，会把这两种请求永远判成「与任何 thread
-    /// 都无关」——穷尽 match 从类型化字段取值，不受字段改名影响。
+    /// Legacy approvals use `conversationId`, not `threadId`. The old implementation
+    /// inferred ownership with `params.get("threadId")` and always classified these
+    /// requests as global. Exhaustive matches read typed fields and are unaffected by
+    /// field-name changes.
     #[test]
     fn legacy_approvals_route_by_conversation_id_not_thread_id() {
         let request = parse_server_request(&tagged(
@@ -1159,14 +1179,14 @@ mod tests {
                 "fileChanges": {}
             }),
         ))
-        .expect("legacy applyPatchApproval 必须解析成功");
+        .expect("legacy applyPatchApproval must parse successfully");
         match split_request(request) {
             RequestScope::Thread { thread_id, request } => {
                 assert_eq!(thread_id, "thread-legacy");
                 assert!(matches!(request, ThreadRequest::ApplyPatchApproval(_)));
             }
             RequestScope::Global(_) => {
-                panic!("conversationId 存在时不该判成全局请求")
+                panic!("a request with conversationId must not be classified as global")
             }
         }
 
@@ -1177,19 +1197,19 @@ mod tests {
                 "cwd": "/tmp", "parsedCmd": []
             }),
         ))
-        .expect("legacy execCommandApproval 必须解析成功");
+        .expect("legacy execCommandApproval must parse successfully");
         match split_request(request) {
             RequestScope::Thread { thread_id, request } => {
                 assert_eq!(thread_id, "thread-legacy");
                 assert!(matches!(request, ThreadRequest::ExecCommandApproval(_)));
             }
             RequestScope::Global(_) => {
-                panic!("conversationId 存在时不该判成全局请求")
+                panic!("a request with conversationId must not be classified as global")
             }
         }
     }
 
-    /// `thread/started` 顶层没有 `threadId`，id 嵌在 `thread.id` 里。
+    /// `thread/started` has no top-level `threadId`; its ID is nested in `thread.id`.
     #[test]
     fn thread_started_routes_by_the_nested_thread_id() {
         let notification = parse_notification(&tagged(
@@ -1204,7 +1224,7 @@ mod tests {
                 "turns": []
             }}),
         ))
-        .expect("thread/started 必须解析成功");
+        .expect("thread/started must parse successfully");
         match split_notification(notification) {
             NotificationScope::Thread {
                 thread_id,
@@ -1214,7 +1234,7 @@ mod tests {
                 assert!(matches!(notification, ThreadNotification::ThreadStarted(_)));
             }
             NotificationScope::Global(_) => {
-                panic!("thread.id 存在时不该判成全局通知")
+                panic!("a notification with thread.id must not be classified as global")
             }
         }
     }
@@ -1231,7 +1251,7 @@ mod tests {
                 "threadId": "thread-attachment"
             }),
         ))
-        .expect("thread attachment 通知必须解析成功");
+        .expect("thread attachment notification must parse successfully");
         assert!(matches!(
             split_notification(attachment),
             NotificationScope::Thread {
@@ -1244,16 +1264,16 @@ mod tests {
             "account/gatewayOAuth/changed",
             json!({ "providerId": "provider-1", "status": "started" }),
         ))
-        .expect("gateway OAuth 通知必须解析成功");
+        .expect("gateway OAuth notification must parse successfully");
         assert!(matches!(
             split_notification(gateway),
             NotificationScope::Global(GlobalNotification::AccountGatewayOAuthChanged(_))
         ));
     }
 
-    /// 三种通知的 `threadId` 是 `Option`：有值就归属那个 thread，没有就是
-    /// 真正的全局通知——同一个通知类型两边都可能落，靠的是运行时的值而不是
-    /// 静态类型。
+    /// Three notifications use `Option<threadId>`: a value assigns them to that thread;
+    /// no value makes them global. The same notification type can be routed either way,
+    /// based on its runtime value rather than its static type.
     #[test]
     fn notifications_with_optional_thread_id_split_by_value() {
         let with_thread = parse_notification(&tagged(
@@ -1274,8 +1294,8 @@ mod tests {
         ));
     }
 
-    /// 本客户端还不认识的通知：猜归属时同样要认得 `conversationId` 与嵌套的
-    /// `thread.id`，不能只认 `threadId`。
+    /// For an unknown notification, ownership inference must recognize `conversationId`
+    /// and nested `thread.id`, not only `threadId`.
     #[test]
     fn sniffing_an_unknown_notification_tries_all_three_known_shapes() {
         let flat = tagged("future/notification", json!({"threadId": "t1"}));

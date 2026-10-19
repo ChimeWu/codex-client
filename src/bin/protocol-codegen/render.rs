@@ -1,24 +1,26 @@
-//! Schema → Rust 源码。
+//! Schema → Rust source code.
 //!
-//! 这份 schema 是 ts-rs 从 Rust 类型生成的，因此它的形态天然对应 serde 的默认
-//! 序列化：内部判别的 `oneOf` 对应 `#[serde(tag = "…")]`，混合字符串/单键对象的
-//! `oneOf` 对应 serde 默认的 externally tagged enum。生成器就是把这个映射反过来走。
+//! This schema is generated from Rust types by ts-rs, so its shapes naturally map to
+//! Serde's default serialization: internally tagged `oneOf` maps to `#[serde(tag = "…")]`,
+//! while `oneOf` mixing strings and single-key objects maps to Serde's externally tagged
+//! enums. The generator applies this mapping in reverse.
 
 use crate::schema::{Schema, reference_name};
 use std::collections::{BTreeMap, BTreeSet};
 
-/// 待生成的内联类型：schema 里直接写在字段上、没有自己名字的 object。
+/// An inline type to generate: an object written directly on a schema field without its
+/// own name.
 pub struct Pending {
     pub name: String,
     pub schema: Schema,
 }
 
 pub struct Renderer {
-    /// 已经有名字的 definitions，用于判断 `$ref` 是否可解析。
+    /// Named definitions used to determine whether a `$ref` can be resolved.
     pub known: BTreeSet<String>,
-    /// 生成过程中派生出来的内联类型。
+    /// Inline types derived during generation.
     pub pending: Vec<Pending>,
-    /// 已经派生过的名字，避免重复生成。
+    /// Names already derived, to avoid generating them more than once.
     pub derived: BTreeSet<String>,
 }
 
@@ -31,7 +33,8 @@ impl Renderer {
         }
     }
 
-    /// 一个 schema 对应的 Rust 类型表达式。`hint` 用于给内联类型派生名字。
+    /// The Rust type expression corresponding to a schema. `hint` helps derive a name
+    /// for inline types.
     pub fn rust_type(&mut self, schema: &Schema, hint: &str) -> String {
         if let Some(reference) = &schema.reference {
             if let Some(name) = reference_name(reference)
@@ -48,7 +51,8 @@ impl Renderer {
             return self.rust_type(inner, hint);
         }
         if schema.any_of.is_some() || schema.one_of.is_some() {
-            // 有名字的联合类型走 definitions；这里是内联联合，给它派生一个类型。
+            // Named unions are handled through definitions; derive a type for this inline
+            // union.
             return self.derive(hint, schema);
         }
         if schema.is_nullable_scalar() {
@@ -89,7 +93,7 @@ impl Renderer {
         }
     }
 
-    /// 为一个内联 schema 派生具名类型，并排队等待生成。
+    /// Derive a named type for an inline schema and queue it for generation.
     fn derive(&mut self, hint: &str, schema: &Schema) -> String {
         let name = type_name(hint);
         if self.derived.insert(name.clone()) {
@@ -102,7 +106,7 @@ impl Renderer {
         name
     }
 
-    /// 生成一个具名类型的定义。
+    /// Generate a named type definition.
     pub fn definition(&mut self, name: &str, schema: &Schema) -> String {
         let name = type_name(name);
         let doc = doc_comment(schema.description.as_deref(), 0);
@@ -136,7 +140,7 @@ impl Renderer {
             }
             return self.structure(&name, schema, &doc);
         }
-        // 标量别名，例如 `AbsolutePathBuf = String`。
+        // Scalar alias, such as `AbsolutePathBuf = String`.
         let inner = self.rust_type(schema, &format!("{name}Inner"));
         format!("{doc}pub type {name} = {inner};\n")
     }
@@ -159,8 +163,8 @@ impl Renderer {
             }
             fields.push_str(&rendered);
         }
-        // 只有全部字段类型自带 Default 时才 derive：协议里大量字段是 enum，
-        // 给 enum 硬选一个默认变体是在编造语义。
+        // Derive Default only when every field type has one. Many protocol fields are
+        // enums, and choosing an arbitrary default variant would invent semantics.
         let derives = if types.iter().all(|ty| is_defaultable(ty)) {
             "Clone, Debug, Default, PartialEq, Serialize, Deserialize"
         } else {
@@ -187,7 +191,7 @@ impl Renderer {
         let rust_name = field_name(property);
         let doc = doc_comment(schema.description.as_deref(), 1);
         let mut attributes = format!("    #[serde(rename = \"{property}\")]\n");
-        // 可选字段序列化时省略，避免把一堆 null 发给服务端。
+        // Omit optional fields during serialization instead of sending many null values.
         if ty.starts_with("Option<") {
             attributes
                 .push_str("    #[serde(default, skip_serializing_if = \"Option::is_none\")]\n");
@@ -196,13 +200,13 @@ impl Renderer {
         format!("{doc}{attributes}    {visibility}{rust_name}: {ty},\n")
     }
 
-    /// `oneOf` 的三种形态。
+    /// The three supported `oneOf` shapes.
     fn union(&mut self, name: &str, variants: &[Schema], doc: &str) -> String {
         if let Some(tag) = discriminator(variants) {
             return self.internally_tagged(name, variants, &tag, doc);
         }
-        // serde 默认的 externally tagged 形态：字符串取值（可能一个变体里列了
-        // 好几个）与单键对象混在一起，例如 `"never" | {"granular": {…}}`。
+        // Serde's default externally tagged shape: string values (possibly several in a
+        // variant) mixed with single-key objects, such as `"never" | {"granular": {…}}`.
         if variants.iter().all(|variant| {
             variant.const_string().is_some()
                 || variant.string_enum().is_some()
@@ -249,7 +253,7 @@ impl Renderer {
                     &variant.required,
                     false,
                 );
-                // enum 变体里的字段要多缩进一层。
+                // Fields inside enum variants need one additional indentation level.
                 for line in rendered.lines() {
                     fields.push_str("    ");
                     fields.push_str(line);
@@ -279,7 +283,7 @@ impl Renderer {
                 ));
                 continue;
             }
-            // 一个变体里列了多个字符串取值：每个取值都是一个独立的 unit 变体。
+            // A variant with multiple string values becomes one unit variant per value.
             if let Some(values) = variant.string_enum() {
                 for value in values {
                     let variant_name = unique_variant(&mut used, pascal(&value));
@@ -324,7 +328,7 @@ impl Renderer {
     }
 }
 
-/// 全部变体共有、且取值都是单值字符串枚举的那个字段名。
+/// The field shared by every variant whose value is a single-value string enum.
 fn discriminator(variants: &[Schema]) -> Option<String> {
     let first = variants.first()?;
     let properties = first.properties.as_ref()?;
@@ -344,7 +348,7 @@ fn discriminator(variants: &[Schema]) -> Option<String> {
     None
 }
 
-/// 只有一个必填属性的 object，返回 (键, 值 schema)。
+/// Return the key and value schema for an object with exactly one required property.
 fn single_key(schema: &Schema) -> Option<(String, Schema)> {
     let properties = schema.properties.as_ref()?;
     if properties.len() != 1 {
@@ -360,7 +364,7 @@ fn string_enum(name: &str, values: &[String], doc: &str) -> String {
     for value in values {
         let variant = unique_variant(&mut used, pascal(value));
         body.push_str(&format!(
-            "    /// 判别值 `{value}`\n    #[serde(rename = \"{value}\")]\n    {variant},\n"
+            "    /// Variant tag `{value}`\n    #[serde(rename = \"{value}\")]\n    {variant},\n"
         ));
     }
     format!(
@@ -391,8 +395,9 @@ pub fn doc_comment(description: Option<&str>, indent: usize) -> String {
     description
         .lines()
         .map(|line| {
-            let line = line.trim().replace('\r', "");
-            // 空行写成 `///` 而不是 `/// `：尾随空格会让 rustfmt 每次都产生 diff。
+            let line = rustdoc_safe_description(&line.trim().replace('\r', ""));
+            // Emit `///` rather than `/// ` for blank lines; trailing whitespace would
+            // make rustfmt produce a diff every time.
             if line.is_empty() {
                 format!("{pad}///\n")
             } else {
@@ -402,7 +407,56 @@ pub fn doc_comment(description: Option<&str>, indent: usize) -> String {
         .collect()
 }
 
-/// 类型名：去掉 schema 里出现的 `/` 等字符，转成 PascalCase。
+fn rustdoc_safe_description(description: &str) -> String {
+    let mut plain = String::with_capacity(description.len());
+    let mut rest = description;
+    while let Some(open) = rest.find('[') {
+        plain.push_str(&rest[..open]);
+        let after_open = &rest[open + 1..];
+        let Some(close) = after_open.find(']') else {
+            plain.push_str(&rest[open..]);
+            rest = "";
+            break;
+        };
+        let label = &after_open[..close];
+        let after_close = &after_open[close + 1..];
+        if after_close.starts_with('(') {
+            plain.push_str(&rest[open..open + close + 2]);
+        } else {
+            plain.push('`');
+            plain.push_str(label);
+            plain.push('`');
+        }
+        rest = after_close;
+    }
+    plain.push_str(rest);
+
+    let mut linked = String::with_capacity(plain.len());
+    let mut rest = plain.as_str();
+    while let Some(start) = rest.find("https://") {
+        linked.push_str(&rest[..start]);
+        let end = rest[start..]
+            .find(char::is_whitespace)
+            .map_or(rest.len(), |offset| start + offset);
+        let mut url_end = end;
+        while url_end > start && matches!(rest.as_bytes()[url_end - 1], b'.' | b',' | b';' | b':') {
+            url_end -= 1;
+        }
+        if rest[..start].ends_with('<') {
+            linked.push_str(&rest[start..end]);
+        } else {
+            linked.push('<');
+            linked.push_str(&rest[start..url_end]);
+            linked.push('>');
+            linked.push_str(&rest[url_end..end]);
+        }
+        rest = &rest[end..];
+    }
+    linked.push_str(rest);
+    linked
+}
+
+/// Convert a schema type name to PascalCase, removing characters such as `/`.
 pub fn type_name(raw: &str) -> String {
     let cleaned = pascal(raw);
     if cleaned.is_empty() {
@@ -412,7 +466,7 @@ pub fn type_name(raw: &str) -> String {
     }
 }
 
-/// 把任意标识符转成 PascalCase。
+/// Convert an arbitrary identifier to PascalCase.
 pub fn pascal(raw: &str) -> String {
     let mut out = String::new();
     let mut upper_next = true;
@@ -434,7 +488,7 @@ pub fn pascal(raw: &str) -> String {
     out
 }
 
-/// 把 camelCase / snake_case 属性名转成合法的 Rust 字段名。
+/// Convert a camelCase or snake_case property name to a valid Rust field name.
 pub fn field_name(raw: &str) -> String {
     let mut out = String::new();
     let mut previous_lower = false;
@@ -474,10 +528,11 @@ fn escape_keyword(name: &str) -> String {
     }
 }
 
-/// 这个 Rust 类型表达式是否自带 `Default`。
+/// Whether this Rust type expression has a known `Default` implementation.
 ///
-/// 只认标准库里确定有 Default 的形状；具名类型（可能是 enum）一律当作没有，
-/// 宁可少 derive 一个 Default，也不要生成编译不过的代码。
+/// Recognize only shapes that are guaranteed to implement `Default` in the standard
+/// library. Treat named types (which may be enums) as non-defaultable; omitting a derive
+/// is safer than generating code that does not compile.
 fn is_defaultable(ty: &str) -> bool {
     const SCALARS: &[&str] = &[
         "String",
@@ -502,11 +557,11 @@ fn is_defaultable(ty: &str) -> bool {
         || ty.starts_with("std::collections::BTreeMap<")
 }
 
-/// 变体名去重。
+/// Deduplicate variant names.
 ///
-/// 协议里确实存在 PascalCase 之后会撞名的判别值（例如 `openai/form` 与
-/// `openaiForm` 是两个不同的取值）。撞名时追加序号——真实取值由 `#[serde(rename)]`
-/// 保留，不会因为改名而错。
+/// Protocol tags can collide after PascalCase conversion (for example, `openai/form` and
+/// `openaiForm` are distinct values). Append a numeric suffix on collision; the original
+/// value remains in `#[serde(rename)]`.
 fn unique_variant(used: &mut BTreeSet<String>, base: String) -> String {
     if used.insert(base.clone()) {
         return base;
@@ -520,11 +575,12 @@ fn unique_variant(used: &mut BTreeSet<String>, base: String) -> String {
     base
 }
 
-/// untagged 变体的名字。
+/// Name an untagged enum variant.
 ///
-/// 按承载的类型取名而不是 `Variant0`/`Variant1`：协议里「一个或一组」这种
-/// `anyOf: [T, [T]]` 很常见（例如 `thread/list` 的 cwd 过滤），生成成
-/// `Variant0(String)` 调用方根本没法读，只能绕回 JSON 去构造。
+/// Name variants after their contained types instead of `Variant0`/`Variant1`. The
+/// protocol often uses `anyOf: [T, [T]]` for "one or many" values (for example, the cwd
+/// filter in `thread/list`); `Variant0(String)` would be difficult for callers to use
+/// without constructing raw JSON.
 fn untagged_name(ty: &str, index: usize) -> String {
     let ty = ty.trim();
     if let Some(item) = ty

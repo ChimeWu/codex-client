@@ -1,7 +1,8 @@
-//! JSON Schema 的最小模型。
+//! Minimal JSON Schema model.
 //!
-//! 只覆盖 `codex app-server generate-json-schema` 实际产出的构造——它是 ts-rs
-//! 从 Rust 类型生成的，形态有限且规整，因此不需要一个完整的 JSON Schema 实现。
+//! Covers only the shapes emitted by `codex app-server generate-json-schema`. They are
+//! generated from Rust types by ts-rs and are regular enough that a full JSON Schema
+//! implementation is unnecessary.
 
 use serde::Deserialize;
 use serde_json::Value;
@@ -12,7 +13,7 @@ use std::collections::BTreeMap;
 pub struct Schema {
     #[serde(rename = "$ref")]
     pub reference: Option<String>,
-    /// 可以是 `"string"`，也可以是 `["string","null"]`。
+    /// Either `"string"` or `["string", "null"]`.
     #[serde(rename = "type")]
     pub ty: Option<Value>,
     pub properties: Option<BTreeMap<String, Schema>>,
@@ -24,7 +25,7 @@ pub struct Schema {
     pub one_of: Option<Vec<Schema>>,
     pub any_of: Option<Vec<Schema>>,
     pub all_of: Option<Vec<Schema>>,
-    /// `false`、`true` 或一个子 schema。
+    /// `false`, `true`, or a nested schema.
     pub additional_properties: Option<Value>,
     pub format: Option<String>,
     pub description: Option<String>,
@@ -34,7 +35,7 @@ pub struct Schema {
 }
 
 impl Schema {
-    /// `type` 字段里出现的全部类型名。
+    /// All type names listed in the `type` field.
     pub fn types(&self) -> Vec<String> {
         match &self.ty {
             Some(Value::String(one)) => vec![one.clone()],
@@ -50,18 +51,18 @@ impl Schema {
         self.types().iter().any(|ty| ty == name)
     }
 
-    /// `type: ["string","null"]` 这种可空写法。
+    /// Nullable form such as `type: ["string", "null"]`.
     pub fn is_nullable_scalar(&self) -> bool {
         let types = self.types();
         types.len() > 1 && types.iter().any(|ty| ty == "null")
     }
 
-    /// 去掉 null 之后剩下的唯一类型。
+    /// The sole type remaining after removing `null`.
     pub fn non_null_type(&self) -> Option<String> {
         self.types().into_iter().find(|ty| ty != "null")
     }
 
-    /// `anyOf: [T, null]` 这种可空写法，返回 T。
+    /// Return `T` from a nullable form such as `anyOf: [T, null]`.
     pub fn nullable_inner(&self) -> Option<&Schema> {
         let variants = self.any_of.as_ref()?;
         if variants.len() != 2 {
@@ -74,7 +75,7 @@ impl Schema {
         variants.iter().find(|variant| !variant.is_type("null"))
     }
 
-    /// `allOf: [T]`——ts-rs 用它给一个 `$ref` 挂上 description/default。
+    /// `allOf: [T]`; ts-rs uses this to attach a description or default to a `$ref`.
     pub fn single_all_of(&self) -> Option<&Schema> {
         match self.all_of.as_deref() {
             Some([only]) => Some(only),
@@ -82,7 +83,7 @@ impl Schema {
         }
     }
 
-    /// 单值字符串枚举（判别式），返回那个值。
+    /// Return the value of a single-value string enum (a discriminator).
     pub fn const_string(&self) -> Option<String> {
         match self.enumeration.as_deref() {
             Some([Value::String(only)]) => Some(only.clone()),
@@ -90,7 +91,7 @@ impl Schema {
         }
     }
 
-    /// 全部取值都是字符串的枚举。
+    /// An enum whose values are all strings.
     pub fn string_enum(&self) -> Option<Vec<String>> {
         let values = self.enumeration.as_ref()?;
         if values.len() < 2 && self.const_string().is_some() {
@@ -113,7 +114,7 @@ impl Schema {
     }
 }
 
-/// 把 `#/definitions/Foo` 解析成 `Foo`。
+/// Resolve `#/definitions/Foo` to `Foo`.
 pub fn reference_name(reference: &str) -> Option<&str> {
     reference.strip_prefix("#/definitions/")
 }

@@ -1,8 +1,8 @@
-//! 纯协议序列化与真实 daemon 集成测试。
+//! Protocol serialization tests and real-daemon integration tests.
 //!
-//! 真实 daemon 测试标记为 `#[ignore]`，要求管理员预先运行 daemon；测试自身绝不启动或停止它。
-//! 运行时设置 `CODEX_APP_SERVER_ENDPOINT=unix:///…/app-server-control.sock`，
-//! 可选 `CODEX_APP_SERVER_TEST_CWD` 指定工作目录。
+//! Real-daemon tests are marked `#[ignore]` and require a daemon managed by the caller.
+//! Tests never start or stop it. Set `CODEX_APP_SERVER_ENDPOINT=unix:///…/app-server-control.sock`;
+//! optionally use `CODEX_APP_SERVER_TEST_CWD` to select the working directory.
 
 use crate::client::AppServerClient;
 use crate::client::inbound::{GlobalMessage, ThreadMessage};
@@ -18,7 +18,7 @@ use serde_json::Value;
 use uuid::Uuid;
 
 fn text_input(text: &str) -> UserInput {
-    serde_json::from_value(serde_json::json!({"type": "text", "text": text})).expect("文本输入")
+    serde_json::from_value(serde_json::json!({"type": "text", "text": text})).expect("text input")
 }
 
 fn start_params(cwd: &str) -> ThreadStartParams {
@@ -111,10 +111,11 @@ fn daemon_test_cwd() -> String {
     })
 }
 
-/// 无参方法的参数类型是我们凭空造的 unit struct；可空 params 仍必须能序列化成 `null`。
+/// Parameter types for nullary methods are generated unit structs; nullable params must
+/// still serialize as `null`.
 ///
-/// 它们此前是 `type Params = ()`；换成 unit struct 是为了让 `Request` 能实现在
-/// 参数类型上（7 个方法没法共用 `()`），线上字节不该跟着变。
+/// They used to be `type Params = ()`. Unit structs let `Request` be implemented on the
+/// parameter type (seven methods cannot share `()`), without changing the wire format.
 #[test]
 fn nullary_params_serialize_to_null() {
     assert_eq!(
@@ -135,10 +136,11 @@ fn nullary_params_serialize_to_null() {
     );
 }
 
-/// 可空 params 在真实 daemon 上仍然可以用 `null` 调用。
+/// Verify that a real daemon accepts `null` for nullable params.
 ///
-/// 单测只能证明 unit struct 序列化成 `null`，证明不了服务端吃这一口。挑
-/// `account/rateLimits/read` 是因为它只读、无副作用、不消耗额度。
+/// A unit test proves only that the unit struct serializes to `null`, not that the server
+/// accepts it. `account/rateLimits/read` is read-only, has no side effects, and consumes
+/// no quota.
 #[tokio::test]
 #[ignore = "requires an administrator-managed Codex daemon"]
 async fn real_daemon_accepts_nullary_params() {
@@ -193,16 +195,16 @@ async fn real_daemon_turn_start_completes() -> Result<()> {
         .await?;
     let (status, usage) = wait_for_real_turn(handle).await?;
     assert_eq!(status, TurnStatus::Completed);
-    // 真实 daemon 一定会推送用量；拿不到说明解析又回到了错误的字段上。
-    let usage = usage.context("真实 turn 必须报告用量")?;
+    // The real daemon always pushes usage; a missing value means parsing regressed.
+    let usage = usage.context("a real turn must report usage")?;
     assert!(usage.total.total_tokens > 0);
     assert!(
         usage.model_context_window.is_some(),
-        "真实 turn 必须报告 modelContextWindow"
+        "a real turn must report modelContextWindow"
     );
 
-    // 新连接必须先 resume（订阅）已持久化的 thread，再启动下一次 turn，
-    // 才能确保收到该 thread 的通知。
+    // A new connection must resume (subscribe to) a persisted thread before starting
+    // another turn to receive notifications for that thread.
     let resumed = AppServerClient::builder(endpoint).build();
     let (_, resumed_handle) = resumed
         .resume_thread(ThreadResumeParams {
@@ -266,7 +268,8 @@ async fn real_daemon_approval_is_pushed_to_turn_connection() -> Result<()> {
                 drop(reply);
             }
         }
-        // actor 会跨临时断线保留 route；提前关闭说明无法恢复。
+        // The actor retains routes across transient disconnects; an early close means
+        // the route could not be restored.
         anyhow::bail!("message stream closed before approval probe completed")
     })
     .await
@@ -303,7 +306,8 @@ async fn real_daemon_turn_can_be_interrupted() -> Result<()> {
         .await?;
     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
-    // 另一条连接、手上没有句柄：先加入这条 thread，再发中断。
+    // This separate connection has no receiver handle: join the thread before sending
+    // the interrupt.
     let control = AppServerClient::builder(endpoint.clone()).build();
     control
         .subscribe(ThreadResumeParams {
@@ -366,8 +370,8 @@ async fn real_daemon_resumed_thread_switches_to_auto_review() -> Result<()> {
         probe.display()
     );
     let resumed = AppServerClient::builder(endpoint).build();
-    // 新连接、新 reviewer：resume 必须带上 auto_review 与它的 approvalPolicy，
-    // 否则 thread 会沿用创建时的那一套。
+    // A new connection with a new reviewer must resume with auto_review and its matching
+    // approvalPolicy; otherwise the thread keeps the original settings.
     let (_, mut handle) = resumed
         .resume_thread(ThreadResumeParams {
             thread_id: thread.thread.id.clone(),
@@ -396,7 +400,8 @@ async fn real_daemon_resumed_thread_switches_to_auto_review() -> Result<()> {
                     drop(reply);
                 }
             }
-            // actor 会跨临时断线保留 route；提前关闭说明无法恢复。
+            // The actor retains routes across transient disconnects; an early close means
+            // the route could not be restored.
             anyhow::bail!("message stream closed before auto-review probe completed")
         })
         .await

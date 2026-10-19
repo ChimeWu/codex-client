@@ -1,33 +1,35 @@
 # AGENTS.md
 
-## 项目定位
+[Chinese (Simplified)](docs/zh-CN/AGENTS.md)
 
-`codex-client-cw` 是 Codex App Server 的通用 Rust 客户端 crate。它通过 Unix domain socket 上的 WebSocket 连接到**已经运行**的 App Server；不负责启动、停止或监管 daemon，也不包含 Telegram 等产品层逻辑。
+## Project scope
 
-客户端提供通用 JSON-RPC 调用、thread 消息流和协议类型。审批策略、沙箱策略、消息展示以及哪些能力对终端用户开放，均由调用方决定。修改时应保持这个边界，不要把应用特定的产品决策放进 crate。
+`codex-client-cw` is a general-purpose Rust client for the Codex App Server. It connects over a WebSocket on a Unix domain socket to an **already-running** App Server. It does not start, stop, or supervise the daemon, and it contains no Telegram or other product-specific logic.
 
-## 主要目录
+The client provides generic JSON-RPC calls, thread message streams, and protocol types. Callers own approval and sandbox policy, message presentation, and decisions about which capabilities to expose. Keep those product decisions out of this crate.
 
-- `src/client/`：客户端 actor、连接管理、请求和事件路由。
-- `src/generated/`：由 App Server JSON Schema 生成并纳入版本控制的协议类型和协议表面清单。
-- `src/bin/protocol-codegen/`：协议类型生成器。
-- `src/tests.rs`：序列化单测和需要真实 daemon 的忽略测试。
-- `docs/protocol-codegen.md`：协议升级与代码生成的权威维护说明。
-- `.agents/skills/protocol-codegen/`：Codex 的协议升级 skill。
+## Repository layout
 
-## 开发约定
+- `src/client/`: client actor, connection management, request handling, and event routing.
+- `src/generated/`: checked-in protocol types and protocol surface inventory generated from the App Server JSON Schema.
+- `src/bin/protocol-codegen/`: protocol type generator.
+- `src/tests.rs`: serialization tests and ignored tests that require a real daemon.
+- `docs/protocol-codegen.md`: authoritative guide to protocol upgrades and code generation.
+- `.agents/skills/protocol-codegen/`: Codex skill for protocol maintenance.
 
-- 遵循 Rust 2024 edition 和 `Cargo.toml` 中声明的 MSRV（1.85）。
-- 协议类型以 `src/generated/` 中的生成结果为准。升级协议或调整生成器前，先读 `docs/protocol-codegen.md`；不要手工编辑生成文件来修补生成结果。
-- 改动协议生成结果时，检查 `src/generated/SURFACE.md` 和 Rust 类型文件的 diff，留意方法、响应类型及字段变化。
-- 保持依赖和实现聚焦在客户端职责；新增依赖前确认标准库或现有依赖无法满足需求。
-- 不添加 fake App Server、fake-server 测试支持或公开的 `testing` feature。默认测试不得依赖正在运行的 Codex daemon。
-- 真实 daemon 测试必须保持 `#[ignore]`，仅连接调用者预先运行的 daemon；测试本身不得启动或停止 daemon。
-- 文档和注释使用简体中文；API 名称、协议方法名和代码标识符保持原样。
+## Development guidelines
 
-## 验证命令
+- Follow Rust 2024 and the MSRV declared in `Cargo.toml` (1.85).
+- Treat `src/generated/` as generated output. Read `docs/protocol-codegen.md` before changing the schema or generator; do not hand-edit generated files to patch generation results.
+- When protocol output changes, review `src/generated/SURFACE.md` and the Rust type diffs for method, response, and field changes.
+- Keep dependencies and implementation focused on the client role. Check whether the standard library or an existing dependency is sufficient before adding a dependency.
+- Do not add a fake App Server, fake-server test support, or a public `testing` feature. Default tests must not require a running Codex daemon.
+- Keep real-daemon tests marked `#[ignore]`. They may connect only to a daemon started by the caller; tests must never start or stop it.
+- Write project documentation, source comments, and log messages in English. Preserve API names, protocol method names, and identifiers.
 
-按改动范围运行验证；纯文档改动无需运行 Rust 测试。
+## Validation commands
+
+Run checks appropriate to the change. Rust tests are not required for documentation-only changes.
 
 ```sh
 cargo fmt --all -- --check
@@ -36,10 +38,10 @@ cargo test
 cargo clippy --all-targets --all-features -- -D warnings
 ```
 
-`cargo test` 运行默认测试，不会运行真实 daemon 测试。需要手动验证真实 daemon 时，先设置 `CODEX_APP_SERVER_ENDPOINT`，再显式运行：
+`cargo test` does not run the ignored real-daemon tests. To validate against a real daemon, set `CODEX_APP_SERVER_ENDPOINT` and explicitly run:
 
 ```sh
 cargo test real_daemon_ -- --ignored --nocapture
 ```
 
-这些集成测试需要真实环境并可能消耗额度；不要在常规自动验证中解除忽略标记或自动启动 daemon。
+These integration tests require a real environment and may consume quota. Do not unignore them in routine automated checks or start a daemon automatically.
