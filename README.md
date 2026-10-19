@@ -195,7 +195,7 @@ cargo test --all-features
 cargo test
 ```
 
-fake server 测试在临时 Unix socket 上跑完整握手，不需要任何外部依赖。注意 fake 响应必须写全必填字段：类型化的客户端会拒绝残缺的响应，这是有意的。
+纯单测覆盖无参方法参数的序列化；连接行为由需要真实 daemon 的集成测试验证，这些测试默认忽略且不会启动或停止 daemon。
 
 需要真实 daemon 的测试默认 `#[ignore]`，会消耗额度：
 

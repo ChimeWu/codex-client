@@ -47,7 +47,7 @@ export CODEX_APP_SERVER_ENDPOINT="unix://$HOME/.codex/app-server-control/app-ser
 cargo test real_daemon_ -- --ignored --nocapture
 ```
 
-第 6 步很关键：fake server 测试只能证明客户端**自洽**，证明不了生成的类型能吃下真实服务端返回的完整响应。历史上每次协议改动都是这一步先炸。
+第 6 步很关键：生成的类型需要对照真实 daemon 的完整响应验证。纯单测无法代替真实服务端验证。
 
 生成器写完每个 `.rs` 会自己调 `rustfmt`，生成物永远是 fmt 干净的——重新生成后的 diff 只包含真正的协议变化，不会混进格式噪音。找不到 `rustfmt` 时它会警告并继续，那种情况下记得手动 `cargo fmt`。
 
@@ -134,8 +134,8 @@ Error: `a/method` 与 `b/method` 共用参数类型 `SharedParams`，无法各�
 codex 改了某个类型的形状（而不只是新增）时：
 
 1. `SURFACE.md` 的 diff 会显示参数/响应类型名变化，但**字段变化不会显示**——务必也看 `types.rs` 的 diff。
-2. 检查本 crate 的编译错误与 fake 测试；再检查各个下游适配层和真实 daemon 测试。
-3. fake 测试数据会开始报 `missing field 'xxx'`。**这是好事**：类型化在强制假数据符合真实形状。照着新的必填字段补，不要图省事把字段改成 `Option`。
+2. 检查本 crate 的编译错误；再检查各个下游适配层和真实 daemon 测试。
+3. 下游测试 fixture 可能会报 `missing field 'xxx'`。**这是好事**：类型化在强制测试数据符合真实形状。照着新的必填字段补，不要图省事把字段改成 `Option`。
 4. 真实 daemon 测试是最终裁判。
 
 如果某个变化让适配层没法保持现有行为（例如审批决定的词汇变了），那是一次需要写 ADR 的改动，不要在适配层悄悄兼容过去。

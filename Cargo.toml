@@ -17,11 +17,6 @@ path = "src/lib.rs"
 name = "protocol-codegen"
 path = "src/bin/protocol-codegen/main.rs"
 
-[features]
-# 可脚本化的 fake App Server。建立在本客户端之上的应用用它测自己的逻辑，
-# 不需要真实 daemon，也不消耗额度。
-testing = []
-
 [dependencies]
 anyhow = "1"
 futures-util = "0.3"

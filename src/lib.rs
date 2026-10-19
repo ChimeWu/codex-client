@@ -206,9 +206,6 @@ pub mod generated;
 mod envelope;
 mod protocol;
 
-#[cfg(feature = "testing")]
-pub mod testing;
-
 #[cfg(test)]
 mod tests;
 
