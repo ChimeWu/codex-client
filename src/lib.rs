@@ -1,8 +1,8 @@
 //! Codex App Server 的 Rust 客户端。
 //!
 //! 通过 Unix domain socket 上的 WebSocket 连接到一个**已经在运行**的 App
-//! Server，覆盖协议的全部表面：99 个客户端请求、81 种服务端通知、10 种服务端
-//! 请求，以及它们用到的 680 多个数据类型——全部由
+//! Server，覆盖协议的全部表面：105 个客户端请求、85 种服务端通知、10 种服务端
+//! 请求，以及它们用到的 724 个数据类型——全部由
 //! `codex app-server generate-json-schema` 的产物生成，见 [`generated`]。
 //!
 //! # 两层 API
@@ -192,7 +192,7 @@
 //!
 //! # 版本
 //!
-//! 生成自 codex 0.153.0 的 schema，对 app-server 0.150.1 与 0.153.0 实测通过。
+//! 由 codex-cli 0.163.0 的 schema 生成，对 app-server 0.163.0 实测通过。
 //! 协议演进时解析不了的入站消息会作为 [`GlobalMessage::Unparsed`]/
 //! [`ThreadMessage::Unparsed`] 原样交出，不会让连接失败；重新生成见
 //! `src/bin/protocol-codegen/`，维护说明见 `docs/protocol-codegen.md`。

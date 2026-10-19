@@ -1,6 +1,6 @@
 # codex-client-cw
 
-Codex App Server 的 Rust 客户端。覆盖协议的**全部**表面：99 个客户端请求、81 种服务端通知、10 种服务端请求，以及它们用到的 680 多个数据类型——全部由 `codex app-server generate-json-schema` 的产物生成。
+Codex App Server 的 Rust 客户端。覆盖协议的**全部**表面：105 个客户端请求、85 种服务端通知、10 种服务端请求，以及它们用到的 724 个数据类型——全部由 `codex app-server generate-json-schema` 的产物生成。
 
 本 crate 从一个 Telegram 应用项目中独立抽取，不依赖 Telegram 或任何特定业务概念，可以单独使用。
 
@@ -79,7 +79,7 @@ let _turn = client
 
 while let Some(message) = handle.recv().await {
     match message {
-        // 通知原样交出，81 种一视同仁。哪几种重要是你的产品判断。
+        // 通知原样交出，85 种一视同仁。哪几种重要是你的产品判断。
         ThreadMessage::Notification(notification) => match *notification {
             ThreadNotification::ItemAgentMessageDelta(payload) => print!("{}", payload.delta),
             ThreadNotification::TurnCompleted(payload) => {
@@ -171,9 +171,9 @@ client.request(TurnInterruptParams { thread_id, turn_id }).await?;
 
 `src/generated/` 下的文件由本 crate 的 `protocol-codegen` bin 从 JSON Schema 生成，已 check-in——使用本 crate 不需要装 codex CLI，也不在构建期跑代码生成。
 
-- `types.rs`：全部数据类型（约 680 个）
-- `methods.rs`：99 个客户端请求的 `Request` 实现（实现在各自的参数类型上；无参方法的参数类型也在这里）
-- `events.rs`：`ServerNotification`（81 种）与 `ServerRequest`（10 种）
+- `types.rs`：全部数据类型（724 个）
+- `methods.rs`：105 个客户端请求的 `Request` 实现（实现在各自的参数类型上；无参方法的参数类型也在这里）
+- `events.rs`：`ServerNotification`（85 种）与 `ServerRequest`（10 种）
 - `SURFACE.md`：协议表面清单，**专门用来 diff**——codex 升级后重新生成，`git diff` 它就能一眼看出方法级变化
 
 codex 升级后重新生成：
@@ -209,7 +209,7 @@ cargo test real_daemon_ -- --ignored --nocapture
 
 ## 版本
 
-类型生成自 codex **0.153.0** 的 schema；对 app-server **0.150.1** 与 **0.153.0** 实测通过。
+类型由 codex-cli **0.163.0** 的 schema 生成；对 app-server **0.163.0** 实测通过。
 
 ## 许可
 

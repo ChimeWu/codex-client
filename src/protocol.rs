@@ -143,6 +143,8 @@ pub enum ThreadNotification {
     ThreadStarted(ThreadStartedNotification),
     #[serde(rename = "thread/status/changed")]
     ThreadStatusChanged(ThreadStatusChangedNotification),
+    #[serde(rename = "thread/readState/changed")]
+    ThreadReadStateChanged(ThreadReadStateChangedNotification),
     #[serde(rename = "thread/archived")]
     ThreadArchived(ThreadArchivedNotification),
     #[serde(rename = "thread/deleted")]
@@ -159,6 +161,8 @@ pub enum ThreadNotification {
     ThreadNameUpdated(ThreadNameUpdatedNotification),
     #[serde(rename = "thread/goal/updated")]
     ThreadGoalUpdated(ThreadGoalUpdatedNotification),
+    #[serde(rename = "thread/prediction/updated")]
+    ThreadPredictionUpdated(ThreadPredictionUpdatedNotification),
     #[serde(rename = "thread/goal/cleared")]
     ThreadGoalCleared(ThreadGoalClearedNotification),
     #[serde(rename = "thread/queue/changed")]
@@ -303,6 +307,13 @@ pub(crate) fn split_notification(notification: ServerNotification) -> Notificati
                 notification: ThreadNotification::ThreadStatusChanged(p),
             }
         }
+        ServerNotification::ThreadReadStateChanged(p) => {
+            let thread_id = p.thread_id.clone();
+            NotificationScope::Thread {
+                thread_id,
+                notification: ThreadNotification::ThreadReadStateChanged(p),
+            }
+        }
         ServerNotification::ThreadArchived(p) => {
             let thread_id = p.thread_id.clone();
             NotificationScope::Thread {
@@ -360,6 +371,13 @@ pub(crate) fn split_notification(notification: ServerNotification) -> Notificati
             NotificationScope::Thread {
                 thread_id,
                 notification: ThreadNotification::ThreadGoalUpdated(p),
+            }
+        }
+        ServerNotification::ThreadPredictionUpdated(p) => {
+            let thread_id = p.thread_id.clone();
+            NotificationScope::Thread {
+                thread_id,
+                notification: ThreadNotification::ThreadPredictionUpdated(p),
             }
         }
         ServerNotification::ThreadGoalCleared(p) => {

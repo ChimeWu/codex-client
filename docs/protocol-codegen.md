@@ -86,7 +86,7 @@ schema 是 codex 用 [ts-rs](https://github.com/Aleph-Alpha/ts-rs) 从它自己�
 
 ### 响应类型推断
 
-schema 导出了所有类型，但**没有导出「哪个请求配哪个响应」**。生成器按 `XxxParams → XxxResponse` 的命名约定推断，推断不出来的写在 `main.rs` 的 `RESPONSE_OVERRIDES` 表里（当前 10 条，多为无参请求，例如 `account/logout → LogoutAccountResponse`）。
+schema 导出了所有类型，但**没有导出「哪个请求配哪个响应」**。生成器按 `XxxParams → XxxResponse` 的命名约定推断，推断不出来的写在 `main.rs` 的 `RESPONSE_OVERRIDES` 表里（当前 13 条，多为无参请求，例如 `account/logout → LogoutAccountResponse`）。
 
 生成时会打印推断不出来的方法：
 

@@ -3,10 +3,10 @@
 由 protocol-codegen 生成，请勿手工修改。**这个文件是用来 diff 的**：
 codex 升级后重新生成，`git diff` 它就能看出协议的方法级变化。
 
-- 客户端请求：104 个
-- 服务端通知：83 个
+- 客户端请求：105 个
+- 服务端通知：85 个
 - 服务端请求：10 个
-- 数据类型：709 个
+- 数据类型：724 个
 
 ## 客户端请求
 
@@ -26,6 +26,7 @@ codex 升级后重新生成，`git diff` 它就能看出协议的方法级变化
 | `thread/metadata/update` | `ThreadMetadataUpdateParams` | `ThreadMetadataUpdateResponse` |
 | `thread/attachment/add` | `ThreadAttachmentAddParams` | `ThreadAttachmentAddResponse` |
 | `thread/attachment/list` | `ThreadAttachmentListParams` | `ThreadAttachmentListResponse` |
+| `thread/attachmentOwner/list` | `ThreadAttachmentOwnerListParams` | `ThreadAttachmentOwnerListResponse` |
 | `thread/attachment/remove` | `ThreadAttachmentRemoveParams` | `ThreadAttachmentRemoveResponse` |
 | `thread/section/move` | `ThreadSectionMoveParams` | `ThreadSectionMoveResponse` |
 | `thread/unarchive` | `ThreadUnarchiveParams` | `ThreadUnarchiveResponse` |
@@ -124,6 +125,7 @@ codex 升级后重新生成，`git diff` 它就能看出协议的方法级变化
 | `error` | `ErrorNotification` |
 | `thread/started` | `ThreadStartedNotification` |
 | `thread/status/changed` | `ThreadStatusChangedNotification` |
+| `thread/readState/changed` | `ThreadReadStateChangedNotification` |
 | `thread/archived` | `ThreadArchivedNotification` |
 | `thread/deleted` | `ThreadDeletedNotification` |
 | `thread/unarchived` | `ThreadUnarchivedNotification` |
@@ -133,6 +135,7 @@ codex 升级后重新生成，`git diff` 它就能看出协议的方法级变化
 | `thread/name/updated` | `ThreadNameUpdatedNotification` |
 | `thread/attachment/updated` | `ThreadAttachmentUpdatedNotification` |
 | `thread/goal/updated` | `ThreadGoalUpdatedNotification` |
+| `thread/prediction/updated` | `ThreadPredictionUpdatedNotification` |
 | `thread/goal/cleared` | `ThreadGoalClearedNotification` |
 | `thread/queue/changed` | `ThreadQueueChangedNotification` |
 | `project/changed` | `ProjectChangedNotification` |
@@ -286,6 +289,7 @@ codex 升级后重新生成，`git diff` 它就能看出协议的方法级变化
 - `AutoReviewRequirements`
 - `BrowserUseAccessApprovalLifetime`
 - `BrowserUseConfig`
+- `BrowserUseExtensionRequirements`
 - `BrowserUseOriginPolicy`
 - `BrowserUseOriginPolicyConfig`
 - `BrowserUseRequirements`
@@ -370,6 +374,7 @@ codex 升级后重新生成，`git diff` 它就能看出协议的方法级变化
 - `DynamicToolNamespaceTool`
 - `DynamicToolSpec`
 - `EnvironmentConnectionNotification`
+- `EnvironmentSkillsParams`
 - `ErrorNotification`
 - `ExecCommandApprovalParams`
 - `ExecCommandApprovalResponse`
@@ -705,6 +710,7 @@ codex 升级后重新生成，`git diff` 它就能看出协议的方法级变化
 - `RemoteControlDisableParams`
 - `RemoteControlEnableParams`
 - `RemoteControlStatusChangedNotification`
+- `RequestHeader`
 - `RequestId`
 - `RequestPermissionProfile`
 - `ResidencyRequirement`
@@ -774,6 +780,9 @@ codex 升级后重新生成，`git diff` 它就能看出协议的方法级变化
 - `ThreadAttachmentListParams`
 - `ThreadAttachmentListResponse`
 - `ThreadAttachmentOperation`
+- `ThreadAttachmentOwner`
+- `ThreadAttachmentOwnerListParams`
+- `ThreadAttachmentOwnerListResponse`
 - `ThreadAttachmentRemoveParams`
 - `ThreadAttachmentRemoveResponse`
 - `ThreadAttachmentUpdatedNotification`
@@ -793,6 +802,7 @@ codex 升级后重新生成，`git diff` 它就能看出协议的方法级变化
 - `ThreadGoalClearedNotification`
 - `ThreadGoalGetParams`
 - `ThreadGoalGetResponse`
+- `ThreadGoalMutationOrigin`
 - `ThreadGoalSetParams`
 - `ThreadGoalSetResponse`
 - `ThreadGoalStatus`
@@ -803,6 +813,8 @@ codex 升级后重新生成，`git diff` 它就能看出协议的方法级变化
 - `ThreadInjectItemsResponse`
 - `ThreadItem`
 - `ThreadItemEntry`
+- `ThreadItemsListAnchor`
+- `ThreadItemsListCursor`
 - `ThreadItemsListParams`
 - `ThreadItemsListResponse`
 - `ThreadListCwdFilter`
@@ -815,10 +827,15 @@ codex 升级后重新生成，`git diff` 它就能看出协议的方法级变化
 - `ThreadMetadataUpdateParams`
 - `ThreadMetadataUpdateResponse`
 - `ThreadNameUpdatedNotification`
+- `ThreadPredictionResult`
+- `ThreadPredictionUpdatedNotification`
 - `ThreadProjectUpdatedNotification`
 - `ThreadQueueChangedNotification`
 - `ThreadReadParams`
 - `ThreadReadResponse`
+- `ThreadReadState`
+- `ThreadReadStateChangedNotification`
+- `ThreadReadStateOperation`
 - `ThreadRealtimeAudioChunk`
 - `ThreadRealtimeBemItemPresentation`
 - `ThreadRealtimeClosedNotification`
@@ -878,6 +895,7 @@ codex 升级后重新生成，`git diff` 它就能看出协议的方法级变化
 - `ThreadUnarchiveParams`
 - `ThreadUnarchiveResponse`
 - `ThreadUnarchivedNotification`
+- `ThreadUnreadPosition`
 - `ThreadUnsubscribeParams`
 - `ThreadUnsubscribeResponse`
 - `ThreadUnsubscribeStatus`

@@ -733,7 +733,7 @@ impl Actor {
         let tagged = tagged(method, params);
         match parse_notification(&tagged) {
             // 属于某个 thread 的通知分给它认领的路由，其余走全局流。**不做
-            // 归纳**：81 种通知一视同仁地原样交出，挑哪几种重要是调用方的判断。
+            // 归纳**：85 种通知一视同仁地原样交出，挑哪几种重要是调用方的判断。
             Some(notification) => match split_notification(notification) {
                 NotificationScope::Thread {
                     thread_id,

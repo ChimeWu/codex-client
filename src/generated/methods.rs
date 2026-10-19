@@ -5,7 +5,7 @@
 
 //! 每个客户端请求的参数类型与它对应的方法名、响应类型。
 //!
-//! 共 104 个方法：
+//! 共 105 个方法：
 //!
 //! - `initialize` → [`InitializeParams`]
 //! - `thread/start` → [`ThreadStartParams`]
@@ -21,6 +21,7 @@
 //! - `thread/metadata/update` → [`ThreadMetadataUpdateParams`]
 //! - `thread/attachment/add` → [`ThreadAttachmentAddParams`]
 //! - `thread/attachment/list` → [`ThreadAttachmentListParams`]
+//! - `thread/attachmentOwner/list` → [`ThreadAttachmentOwnerListParams`]
 //! - `thread/attachment/remove` → [`ThreadAttachmentRemoveParams`]
 //! - `thread/section/move` → [`ThreadSectionMoveParams`]
 //! - `thread/unarchive` → [`ThreadUnarchiveParams`]
@@ -209,6 +210,12 @@ impl Request for ThreadAttachmentAddParams {
 impl Request for ThreadAttachmentListParams {
     const METHOD: &'static str = "thread/attachment/list";
     type Response = ThreadAttachmentListResponse;
+}
+
+/// `thread/attachmentOwner/list`
+impl Request for ThreadAttachmentOwnerListParams {
+    const METHOD: &'static str = "thread/attachmentOwner/list";
+    type Response = ThreadAttachmentOwnerListResponse;
 }
 
 /// `thread/attachment/remove`

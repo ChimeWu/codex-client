@@ -23,6 +23,8 @@ pub enum ServerNotification {
     ThreadStarted(ThreadStartedNotification),
     #[serde(rename = "thread/status/changed")]
     ThreadStatusChanged(ThreadStatusChangedNotification),
+    #[serde(rename = "thread/readState/changed")]
+    ThreadReadStateChanged(ThreadReadStateChangedNotification),
     #[serde(rename = "thread/archived")]
     ThreadArchived(ThreadArchivedNotification),
     #[serde(rename = "thread/deleted")]
@@ -41,6 +43,8 @@ pub enum ServerNotification {
     ThreadAttachmentUpdated(ThreadAttachmentUpdatedNotification),
     #[serde(rename = "thread/goal/updated")]
     ThreadGoalUpdated(ThreadGoalUpdatedNotification),
+    #[serde(rename = "thread/prediction/updated")]
+    ThreadPredictionUpdated(ThreadPredictionUpdatedNotification),
     #[serde(rename = "thread/goal/cleared")]
     ThreadGoalCleared(ThreadGoalClearedNotification),
     #[serde(rename = "thread/queue/changed")]
