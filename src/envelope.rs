@@ -1,12 +1,4 @@
-//! JSON-RPC envelopes: four inbound shapes and four outbound shapes.
-//!
-//! Mirrors the Codex repository's `JSONRPCMessage`. Requests, notifications, responses,
-//! and errors are **direction-independent**: a server request has the same shape as a
-//! client request, and a reply to a server request has the same shape as a server reply.
-//!
-//! This is the **only** place in the crate that assembles and disassembles these shapes.
-//! Do not construct `json!({"id": .., "method": ..})` elsewhere: every handwritten
-//! envelope would be a protocol implementation without compile-time checks.
+//! JSON-RPC message envelopes used to send requests and decode server messages.
 
 use crate::generated::types::RequestId;
 use serde::{Deserialize, Serialize};
@@ -17,28 +9,25 @@ pub(crate) const METHOD_NOT_SUPPORTED: i64 = -32601;
 /// JSON-RPC "internal error" code.
 pub(crate) const INTERNAL_ERROR: i64 = -32603;
 
-/// An inbound message.
+/// An inbound JSON-RPC message.
 ///
-/// Variant order is the matching priority for this untagged enum: responses require
-/// `result`, errors require `error`, requests require `id` and `method`, and anything else
-/// is a notification. If none match, deserialization fails and the caller passes the
-/// message through as unparsed rather than terminating the connection.
+/// Unrecognized shapes are preserved by the caller as raw JSON rather than closing the
+/// connection.
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub(crate) enum Incoming {
-    /// A request we sent received a successful response.
+    /// A successful response to a client request.
     Response { id: RequestId, result: Value },
-    /// A request we sent was rejected by the server.
+    /// An error response to a client request.
     Error { id: RequestId, error: ErrorObject },
-    /// A request initiated by the server. **It must be answered**, or the server waits
-    /// indefinitely.
+    /// A request initiated by the server. It requires a response.
     Request {
         id: RequestId,
         method: String,
         #[serde(default)]
         params: Value,
     },
-    /// A server notification that requires no reply.
+    /// A server notification, which requires no response.
     Notification {
         method: String,
         #[serde(default)]
@@ -88,10 +77,7 @@ impl ErrorObject {
     }
 }
 
-/// A reply to a server request.
-///
-/// `Error` is for requests this client **cannot** answer on its own. Fabricating a result
-/// would give the server false data; an explicit error is the honest response.
+/// A response to a server-initiated request.
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum Reply {
     Result(Value),
@@ -99,12 +85,7 @@ pub(crate) enum Reply {
 }
 
 impl Reply {
-    /// Construct a successful reply from a generated response type.
-    ///
-    /// **The only entry point for constructing replies**: the schema determines their
-    /// shape instead of handwritten `json!`. Generated response types have no maps with
-    /// non-string keys, so serialization should not fail. If it does, the server still
-    /// needs a reply or it will wait indefinitely.
+    /// Serialize a generated response type into a successful reply.
     pub(crate) fn ok<R: Serialize>(response: R) -> Self {
         match serde_json::to_value(response) {
             Ok(result) => Self::Result(result),

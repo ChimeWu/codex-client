@@ -541,7 +541,8 @@ fn surface(
     )
 }
 
-/// `thread/start` → `ThreadStart`，`item/agentMessage/delta` → `ItemAgentMessageDelta`。
+/// For example, `thread/start` maps to `ThreadStart` and
+/// `item/agentMessage/delta` maps to `ItemAgentMessageDelta`.
 fn method_type_name(method: &str) -> String {
     method.split('/').map(pascal).collect::<Vec<_>>().join("")
 }

@@ -364,7 +364,7 @@ fn string_enum(name: &str, values: &[String], doc: &str) -> String {
     for value in values {
         let variant = unique_variant(&mut used, pascal(value));
         body.push_str(&format!(
-            "    /// Variant tag `{value}`\n    #[serde(rename = \"{value}\")]\n    {variant},\n"
+            "    /// Serializes as `{value}`.\n    #[serde(rename = \"{value}\")]\n    {variant},\n"
         ));
     }
     format!(

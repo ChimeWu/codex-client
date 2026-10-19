@@ -62,13 +62,13 @@ pub struct AccountRateLimitsUpdatedNotification {
 /// Backend routing policy. Wire values match the accounts/check contract.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AccountRoutingOverride {
-    /// Variant tag `NO_CONSTRAINT`
+    /// Serializes as `NO_CONSTRAINT`.
     #[serde(rename = "NO_CONSTRAINT")]
     NOCONSTRAINT,
-    /// Variant tag `us`
+    /// Serializes as `us`.
     #[serde(rename = "us")]
     Us,
-    /// Variant tag `us_cr`
+    /// Serializes as `us_cr`.
     #[serde(rename = "us_cr")]
     UsCr,
 }
@@ -123,20 +123,20 @@ pub struct ActivePermissionProfile {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AddCreditsNudgeCreditType {
-    /// Variant tag `credits`
+    /// Serializes as `credits`.
     #[serde(rename = "credits")]
     Credits,
-    /// Variant tag `usage_limit`
+    /// Serializes as `usage_limit`.
     #[serde(rename = "usage_limit")]
     UsageLimit,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AddCreditsNudgeEmailStatus {
-    /// Variant tag `sent`
+    /// Serializes as `sent`.
     #[serde(rename = "sent")]
     Sent,
-    /// Variant tag `cooldown_active`
+    /// Serializes as `cooldown_active`.
     #[serde(rename = "cooldown_active")]
     CooldownActive,
 }
@@ -151,10 +151,10 @@ pub struct AdditionalContextEntry {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AdditionalContextKind {
-    /// Variant tag `untrusted`
+    /// Serializes as `untrusted`.
     #[serde(rename = "untrusted")]
     Untrusted,
-    /// Variant tag `application`
+    /// Serializes as `application`.
     #[serde(rename = "application")]
     Application,
 }
@@ -228,10 +228,10 @@ pub type AgentPath = String;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AllowDenyRequirement {
-    /// Variant tag `allow`
+    /// Serializes as `allow`.
     #[serde(rename = "allow")]
     Allow,
-    /// Variant tag `deny`
+    /// Serializes as `deny`.
     #[serde(rename = "deny")]
     Deny,
 }
@@ -472,26 +472,26 @@ pub struct AppTemplateSummary {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AppTemplateUnavailableReason {
-    /// Variant tag `NOT_CONFIGURED_FOR_WORKSPACE`
+    /// Serializes as `NOT_CONFIGURED_FOR_WORKSPACE`.
     #[serde(rename = "NOT_CONFIGURED_FOR_WORKSPACE")]
     NOTCONFIGUREDFORWORKSPACE,
-    /// Variant tag `NO_ACTIVE_WORKSPACE`
+    /// Serializes as `NO_ACTIVE_WORKSPACE`.
     #[serde(rename = "NO_ACTIVE_WORKSPACE")]
     NOACTIVEWORKSPACE,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AppToolApproval {
-    /// Variant tag `auto`
+    /// Serializes as `auto`.
     #[serde(rename = "auto")]
     Auto,
-    /// Variant tag `prompt`
+    /// Serializes as `prompt`.
     #[serde(rename = "prompt")]
     Prompt,
-    /// Variant tag `writes`
+    /// Serializes as `writes`.
     #[serde(rename = "writes")]
     Writes,
-    /// Variant tag `approve`
+    /// Serializes as `approve`.
     #[serde(rename = "approve")]
     Approve,
 }
@@ -574,13 +574,13 @@ pub struct ApplyPatchApprovalResponse {
 /// Configures who approval requests are routed to for review. Examples include sandbox escapes, blocked network access, MCP approval prompts, and ARC escalations. Defaults to `user`. `auto_review` uses a carefully prompted subagent to gather relevant context and apply a risk-based decision framework before approving or denying the request. The legacy value `guardian_subagent` is accepted for compatibility.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ApprovalsReviewer {
-    /// Variant tag `user`
+    /// Serializes as `user`.
     #[serde(rename = "user")]
     User,
-    /// Variant tag `auto_review`
+    /// Serializes as `auto_review`.
     #[serde(rename = "auto_review")]
     AutoReview,
-    /// Variant tag `guardian_subagent`
+    /// Serializes as `guardian_subagent`.
     #[serde(rename = "guardian_subagent")]
     GuardianSubagent,
 }
@@ -788,10 +788,10 @@ pub struct AutoReviewRequirements {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserUseAccessApprovalLifetime {
-    /// Variant tag `turn`
+    /// Serializes as `turn`.
     #[serde(rename = "turn")]
     Turn,
-    /// Variant tag `thread`
+    /// Serializes as `thread`.
     #[serde(rename = "thread")]
     Thread,
 }
@@ -904,10 +904,10 @@ pub struct CancelLoginAccountResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CancelLoginAccountStatus {
-    /// Variant tag `canceled`
+    /// Serializes as `canceled`.
     #[serde(rename = "canceled")]
     Canceled,
-    /// Variant tag `notFound`
+    /// Serializes as `notFound`.
     #[serde(rename = "notFound")]
     NotFound,
 }
@@ -961,16 +961,16 @@ pub struct ChatgptAuthTokensRefreshResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CliAuthCredentialsStoreMode {
-    /// Variant tag `file`
+    /// Serializes as `file`.
     #[serde(rename = "file")]
     File,
-    /// Variant tag `keyring`
+    /// Serializes as `keyring`.
     #[serde(rename = "keyring")]
     Keyring,
-    /// Variant tag `auto`
+    /// Serializes as `auto`.
     #[serde(rename = "auto")]
     Auto,
-    /// Variant tag `ephemeral`
+    /// Serializes as `ephemeral`.
     #[serde(rename = "ephemeral")]
     Ephemeral,
 }
@@ -1768,13 +1768,13 @@ pub enum CodexErrorInfo {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CodexResponseHandoffMode {
-    /// Variant tag `thinking`
+    /// Serializes as `thinking`.
     #[serde(rename = "thinking")]
     Thinking,
-    /// Variant tag `commentary`
+    /// Serializes as `commentary`.
     #[serde(rename = "commentary")]
     Commentary,
-    /// Variant tag `bemTags`
+    /// Serializes as `bemTags`.
     #[serde(rename = "bemTags")]
     BemTags,
 }
@@ -1790,72 +1790,72 @@ pub struct CollabAgentState {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CollabAgentStatus {
-    /// Variant tag `pendingInit`
+    /// Serializes as `pendingInit`.
     #[serde(rename = "pendingInit")]
     PendingInit,
-    /// Variant tag `running`
+    /// Serializes as `running`.
     #[serde(rename = "running")]
     Running,
-    /// Variant tag `interrupted`
+    /// Serializes as `interrupted`.
     #[serde(rename = "interrupted")]
     Interrupted,
-    /// Variant tag `completed`
+    /// Serializes as `completed`.
     #[serde(rename = "completed")]
     Completed,
-    /// Variant tag `errored`
+    /// Serializes as `errored`.
     #[serde(rename = "errored")]
     Errored,
-    /// Variant tag `shutdown`
+    /// Serializes as `shutdown`.
     #[serde(rename = "shutdown")]
     Shutdown,
-    /// Variant tag `notFound`
+    /// Serializes as `notFound`.
     #[serde(rename = "notFound")]
     NotFound,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CollabAgentTool {
-    /// Variant tag `spawnAgent`
+    /// Serializes as `spawnAgent`.
     #[serde(rename = "spawnAgent")]
     SpawnAgent,
-    /// Variant tag `sendInput`
+    /// Serializes as `sendInput`.
     #[serde(rename = "sendInput")]
     SendInput,
-    /// Variant tag `resumeAgent`
+    /// Serializes as `resumeAgent`.
     #[serde(rename = "resumeAgent")]
     ResumeAgent,
-    /// Variant tag `wait`
+    /// Serializes as `wait`.
     #[serde(rename = "wait")]
     Wait,
-    /// Variant tag `closeAgent`
+    /// Serializes as `closeAgent`.
     #[serde(rename = "closeAgent")]
     CloseAgent,
-    /// Variant tag `sendMessage`
+    /// Serializes as `sendMessage`.
     #[serde(rename = "sendMessage")]
     SendMessage,
-    /// Variant tag `followupTask`
+    /// Serializes as `followupTask`.
     #[serde(rename = "followupTask")]
     FollowupTask,
-    /// Variant tag `interruptAgent`
+    /// Serializes as `interruptAgent`.
     #[serde(rename = "interruptAgent")]
     InterruptAgent,
-    /// Variant tag `listAgents`
+    /// Serializes as `listAgents`.
     #[serde(rename = "listAgents")]
     ListAgents,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CollabAgentToolCallStatus {
-    /// Variant tag `inProgress`
+    /// Serializes as `inProgress`.
     #[serde(rename = "inProgress")]
     InProgress,
-    /// Variant tag `completed`
+    /// Serializes as `completed`.
     #[serde(rename = "completed")]
     Completed,
-    /// Variant tag `failed`
+    /// Serializes as `failed`.
     #[serde(rename = "failed")]
     Failed,
-    /// Variant tag `interrupted`
+    /// Serializes as `interrupted`.
     #[serde(rename = "interrupted")]
     Interrupted,
 }
@@ -2116,10 +2116,10 @@ pub enum CommandExecutionApprovalDecision {
 /// Distinguishes a command approval from input sent to an existing terminal.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CommandExecutionApprovalKind {
-    /// Variant tag `command`
+    /// Serializes as `command`.
     #[serde(rename = "command")]
     Command,
-    /// Variant tag `writeStdin`
+    /// Serializes as `writeStdin`.
     #[serde(rename = "writeStdin")]
     WriteStdin,
 }
@@ -2201,32 +2201,32 @@ pub struct CommandExecutionRequestApprovalResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CommandExecutionSource {
-    /// Variant tag `agent`
+    /// Serializes as `agent`.
     #[serde(rename = "agent")]
     Agent,
-    /// Variant tag `userShell`
+    /// Serializes as `userShell`.
     #[serde(rename = "userShell")]
     UserShell,
-    /// Variant tag `unifiedExecStartup`
+    /// Serializes as `unifiedExecStartup`.
     #[serde(rename = "unifiedExecStartup")]
     UnifiedExecStartup,
-    /// Variant tag `unifiedExecInteraction`
+    /// Serializes as `unifiedExecInteraction`.
     #[serde(rename = "unifiedExecInteraction")]
     UnifiedExecInteraction,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CommandExecutionStatus {
-    /// Variant tag `inProgress`
+    /// Serializes as `inProgress`.
     #[serde(rename = "inProgress")]
     InProgress,
-    /// Variant tag `completed`
+    /// Serializes as `completed`.
     #[serde(rename = "completed")]
     Completed,
-    /// Variant tag `failed`
+    /// Serializes as `failed`.
     #[serde(rename = "failed")]
     Failed,
-    /// Variant tag `declined`
+    /// Serializes as `declined`.
     #[serde(rename = "declined")]
     Declined,
 }
@@ -2866,13 +2866,13 @@ pub struct ContextCompactedNotification {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConversationTextRole {
-    /// Variant tag `user`
+    /// Serializes as `user`.
     #[serde(rename = "user")]
     User,
-    /// Variant tag `developer`
+    /// Serializes as `developer`.
     #[serde(rename = "developer")]
     Developer,
-    /// Variant tag `assistant`
+    /// Serializes as `assistant`.
     #[serde(rename = "assistant")]
     Assistant,
 }
@@ -2891,13 +2891,13 @@ pub struct CreditsSnapshot {
 /// Requested cyber treatment for an OpenAI model turn. Authorization and model-tier restrictions remain server-owned.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CyberAccessProgram {
-    /// Variant tag `standard`
+    /// Serializes as `standard`.
     #[serde(rename = "standard")]
     Standard,
-    /// Variant tag `daybreakBlue`
+    /// Serializes as `daybreakBlue`.
     #[serde(rename = "daybreakBlue")]
     DaybreakBlue,
-    /// Variant tag `daybreakRed`
+    /// Serializes as `daybreakRed`.
     #[serde(rename = "daybreakRed")]
     DaybreakRed,
 }
@@ -2962,13 +2962,13 @@ pub struct DynamicToolCallResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DynamicToolCallStatus {
-    /// Variant tag `inProgress`
+    /// Serializes as `inProgress`.
     #[serde(rename = "inProgress")]
     InProgress,
-    /// Variant tag `completed`
+    /// Serializes as `completed`.
     #[serde(rename = "completed")]
     Completed,
-    /// Variant tag `failed`
+    /// Serializes as `failed`.
     #[serde(rename = "failed")]
     Failed,
 }
@@ -3374,34 +3374,34 @@ pub struct ExternalAgentConfigMigrationItem {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ExternalAgentConfigMigrationItemType {
-    /// Variant tag `AGENTS_MD`
+    /// Serializes as `AGENTS_MD`.
     #[serde(rename = "AGENTS_MD")]
     AGENTSMD,
-    /// Variant tag `CONFIG`
+    /// Serializes as `CONFIG`.
     #[serde(rename = "CONFIG")]
     CONFIG,
-    /// Variant tag `SKILLS`
+    /// Serializes as `SKILLS`.
     #[serde(rename = "SKILLS")]
     SKILLS,
-    /// Variant tag `PLUGINS`
+    /// Serializes as `PLUGINS`.
     #[serde(rename = "PLUGINS")]
     PLUGINS,
-    /// Variant tag `MCP_SERVER_CONFIG`
+    /// Serializes as `MCP_SERVER_CONFIG`.
     #[serde(rename = "MCP_SERVER_CONFIG")]
     MCPSERVERCONFIG,
-    /// Variant tag `SUBAGENTS`
+    /// Serializes as `SUBAGENTS`.
     #[serde(rename = "SUBAGENTS")]
     SUBAGENTS,
-    /// Variant tag `HOOKS`
+    /// Serializes as `HOOKS`.
     #[serde(rename = "HOOKS")]
     HOOKS,
-    /// Variant tag `COMMANDS`
+    /// Serializes as `COMMANDS`.
     #[serde(rename = "COMMANDS")]
     COMMANDS,
-    /// Variant tag `MEMORY`
+    /// Serializes as `MEMORY`.
     #[serde(rename = "MEMORY")]
     MEMORY,
-    /// Variant tag `SESSIONS`
+    /// Serializes as `SESSIONS`.
     #[serde(rename = "SESSIONS")]
     SESSIONS,
 }
@@ -3418,10 +3418,10 @@ pub struct ExternalAgentDetectedConnectorCandidate {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ExternalAgentDetectedConnectorSource {
-    /// Variant tag `remoteMcpServersConfig`
+    /// Serializes as `remoteMcpServersConfig`.
     #[serde(rename = "remoteMcpServersConfig")]
     RemoteMcpServersConfig,
-    /// Variant tag `sessionToolUse`
+    /// Serializes as `sessionToolUse`.
     #[serde(rename = "sessionToolUse")]
     SessionToolUse,
 }
@@ -3571,13 +3571,13 @@ pub struct FileChangeRequestApprovalResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FileSystemAccessMode {
-    /// Variant tag `read`
+    /// Serializes as `read`.
     #[serde(rename = "read")]
     Read,
-    /// Variant tag `write`
+    /// Serializes as `write`.
     #[serde(rename = "write")]
     Write,
-    /// Variant tag `deny`
+    /// Serializes as `deny`.
     #[serde(rename = "deny")]
     Deny,
 }
@@ -3657,10 +3657,10 @@ pub enum ForcedChatgptWorkspaceIds {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ForcedLoginMethod {
-    /// Variant tag `chatgpt`
+    /// Serializes as `chatgpt`.
     #[serde(rename = "chatgpt")]
     Chatgpt,
-    /// Variant tag `api`
+    /// Serializes as `api`.
     #[serde(rename = "api")]
     Api,
 }
@@ -3887,10 +3887,10 @@ pub enum FunctionCallOutputContentItem {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FuzzyFileSearchMatchType {
-    /// Variant tag `file`
+    /// Serializes as `file`.
     #[serde(rename = "file")]
     File,
-    /// Variant tag `directory`
+    /// Serializes as `directory`.
     #[serde(rename = "directory")]
     Directory,
 }
@@ -3988,16 +3988,16 @@ pub struct GatewayOAuthReadResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GatewayOAuthStatus {
-    /// Variant tag `notReady`
+    /// Serializes as `notReady`.
     #[serde(rename = "notReady")]
     NotReady,
-    /// Variant tag `started`
+    /// Serializes as `started`.
     #[serde(rename = "started")]
     Started,
-    /// Variant tag `succeeded`
+    /// Serializes as `succeeded`.
     #[serde(rename = "succeeded")]
     Succeeded,
-    /// Variant tag `failed`
+    /// Serializes as `failed`.
     #[serde(rename = "failed")]
     Failed,
 }
@@ -4212,29 +4212,29 @@ pub enum GuardianApprovalReviewAction {
 /// `UNSTABLE` Lifecycle state for an approval auto-review.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GuardianApprovalReviewStatus {
-    /// Variant tag `inProgress`
+    /// Serializes as `inProgress`.
     #[serde(rename = "inProgress")]
     InProgress,
-    /// Variant tag `approved`
+    /// Serializes as `approved`.
     #[serde(rename = "approved")]
     Approved,
-    /// Variant tag `denied`
+    /// Serializes as `denied`.
     #[serde(rename = "denied")]
     Denied,
-    /// Variant tag `timedOut`
+    /// Serializes as `timedOut`.
     #[serde(rename = "timedOut")]
     TimedOut,
-    /// Variant tag `aborted`
+    /// Serializes as `aborted`.
     #[serde(rename = "aborted")]
     Aborted,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GuardianCommandSource {
-    /// Variant tag `shell`
+    /// Serializes as `shell`.
     #[serde(rename = "shell")]
     Shell,
-    /// Variant tag `unifiedExec`
+    /// Serializes as `unifiedExec`.
     #[serde(rename = "unifiedExec")]
     UnifiedExec,
 }
@@ -4242,16 +4242,16 @@ pub enum GuardianCommandSource {
 /// `UNSTABLE` Risk level assigned by approval auto-review.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GuardianRiskLevel {
-    /// Variant tag `low`
+    /// Serializes as `low`.
     #[serde(rename = "low")]
     Low,
-    /// Variant tag `medium`
+    /// Serializes as `medium`.
     #[serde(rename = "medium")]
     Medium,
-    /// Variant tag `high`
+    /// Serializes as `high`.
     #[serde(rename = "high")]
     High,
-    /// Variant tag `critical`
+    /// Serializes as `critical`.
     #[serde(rename = "critical")]
     Critical,
 }
@@ -4259,16 +4259,16 @@ pub enum GuardianRiskLevel {
 /// `UNSTABLE` Authorization level assigned by approval auto-review.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GuardianUserAuthorization {
-    /// Variant tag `unknown`
+    /// Serializes as `unknown`.
     #[serde(rename = "unknown")]
     Unknown,
-    /// Variant tag `low`
+    /// Serializes as `low`.
     #[serde(rename = "low")]
     Low,
-    /// Variant tag `medium`
+    /// Serializes as `medium`.
     #[serde(rename = "medium")]
     Medium,
-    /// Variant tag `high`
+    /// Serializes as `high`.
     #[serde(rename = "high")]
     High,
 }
@@ -4304,66 +4304,66 @@ pub struct HookErrorInfo {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HookEventName {
-    /// Variant tag `preToolUse`
+    /// Serializes as `preToolUse`.
     #[serde(rename = "preToolUse")]
     PreToolUse,
-    /// Variant tag `permissionRequest`
+    /// Serializes as `permissionRequest`.
     #[serde(rename = "permissionRequest")]
     PermissionRequest,
-    /// Variant tag `postToolUse`
+    /// Serializes as `postToolUse`.
     #[serde(rename = "postToolUse")]
     PostToolUse,
-    /// Variant tag `preCompact`
+    /// Serializes as `preCompact`.
     #[serde(rename = "preCompact")]
     PreCompact,
-    /// Variant tag `postCompact`
+    /// Serializes as `postCompact`.
     #[serde(rename = "postCompact")]
     PostCompact,
-    /// Variant tag `sessionStart`
+    /// Serializes as `sessionStart`.
     #[serde(rename = "sessionStart")]
     SessionStart,
-    /// Variant tag `sessionEnd`
+    /// Serializes as `sessionEnd`.
     #[serde(rename = "sessionEnd")]
     SessionEnd,
-    /// Variant tag `userPromptSubmit`
+    /// Serializes as `userPromptSubmit`.
     #[serde(rename = "userPromptSubmit")]
     UserPromptSubmit,
-    /// Variant tag `subagentStart`
+    /// Serializes as `subagentStart`.
     #[serde(rename = "subagentStart")]
     SubagentStart,
-    /// Variant tag `subagentStop`
+    /// Serializes as `subagentStop`.
     #[serde(rename = "subagentStop")]
     SubagentStop,
-    /// Variant tag `stop`
+    /// Serializes as `stop`.
     #[serde(rename = "stop")]
     Stop,
-    /// Variant tag `interrupt`
+    /// Serializes as `interrupt`.
     #[serde(rename = "interrupt")]
     Interrupt,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HookExecutionMode {
-    /// Variant tag `sync`
+    /// Serializes as `sync`.
     #[serde(rename = "sync")]
     Sync,
-    /// Variant tag `async`
+    /// Serializes as `async`.
     #[serde(rename = "async")]
     Async,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HookHandlerType {
-    /// Variant tag `command`
+    /// Serializes as `command`.
     #[serde(rename = "command")]
     Command,
-    /// Variant tag `mcpTool`
+    /// Serializes as `mcpTool`.
     #[serde(rename = "mcpTool")]
     McpTool,
-    /// Variant tag `prompt`
+    /// Serializes as `prompt`.
     #[serde(rename = "prompt")]
     Prompt,
-    /// Variant tag `agent`
+    /// Serializes as `agent`.
     #[serde(rename = "agent")]
     Agent,
 }
@@ -4408,19 +4408,19 @@ pub struct HookOutputEntry {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HookOutputEntryKind {
-    /// Variant tag `warning`
+    /// Serializes as `warning`.
     #[serde(rename = "warning")]
     Warning,
-    /// Variant tag `stop`
+    /// Serializes as `stop`.
     #[serde(rename = "stop")]
     Stop,
-    /// Variant tag `feedback`
+    /// Serializes as `feedback`.
     #[serde(rename = "feedback")]
     Feedback,
-    /// Variant tag `context`
+    /// Serializes as `context`.
     #[serde(rename = "context")]
     Context,
-    /// Variant tag `error`
+    /// Serializes as `error`.
     #[serde(rename = "error")]
     Error,
 }
@@ -4435,19 +4435,19 @@ pub struct HookPromptFragment {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HookRunStatus {
-    /// Variant tag `running`
+    /// Serializes as `running`.
     #[serde(rename = "running")]
     Running,
-    /// Variant tag `completed`
+    /// Serializes as `completed`.
     #[serde(rename = "completed")]
     Completed,
-    /// Variant tag `failed`
+    /// Serializes as `failed`.
     #[serde(rename = "failed")]
     Failed,
-    /// Variant tag `blocked`
+    /// Serializes as `blocked`.
     #[serde(rename = "blocked")]
     Blocked,
-    /// Variant tag `stopped`
+    /// Serializes as `stopped`.
     #[serde(rename = "stopped")]
     Stopped,
 }
@@ -4490,47 +4490,47 @@ pub struct HookRunSummary {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HookScope {
-    /// Variant tag `thread`
+    /// Serializes as `thread`.
     #[serde(rename = "thread")]
     Thread,
-    /// Variant tag `turn`
+    /// Serializes as `turn`.
     #[serde(rename = "turn")]
     Turn,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HookSource {
-    /// Variant tag `system`
+    /// Serializes as `system`.
     #[serde(rename = "system")]
     System,
-    /// Variant tag `user`
+    /// Serializes as `user`.
     #[serde(rename = "user")]
     User,
-    /// Variant tag `project`
+    /// Serializes as `project`.
     #[serde(rename = "project")]
     Project,
-    /// Variant tag `mdm`
+    /// Serializes as `mdm`.
     #[serde(rename = "mdm")]
     Mdm,
-    /// Variant tag `sessionFlags`
+    /// Serializes as `sessionFlags`.
     #[serde(rename = "sessionFlags")]
     SessionFlags,
-    /// Variant tag `plugin`
+    /// Serializes as `plugin`.
     #[serde(rename = "plugin")]
     Plugin,
-    /// Variant tag `cloudRequirements`
+    /// Serializes as `cloudRequirements`.
     #[serde(rename = "cloudRequirements")]
     CloudRequirements,
-    /// Variant tag `cloudManagedConfig`
+    /// Serializes as `cloudManagedConfig`.
     #[serde(rename = "cloudManagedConfig")]
     CloudManagedConfig,
-    /// Variant tag `legacyManagedConfigFile`
+    /// Serializes as `legacyManagedConfigFile`.
     #[serde(rename = "legacyManagedConfigFile")]
     LegacyManagedConfigFile,
-    /// Variant tag `legacyManagedConfigMdm`
+    /// Serializes as `legacyManagedConfigMdm`.
     #[serde(rename = "legacyManagedConfigMdm")]
     LegacyManagedConfigMdm,
-    /// Variant tag `unknown`
+    /// Serializes as `unknown`.
     #[serde(rename = "unknown")]
     Unknown,
 }
@@ -4548,16 +4548,16 @@ pub struct HookStartedNotification {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HookTrustStatus {
-    /// Variant tag `managed`
+    /// Serializes as `managed`.
     #[serde(rename = "managed")]
     Managed,
-    /// Variant tag `untrusted`
+    /// Serializes as `untrusted`.
     #[serde(rename = "untrusted")]
     Untrusted,
-    /// Variant tag `trusted`
+    /// Serializes as `trusted`.
     #[serde(rename = "trusted")]
     Trusted,
-    /// Variant tag `modified`
+    /// Serializes as `modified`.
     #[serde(rename = "modified")]
     Modified,
 }
@@ -4590,16 +4590,16 @@ pub struct HooksListResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ImageDetail {
-    /// Variant tag `auto`
+    /// Serializes as `auto`.
     #[serde(rename = "auto")]
     Auto,
-    /// Variant tag `low`
+    /// Serializes as `low`.
     #[serde(rename = "low")]
     Low,
-    /// Variant tag `high`
+    /// Serializes as `high`.
     #[serde(rename = "high")]
     High,
-    /// Variant tag `original`
+    /// Serializes as `original`.
     #[serde(rename = "original")]
     Original,
 }
@@ -4929,13 +4929,13 @@ pub enum LocalShellAction {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LocalShellStatus {
-    /// Variant tag `completed`
+    /// Serializes as `completed`.
     #[serde(rename = "completed")]
     Completed,
-    /// Variant tag `in_progress`
+    /// Serializes as `in_progress`.
     #[serde(rename = "in_progress")]
     InProgress,
-    /// Variant tag `incomplete`
+    /// Serializes as `incomplete`.
     #[serde(rename = "incomplete")]
     Incomplete,
 }
@@ -5033,10 +5033,10 @@ pub enum LoginAccountResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LoginAppBrand {
-    /// Variant tag `codex`
+    /// Serializes as `codex`.
     #[serde(rename = "codex")]
     Codex,
-    /// Variant tag `chatgpt`
+    /// Serializes as `chatgpt`.
     #[serde(rename = "chatgpt")]
     Chatgpt,
 }
@@ -5159,10 +5159,10 @@ pub struct MarketplaceUpgradeResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum McpAppDisplayMode {
-    /// Variant tag `inline`
+    /// Serializes as `inline`.
     #[serde(rename = "inline")]
     Inline,
-    /// Variant tag `fullscreen`
+    /// Serializes as `fullscreen`.
     #[serde(rename = "fullscreen")]
     Fullscreen,
 }
@@ -5178,19 +5178,19 @@ pub struct McpAppUi {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum McpAuthStatus {
-    /// Variant tag `unknown`
+    /// Serializes as `unknown`.
     #[serde(rename = "unknown")]
     Unknown,
-    /// Variant tag `unsupported`
+    /// Serializes as `unsupported`.
     #[serde(rename = "unsupported")]
     Unsupported,
-    /// Variant tag `notLoggedIn`
+    /// Serializes as `notLoggedIn`.
     #[serde(rename = "notLoggedIn")]
     NotLoggedIn,
-    /// Variant tag `bearerToken`
+    /// Serializes as `bearerToken`.
     #[serde(rename = "bearerToken")]
     BearerToken,
-    /// Variant tag `oAuth`
+    /// Serializes as `oAuth`.
     #[serde(rename = "oAuth")]
     OAuth,
 }
@@ -5280,10 +5280,10 @@ pub struct McpElicitationNumberSchema {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum McpElicitationNumberType {
-    /// Variant tag `number`
+    /// Serializes as `number`.
     #[serde(rename = "number")]
     Number,
-    /// Variant tag `integer`
+    /// Serializes as `integer`.
     #[serde(rename = "integer")]
     Integer,
 }
@@ -5325,16 +5325,16 @@ pub enum McpElicitationSingleSelectEnumSchema {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum McpElicitationStringFormat {
-    /// Variant tag `email`
+    /// Serializes as `email`.
     #[serde(rename = "email")]
     Email,
-    /// Variant tag `uri`
+    /// Serializes as `uri`.
     #[serde(rename = "uri")]
     Uri,
-    /// Variant tag `date`
+    /// Serializes as `date`.
     #[serde(rename = "date")]
     Date,
-    /// Variant tag `date-time`
+    /// Serializes as `date-time`.
     #[serde(rename = "date-time")]
     DateTime,
 }
@@ -5503,38 +5503,38 @@ pub struct McpResourceReadTarget {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum McpServerConnectionStatus {
-    /// Variant tag `notStarted`
+    /// Serializes as `notStarted`.
     #[serde(rename = "notStarted")]
     NotStarted,
-    /// Variant tag `starting`
+    /// Serializes as `starting`.
     #[serde(rename = "starting")]
     Starting,
-    /// Variant tag `connected`
+    /// Serializes as `connected`.
     #[serde(rename = "connected")]
     Connected,
-    /// Variant tag `authenticationRequired`
+    /// Serializes as `authenticationRequired`.
     #[serde(rename = "authenticationRequired")]
     AuthenticationRequired,
-    /// Variant tag `failed`
+    /// Serializes as `failed`.
     #[serde(rename = "failed")]
     Failed,
-    /// Variant tag `cancelled`
+    /// Serializes as `cancelled`.
     #[serde(rename = "cancelled")]
     Cancelled,
-    /// Variant tag `disabled`
+    /// Serializes as `disabled`.
     #[serde(rename = "disabled")]
     Disabled,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum McpServerElicitationAction {
-    /// Variant tag `accept`
+    /// Serializes as `accept`.
     #[serde(rename = "accept")]
     Accept,
-    /// Variant tag `decline`
+    /// Serializes as `decline`.
     #[serde(rename = "decline")]
     Decline,
-    /// Variant tag `cancel`
+    /// Serializes as `cancel`.
     #[serde(rename = "cancel")]
     Cancel,
 }
@@ -5647,13 +5647,13 @@ pub struct McpServerMigration {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum McpServerOauthClientRegistration {
-    /// Variant tag `auto`
+    /// Serializes as `auto`.
     #[serde(rename = "auto")]
     Auto,
-    /// Variant tag `cimd`
+    /// Serializes as `cimd`.
     #[serde(rename = "cimd")]
     Cimd,
-    /// Variant tag `dcr`
+    /// Serializes as `dcr`.
     #[serde(rename = "dcr")]
     Dcr,
 }
@@ -5712,16 +5712,16 @@ pub type McpServerStartupFailureReason = String;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum McpServerStartupState {
-    /// Variant tag `starting`
+    /// Serializes as `starting`.
     #[serde(rename = "starting")]
     Starting,
-    /// Variant tag `ready`
+    /// Serializes as `ready`.
     #[serde(rename = "ready")]
     Ready,
-    /// Variant tag `failed`
+    /// Serializes as `failed`.
     #[serde(rename = "failed")]
     Failed,
-    /// Variant tag `cancelled`
+    /// Serializes as `cancelled`.
     #[serde(rename = "cancelled")]
     Cancelled,
 }
@@ -5764,10 +5764,10 @@ pub struct McpServerStatus {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum McpServerStatusDetail {
-    /// Variant tag `full`
+    /// Serializes as `full`.
     #[serde(rename = "full")]
     Full,
-    /// Variant tag `toolsAndAuthOnly`
+    /// Serializes as `toolsAndAuthOnly`.
     #[serde(rename = "toolsAndAuthOnly")]
     ToolsAndAuthOnly,
 }
@@ -5870,13 +5870,13 @@ pub struct McpToolCallResult {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum McpToolCallStatus {
-    /// Variant tag `inProgress`
+    /// Serializes as `inProgress`.
     #[serde(rename = "inProgress")]
     InProgress,
-    /// Variant tag `completed`
+    /// Serializes as `completed`.
     #[serde(rename = "completed")]
     Completed,
-    /// Variant tag `failed`
+    /// Serializes as `failed`.
     #[serde(rename = "failed")]
     Failed,
 }
@@ -5903,10 +5903,10 @@ pub struct MemoryCitationEntry {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum MergeStrategy {
-    /// Variant tag `replace`
+    /// Serializes as `replace`.
     #[serde(rename = "replace")]
     Replace,
-    /// Variant tag `upsert`
+    /// Serializes as `upsert`.
     #[serde(rename = "upsert")]
     Upsert,
 }
@@ -5986,10 +5986,10 @@ pub struct MisalignmentSteer {
 /// Initial collaboration mode to use when the TUI starts.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ModeKind {
-    /// Variant tag `plan`
+    /// Serializes as `plan`.
     #[serde(rename = "plan")]
     Plan,
-    /// Variant tag `default`
+    /// Serializes as `default`.
     #[serde(rename = "default")]
     Default,
 }
@@ -6200,23 +6200,23 @@ pub enum MultiAgentMode {
 /// Multi-agent runtime supported by a model.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum MultiAgentVersion {
-    /// Variant tag `disabled`
+    /// Serializes as `disabled`.
     #[serde(rename = "disabled")]
     Disabled,
-    /// Variant tag `v1`
+    /// Serializes as `v1`.
     #[serde(rename = "v1")]
     V1,
-    /// Variant tag `v2`
+    /// Serializes as `v2`.
     #[serde(rename = "v2")]
     V2,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkAccess {
-    /// Variant tag `restricted`
+    /// Serializes as `restricted`.
     #[serde(rename = "restricted")]
     Restricted,
-    /// Variant tag `enabled`
+    /// Serializes as `enabled`.
     #[serde(rename = "enabled")]
     Enabled,
 }
@@ -6231,26 +6231,26 @@ pub struct NetworkApprovalContext {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkApprovalProtocol {
-    /// Variant tag `http`
+    /// Serializes as `http`.
     #[serde(rename = "http")]
     Http,
-    /// Variant tag `https`
+    /// Serializes as `https`.
     #[serde(rename = "https")]
     Https,
-    /// Variant tag `socks5Tcp`
+    /// Serializes as `socks5Tcp`.
     #[serde(rename = "socks5Tcp")]
     Socks5Tcp,
-    /// Variant tag `socks5Udp`
+    /// Serializes as `socks5Udp`.
     #[serde(rename = "socks5Udp")]
     Socks5Udp,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkDomainPermission {
-    /// Variant tag `allow`
+    /// Serializes as `allow`.
     #[serde(rename = "allow")]
     Allow,
-    /// Variant tag `deny`
+    /// Serializes as `deny`.
     #[serde(rename = "deny")]
     Deny,
 }
@@ -6265,10 +6265,10 @@ pub struct NetworkPolicyAmendment {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkPolicyRuleAction {
-    /// Variant tag `allow`
+    /// Serializes as `allow`.
     #[serde(rename = "allow")]
     Allow,
-    /// Variant tag `deny`
+    /// Serializes as `deny`.
     #[serde(rename = "deny")]
     Deny,
 }
@@ -6324,10 +6324,10 @@ pub struct NetworkRequirements {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkUnixSocketPermission {
-    /// Variant tag `allow`
+    /// Serializes as `allow`.
     #[serde(rename = "allow")]
     Allow,
-    /// Variant tag `deny`
+    /// Serializes as `deny`.
     #[serde(rename = "deny")]
     Deny,
 }
@@ -6347,10 +6347,10 @@ pub struct NewThreadModelDefaults {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NonSteerableTurnKind {
-    /// Variant tag `review`
+    /// Serializes as `review`.
     #[serde(rename = "review")]
     Review,
-    /// Variant tag `compact`
+    /// Serializes as `compact`.
     #[serde(rename = "compact")]
     Compact,
 }
@@ -6410,16 +6410,16 @@ pub enum ParsedCommand {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PatchApplyStatus {
-    /// Variant tag `inProgress`
+    /// Serializes as `inProgress`.
     #[serde(rename = "inProgress")]
     InProgress,
-    /// Variant tag `completed`
+    /// Serializes as `completed`.
     #[serde(rename = "completed")]
     Completed,
-    /// Variant tag `failed`
+    /// Serializes as `failed`.
     #[serde(rename = "failed")]
     Failed,
-    /// Variant tag `declined`
+    /// Serializes as `declined`.
     #[serde(rename = "declined")]
     Declined,
 }
@@ -6441,10 +6441,10 @@ pub enum PatchChangeKind {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PermissionGrantScope {
-    /// Variant tag `turn`
+    /// Serializes as `turn`.
     #[serde(rename = "turn")]
     Turn,
-    /// Variant tag `session`
+    /// Serializes as `session`.
     #[serde(rename = "session")]
     Session,
 }
@@ -6528,13 +6528,13 @@ pub struct PermissionsRequestApprovalResponse {
 /// Deprecated: `friendly` and `pragmatic` no longer select a style.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Personality {
-    /// Variant tag `none`
+    /// Serializes as `none`.
     #[serde(rename = "none")]
     None,
-    /// Variant tag `friendly`
+    /// Serializes as `friendly`.
     #[serde(rename = "friendly")]
     Friendly,
-    /// Variant tag `pragmatic`
+    /// Serializes as `pragmatic`.
     #[serde(rename = "pragmatic")]
     Pragmatic,
 }
@@ -6554,68 +6554,68 @@ pub struct PlanDeltaNotification {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PlanType {
-    /// Variant tag `free`
+    /// Serializes as `free`.
     #[serde(rename = "free")]
     Free,
-    /// Variant tag `go`
+    /// Serializes as `go`.
     #[serde(rename = "go")]
     Go,
-    /// Variant tag `plus`
+    /// Serializes as `plus`.
     #[serde(rename = "plus")]
     Plus,
-    /// Variant tag `pro`
+    /// Serializes as `pro`.
     #[serde(rename = "pro")]
     Pro,
-    /// Variant tag `prolite`
+    /// Serializes as `prolite`.
     #[serde(rename = "prolite")]
     Prolite,
-    /// Variant tag `promax`
+    /// Serializes as `promax`.
     #[serde(rename = "promax")]
     Promax,
-    /// Variant tag `team`
+    /// Serializes as `team`.
     #[serde(rename = "team")]
     Team,
-    /// Variant tag `self_serve_business_prolite`
+    /// Serializes as `self_serve_business_prolite`.
     #[serde(rename = "self_serve_business_prolite")]
     SelfServeBusinessProlite,
-    /// Variant tag `self_serve_business_usage_based`
+    /// Serializes as `self_serve_business_usage_based`.
     #[serde(rename = "self_serve_business_usage_based")]
     SelfServeBusinessUsageBased,
-    /// Variant tag `business`
+    /// Serializes as `business`.
     #[serde(rename = "business")]
     Business,
-    /// Variant tag `ent26`
+    /// Serializes as `ent26`.
     #[serde(rename = "ent26")]
     Ent26,
-    /// Variant tag `enterprise_cbp_automation`
+    /// Serializes as `enterprise_cbp_automation`.
     #[serde(rename = "enterprise_cbp_automation")]
     EnterpriseCbpAutomation,
-    /// Variant tag `enterprise_cbp_usage_based`
+    /// Serializes as `enterprise_cbp_usage_based`.
     #[serde(rename = "enterprise_cbp_usage_based")]
     EnterpriseCbpUsageBased,
-    /// Variant tag `enterprise`
+    /// Serializes as `enterprise`.
     #[serde(rename = "enterprise")]
     Enterprise,
-    /// Variant tag `edu`
+    /// Serializes as `edu`.
     #[serde(rename = "edu")]
     Edu,
-    /// Variant tag `edu_plus`
+    /// Serializes as `edu_plus`.
     #[serde(rename = "edu_plus")]
     EduPlus,
-    /// Variant tag `edu_pro`
+    /// Serializes as `edu_pro`.
     #[serde(rename = "edu_pro")]
     EduPro,
-    /// Variant tag `unknown`
+    /// Serializes as `unknown`.
     #[serde(rename = "unknown")]
     Unknown,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PluginAuthPolicy {
-    /// Variant tag `ON_INSTALL`
+    /// Serializes as `ON_INSTALL`.
     #[serde(rename = "ON_INSTALL")]
     ONINSTALL,
-    /// Variant tag `ON_USE`
+    /// Serializes as `ON_USE`.
     #[serde(rename = "ON_USE")]
     ONUSE,
 }
@@ -6665,16 +6665,16 @@ pub struct PluginDetail {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PluginDisabledReason {
-    /// Variant tag `disabled_by_admin`
+    /// Serializes as `disabled_by_admin`.
     #[serde(rename = "disabled_by_admin")]
     DisabledByAdmin,
-    /// Variant tag `plan_not_eligible`
+    /// Serializes as `plan_not_eligible`.
     #[serde(rename = "plan_not_eligible")]
     PlanNotEligible,
-    /// Variant tag `required_app_unavailable`
+    /// Serializes as `required_app_unavailable`.
     #[serde(rename = "required_app_unavailable")]
     RequiredAppUnavailable,
-    /// Variant tag `unknown`
+    /// Serializes as `unknown`.
     #[serde(rename = "unknown")]
     Unknown,
 }
@@ -6705,23 +6705,23 @@ pub struct PluginInstallParams {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PluginInstallPolicy {
-    /// Variant tag `NOT_AVAILABLE`
+    /// Serializes as `NOT_AVAILABLE`.
     #[serde(rename = "NOT_AVAILABLE")]
     NOTAVAILABLE,
-    /// Variant tag `AVAILABLE`
+    /// Serializes as `AVAILABLE`.
     #[serde(rename = "AVAILABLE")]
     AVAILABLE,
-    /// Variant tag `INSTALLED_BY_DEFAULT`
+    /// Serializes as `INSTALLED_BY_DEFAULT`.
     #[serde(rename = "INSTALLED_BY_DEFAULT")]
     INSTALLEDBYDEFAULT,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PluginInstallPolicySource {
-    /// Variant tag `WORKSPACE_SETTING`
+    /// Serializes as `WORKSPACE_SETTING`.
     #[serde(rename = "WORKSPACE_SETTING")]
     WORKSPACESETTING,
-    /// Variant tag `IMPLICIT_CANONICAL_APP`
+    /// Serializes as `IMPLICIT_CANONICAL_APP`.
     #[serde(rename = "IMPLICIT_CANONICAL_APP")]
     IMPLICITCANONICALAPP,
 }
@@ -6824,19 +6824,19 @@ pub struct PluginInterface {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PluginListMarketplaceKind {
-    /// Variant tag `local`
+    /// Serializes as `local`.
     #[serde(rename = "local")]
     Local,
-    /// Variant tag `vertical`
+    /// Serializes as `vertical`.
     #[serde(rename = "vertical")]
     Vertical,
-    /// Variant tag `workspace-directory`
+    /// Serializes as `workspace-directory`.
     #[serde(rename = "workspace-directory")]
     WorkspaceDirectory,
-    /// Variant tag `shared-with-me`
+    /// Serializes as `shared-with-me`.
     #[serde(rename = "shared-with-me")]
     SharedWithMe,
-    /// Variant tag `created-by-me-remote`
+    /// Serializes as `created-by-me-remote`.
     #[serde(rename = "created-by-me-remote")]
     CreatedByMeRemote,
 }
@@ -6943,13 +6943,13 @@ pub struct PluginReconcileResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PluginSearchScope {
-    /// Variant tag `global`
+    /// Serializes as `global`.
     #[serde(rename = "global")]
     Global,
-    /// Variant tag `workspace`
+    /// Serializes as `workspace`.
     #[serde(rename = "workspace")]
     Workspace,
-    /// Variant tag `personal`
+    /// Serializes as `personal`.
     #[serde(rename = "personal")]
     Personal,
 }
@@ -7018,13 +7018,13 @@ pub struct PluginShareDeleteResponse {}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PluginShareDiscoverability {
-    /// Variant tag `LISTED`
+    /// Serializes as `LISTED`.
     #[serde(rename = "LISTED")]
     LISTED,
-    /// Variant tag `UNLISTED`
+    /// Serializes as `UNLISTED`.
     #[serde(rename = "UNLISTED")]
     UNLISTED,
-    /// Variant tag `PRIVATE`
+    /// Serializes as `PRIVATE`.
     #[serde(rename = "PRIVATE")]
     PRIVATE,
 }
@@ -7061,26 +7061,26 @@ pub struct PluginSharePrincipal {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PluginSharePrincipalRole {
-    /// Variant tag `reader`
+    /// Serializes as `reader`.
     #[serde(rename = "reader")]
     Reader,
-    /// Variant tag `editor`
+    /// Serializes as `editor`.
     #[serde(rename = "editor")]
     Editor,
-    /// Variant tag `owner`
+    /// Serializes as `owner`.
     #[serde(rename = "owner")]
     Owner,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PluginSharePrincipalType {
-    /// Variant tag `user`
+    /// Serializes as `user`.
     #[serde(rename = "user")]
     User,
-    /// Variant tag `group`
+    /// Serializes as `group`.
     #[serde(rename = "group")]
     Group,
-    /// Variant tag `workspace`
+    /// Serializes as `workspace`.
     #[serde(rename = "workspace")]
     Workspace,
 }
@@ -7123,23 +7123,23 @@ pub struct PluginShareTarget {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PluginShareTargetRole {
-    /// Variant tag `reader`
+    /// Serializes as `reader`.
     #[serde(rename = "reader")]
     Reader,
-    /// Variant tag `editor`
+    /// Serializes as `editor`.
     #[serde(rename = "editor")]
     Editor,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PluginShareUpdateDiscoverability {
-    /// Variant tag `UNLISTED`
+    /// Serializes as `UNLISTED`.
     #[serde(rename = "UNLISTED")]
     UNLISTED,
-    /// Variant tag `PRIVATE`
+    /// Serializes as `PRIVATE`.
     #[serde(rename = "PRIVATE")]
     PRIVATE,
-    /// Variant tag `LISTED`
+    /// Serializes as `LISTED`.
     #[serde(rename = "LISTED")]
     LISTED,
 }
@@ -7370,13 +7370,13 @@ pub struct ProcessTerminalSize {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ProjectChangeType {
-    /// Variant tag `created`
+    /// Serializes as `created`.
     #[serde(rename = "created")]
     Created,
-    /// Variant tag `updated`
+    /// Serializes as `updated`.
     #[serde(rename = "updated")]
     Updated,
-    /// Variant tag `deleted`
+    /// Serializes as `deleted`.
     #[serde(rename = "deleted")]
     Deleted,
 }
@@ -7397,29 +7397,29 @@ pub struct ProjectRoot {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ProjectSortKey {
-    /// Variant tag `position`
+    /// Serializes as `position`.
     #[serde(rename = "position")]
     Position,
-    /// Variant tag `recencyAt`
+    /// Serializes as `recencyAt`.
     #[serde(rename = "recencyAt")]
     RecencyAt,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RateLimitReachedType {
-    /// Variant tag `rate_limit_reached`
+    /// Serializes as `rate_limit_reached`.
     #[serde(rename = "rate_limit_reached")]
     RateLimitReached,
-    /// Variant tag `workspace_owner_credits_depleted`
+    /// Serializes as `workspace_owner_credits_depleted`.
     #[serde(rename = "workspace_owner_credits_depleted")]
     WorkspaceOwnerCreditsDepleted,
-    /// Variant tag `workspace_member_credits_depleted`
+    /// Serializes as `workspace_member_credits_depleted`.
     #[serde(rename = "workspace_member_credits_depleted")]
     WorkspaceMemberCreditsDepleted,
-    /// Variant tag `workspace_owner_usage_limit_reached`
+    /// Serializes as `workspace_owner_usage_limit_reached`.
     #[serde(rename = "workspace_owner_usage_limit_reached")]
     WorkspaceOwnerUsageLimitReached,
-    /// Variant tag `workspace_member_usage_limit_reached`
+    /// Serializes as `workspace_member_usage_limit_reached`.
     #[serde(rename = "workspace_member_usage_limit_reached")]
     WorkspaceMemberUsageLimitReached,
 }
@@ -7452,16 +7452,16 @@ pub struct RateLimitResetCredit {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RateLimitResetCreditStatus {
-    /// Variant tag `available`
+    /// Serializes as `available`.
     #[serde(rename = "available")]
     Available,
-    /// Variant tag `redeeming`
+    /// Serializes as `redeeming`.
     #[serde(rename = "redeeming")]
     Redeeming,
-    /// Variant tag `redeemed`
+    /// Serializes as `redeemed`.
     #[serde(rename = "redeemed")]
     Redeemed,
-    /// Variant tag `unknown`
+    /// Serializes as `unknown`.
     #[serde(rename = "unknown")]
     Unknown,
 }
@@ -7480,10 +7480,10 @@ pub struct RateLimitResetCreditsSummary {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RateLimitResetType {
-    /// Variant tag `codexRateLimits`
+    /// Serializes as `codexRateLimits`.
     #[serde(rename = "codexRateLimits")]
     CodexRateLimits,
-    /// Variant tag `unknown`
+    /// Serializes as `unknown`.
     #[serde(rename = "unknown")]
     Unknown,
 }
@@ -7565,132 +7565,132 @@ pub struct RawResponseItemCompletedNotification {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RealtimeConversationVersion {
-    /// Variant tag `v1`
+    /// Serializes as `v1`.
     #[serde(rename = "v1")]
     V1,
-    /// Variant tag `v2`
+    /// Serializes as `v2`.
     #[serde(rename = "v2")]
     V2,
-    /// Variant tag `v3`
+    /// Serializes as `v3`.
     #[serde(rename = "v3")]
     V3,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RealtimeOutputModality {
-    /// Variant tag `text`
+    /// Serializes as `text`.
     #[serde(rename = "text")]
     Text,
-    /// Variant tag `audio`
+    /// Serializes as `audio`.
     #[serde(rename = "audio")]
     Audio,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RealtimeVoice {
-    /// Variant tag `alloy`
+    /// Serializes as `alloy`.
     #[serde(rename = "alloy")]
     Alloy,
-    /// Variant tag `arbor`
+    /// Serializes as `arbor`.
     #[serde(rename = "arbor")]
     Arbor,
-    /// Variant tag `ash`
+    /// Serializes as `ash`.
     #[serde(rename = "ash")]
     Ash,
-    /// Variant tag `aube`
+    /// Serializes as `aube`.
     #[serde(rename = "aube")]
     Aube,
-    /// Variant tag `ballad`
+    /// Serializes as `ballad`.
     #[serde(rename = "ballad")]
     Ballad,
-    /// Variant tag `breeze`
+    /// Serializes as `breeze`.
     #[serde(rename = "breeze")]
     Breeze,
-    /// Variant tag `bubbie`
+    /// Serializes as `bubbie`.
     #[serde(rename = "bubbie")]
     Bubbie,
-    /// Variant tag `cedar`
+    /// Serializes as `cedar`.
     #[serde(rename = "cedar")]
     Cedar,
-    /// Variant tag `coral`
+    /// Serializes as `coral`.
     #[serde(rename = "coral")]
     Coral,
-    /// Variant tag `cove`
+    /// Serializes as `cove`.
     #[serde(rename = "cove")]
     Cove,
-    /// Variant tag `echo`
+    /// Serializes as `echo`.
     #[serde(rename = "echo")]
     Echo,
-    /// Variant tag `ember`
+    /// Serializes as `ember`.
     #[serde(rename = "ember")]
     Ember,
-    /// Variant tag `haetsal`
+    /// Serializes as `haetsal`.
     #[serde(rename = "haetsal")]
     Haetsal,
-    /// Variant tag `hanul`
+    /// Serializes as `hanul`.
     #[serde(rename = "hanul")]
     Hanul,
-    /// Variant tag `himari`
+    /// Serializes as `himari`.
     #[serde(rename = "himari")]
     Himari,
-    /// Variant tag `juniper`
+    /// Serializes as `juniper`.
     #[serde(rename = "juniper")]
     Juniper,
-    /// Variant tag `leher`
+    /// Serializes as `leher`.
     #[serde(rename = "leher")]
     Leher,
-    /// Variant tag `maple`
+    /// Serializes as `maple`.
     #[serde(rename = "maple")]
     Maple,
-    /// Variant tag `marin`
+    /// Serializes as `marin`.
     #[serde(rename = "marin")]
     Marin,
-    /// Variant tag `miko`
+    /// Serializes as `miko`.
     #[serde(rename = "miko")]
     Miko,
-    /// Variant tag `neer`
+    /// Serializes as `neer`.
     #[serde(rename = "neer")]
     Neer,
-    /// Variant tag `porto`
+    /// Serializes as `porto`.
     #[serde(rename = "porto")]
     Porto,
-    /// Variant tag `rindo`
+    /// Serializes as `rindo`.
     #[serde(rename = "rindo")]
     Rindo,
-    /// Variant tag `rio`
+    /// Serializes as `rio`.
     #[serde(rename = "rio")]
     Rio,
-    /// Variant tag `rivage`
+    /// Serializes as `rivage`.
     #[serde(rename = "rivage")]
     Rivage,
-    /// Variant tag `sage`
+    /// Serializes as `sage`.
     #[serde(rename = "sage")]
     Sage,
-    /// Variant tag `selva`
+    /// Serializes as `selva`.
     #[serde(rename = "selva")]
     Selva,
-    /// Variant tag `shimmer`
+    /// Serializes as `shimmer`.
     #[serde(rename = "shimmer")]
     Shimmer,
-    /// Variant tag `sol`
+    /// Serializes as `sol`.
     #[serde(rename = "sol")]
     Sol,
-    /// Variant tag `sonna`
+    /// Serializes as `sonna`.
     #[serde(rename = "sonna")]
     Sonna,
-    /// Variant tag `spruce`
+    /// Serializes as `spruce`.
     #[serde(rename = "spruce")]
     Spruce,
-    /// Variant tag `tinta`
+    /// Serializes as `tinta`.
     #[serde(rename = "tinta")]
     Tinta,
-    /// Variant tag `vale`
+    /// Serializes as `vale`.
     #[serde(rename = "vale")]
     Vale,
-    /// Variant tag `verse`
+    /// Serializes as `verse`.
     #[serde(rename = "verse")]
     Verse,
-    /// Variant tag `viola`
+    /// Serializes as `viola`.
     #[serde(rename = "viola")]
     Viola,
 }
@@ -7787,16 +7787,16 @@ pub struct ReasoningTextDeltaNotification {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RemoteControlConnectionStatus {
-    /// Variant tag `disabled`
+    /// Serializes as `disabled`.
     #[serde(rename = "disabled")]
     Disabled,
-    /// Variant tag `connecting`
+    /// Serializes as `connecting`.
     #[serde(rename = "connecting")]
     Connecting,
-    /// Variant tag `connected`
+    /// Serializes as `connected`.
     #[serde(rename = "connected")]
     Connected,
-    /// Variant tag `errored`
+    /// Serializes as `errored`.
     #[serde(rename = "errored")]
     Errored,
 }
@@ -8275,10 +8275,10 @@ pub enum ReviewDecision {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ReviewDelivery {
-    /// Variant tag `inline`
+    /// Serializes as `inline`.
     #[serde(rename = "inline")]
     Inline,
-    /// Variant tag `detached`
+    /// Serializes as `detached`.
     #[serde(rename = "detached")]
     Detached,
 }
@@ -8338,13 +8338,13 @@ pub enum ReviewTarget {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SandboxMode {
-    /// Variant tag `read-only`
+    /// Serializes as `read-only`.
     #[serde(rename = "read-only")]
     ReadOnly,
-    /// Variant tag `workspace-write`
+    /// Serializes as `workspace-write`.
     #[serde(rename = "workspace-write")]
     WorkspaceWrite,
-    /// Variant tag `danger-full-access`
+    /// Serializes as `danger-full-access`.
     #[serde(rename = "danger-full-access")]
     DangerFullAccess,
 }
@@ -8443,25 +8443,25 @@ pub struct ScheduledTaskSummary {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ScheduledTaskWeekday {
-    /// Variant tag `MO`
+    /// Serializes as `MO`.
     #[serde(rename = "MO")]
     MO,
-    /// Variant tag `TU`
+    /// Serializes as `TU`.
     #[serde(rename = "TU")]
     TU,
-    /// Variant tag `WE`
+    /// Serializes as `WE`.
     #[serde(rename = "WE")]
     WE,
-    /// Variant tag `TH`
+    /// Serializes as `TH`.
     #[serde(rename = "TH")]
     TH,
-    /// Variant tag `FR`
+    /// Serializes as `FR`.
     #[serde(rename = "FR")]
     FR,
-    /// Variant tag `SA`
+    /// Serializes as `SA`.
     #[serde(rename = "SA")]
     SA,
-    /// Variant tag `SU`
+    /// Serializes as `SU`.
     #[serde(rename = "SU")]
     SU,
 }
@@ -9143,16 +9143,16 @@ pub struct SkillMigration {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SkillScope {
-    /// Variant tag `user`
+    /// Serializes as `user`.
     #[serde(rename = "user")]
     User,
-    /// Variant tag `repo`
+    /// Serializes as `repo`.
     #[serde(rename = "repo")]
     Repo,
-    /// Variant tag `system`
+    /// Serializes as `system`.
     #[serde(rename = "system")]
     System,
-    /// Variant tag `admin`
+    /// Serializes as `admin`.
     #[serde(rename = "admin")]
     Admin,
 }
@@ -9261,10 +9261,10 @@ pub struct SkillsListResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SortDirection {
-    /// Variant tag `asc`
+    /// Serializes as `asc`.
     #[serde(rename = "asc")]
     Asc,
-    /// Variant tag `desc`
+    /// Serializes as `desc`.
     #[serde(rename = "desc")]
     Desc,
 }
@@ -9294,16 +9294,16 @@ pub struct StrictReviewRequiredNotification {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SubAgentActivityKind {
-    /// Variant tag `started`
+    /// Serializes as `started`.
     #[serde(rename = "started")]
     Started,
-    /// Variant tag `interacted`
+    /// Serializes as `interacted`.
     #[serde(rename = "interacted")]
     Interacted,
-    /// Variant tag `interrupted`
+    /// Serializes as `interrupted`.
     #[serde(rename = "interrupted")]
     Interrupted,
-    /// Variant tag `completed`
+    /// Serializes as `completed`.
     #[serde(rename = "completed")]
     Completed,
 }
@@ -9477,10 +9477,10 @@ pub struct Thread {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadActiveFlag {
-    /// Variant tag `waitingOnApproval`
+    /// Serializes as `waitingOnApproval`.
     #[serde(rename = "waitingOnApproval")]
     WaitingOnApproval,
-    /// Variant tag `waitingOnUserInput`
+    /// Serializes as `waitingOnUserInput`.
     #[serde(rename = "waitingOnUserInput")]
     WaitingOnUserInput,
 }
@@ -9530,10 +9530,10 @@ pub struct ThreadAttachment {
 /// Result of attempting to associate an attachment with a thread.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadAttachmentAddOutcome {
-    /// Variant tag `created`
+    /// Serializes as `created`.
     #[serde(rename = "created")]
     Created,
-    /// Variant tag `existing`
+    /// Serializes as `existing`.
     #[serde(rename = "existing")]
     Existing,
 }
@@ -9586,10 +9586,10 @@ pub struct ThreadAttachmentListResponse {
 /// The persisted attachment change represented by a notification.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadAttachmentOperation {
-    /// Variant tag `created`
+    /// Serializes as `created`.
     #[serde(rename = "created")]
     Created,
-    /// Variant tag `deleted`
+    /// Serializes as `deleted`.
     #[serde(rename = "deleted")]
     Deleted,
 }
@@ -9861,10 +9861,10 @@ pub struct ThreadGoalGetResponse {
 /// Distinguishes explicit user actions from automatic goal lifecycle mutations.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadGoalMutationOrigin {
-    /// Variant tag `user`
+    /// Serializes as `user`.
     #[serde(rename = "user")]
     User,
-    /// Variant tag `automatic`
+    /// Serializes as `automatic`.
     #[serde(rename = "automatic")]
     Automatic,
 }
@@ -9896,22 +9896,22 @@ pub struct ThreadGoalSetResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadGoalStatus {
-    /// Variant tag `active`
+    /// Serializes as `active`.
     #[serde(rename = "active")]
     Active,
-    /// Variant tag `paused`
+    /// Serializes as `paused`.
     #[serde(rename = "paused")]
     Paused,
-    /// Variant tag `blocked`
+    /// Serializes as `blocked`.
     #[serde(rename = "blocked")]
     Blocked,
-    /// Variant tag `usageLimited`
+    /// Serializes as `usageLimited`.
     #[serde(rename = "usageLimited")]
     UsageLimited,
-    /// Variant tag `budgetLimited`
+    /// Serializes as `budgetLimited`.
     #[serde(rename = "budgetLimited")]
     BudgetLimited,
-    /// Variant tag `complete`
+    /// Serializes as `complete`.
     #[serde(rename = "complete")]
     Complete,
 }
@@ -9929,10 +9929,10 @@ pub struct ThreadGoalUpdatedNotification {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadHistoryMode {
-    /// Variant tag `legacy`
+    /// Serializes as `legacy`.
     #[serde(rename = "legacy")]
     Legacy,
-    /// Variant tag `paginated`
+    /// Serializes as `paginated`.
     #[serde(rename = "paginated")]
     Paginated,
 }
@@ -10436,10 +10436,10 @@ pub struct ThreadLoadedListResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadMemoryMode {
-    /// Variant tag `enabled`
+    /// Serializes as `enabled`.
     #[serde(rename = "enabled")]
     Enabled,
-    /// Variant tag `disabled`
+    /// Serializes as `disabled`.
     #[serde(rename = "disabled")]
     Disabled,
 }
@@ -10713,10 +10713,10 @@ pub struct ThreadRealtimeSdpNotification {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadRealtimeSessionOutcome {
-    /// Variant tag `ended`
+    /// Serializes as `ended`.
     #[serde(rename = "ended")]
     Ended,
-    /// Variant tag `failed`
+    /// Serializes as `failed`.
     #[serde(rename = "failed")]
     Failed,
 }
@@ -10779,10 +10779,10 @@ pub struct ThreadRealtimeTranscriptDoneNotification {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadRealtimeTranscriptRole {
-    /// Variant tag `user`
+    /// Serializes as `user`.
     #[serde(rename = "user")]
     User,
-    /// Variant tag `assistant`
+    /// Serializes as `assistant`.
     #[serde(rename = "assistant")]
     Assistant,
 }
@@ -10945,13 +10945,13 @@ pub struct ThreadRevertedNotification {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadSearchSortKey {
-    /// Variant tag `created_at`
+    /// Serializes as `created_at`.
     #[serde(rename = "created_at")]
     CreatedAt,
-    /// Variant tag `updated_at`
+    /// Serializes as `updated_at`.
     #[serde(rename = "updated_at")]
     UpdatedAt,
-    /// Variant tag `recency_at`
+    /// Serializes as `recency_at`.
     #[serde(rename = "recency_at")]
     RecencyAt,
 }
@@ -11152,16 +11152,16 @@ pub struct ThreadShellCommandResponse {}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadSortKey {
-    /// Variant tag `created_at`
+    /// Serializes as `created_at`.
     #[serde(rename = "created_at")]
     CreatedAt,
-    /// Variant tag `updated_at`
+    /// Serializes as `updated_at`.
     #[serde(rename = "updated_at")]
     UpdatedAt,
-    /// Variant tag `recency_at`
+    /// Serializes as `recency_at`.
     #[serde(rename = "recency_at")]
     RecencyAt,
-    /// Variant tag `section_position`
+    /// Serializes as `section_position`.
     #[serde(rename = "section_position")]
     SectionPosition,
 }
@@ -11170,34 +11170,34 @@ pub type ThreadSource = String;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadSourceKind {
-    /// Variant tag `cli`
+    /// Serializes as `cli`.
     #[serde(rename = "cli")]
     Cli,
-    /// Variant tag `vscode`
+    /// Serializes as `vscode`.
     #[serde(rename = "vscode")]
     Vscode,
-    /// Variant tag `exec`
+    /// Serializes as `exec`.
     #[serde(rename = "exec")]
     Exec,
-    /// Variant tag `appServer`
+    /// Serializes as `appServer`.
     #[serde(rename = "appServer")]
     AppServer,
-    /// Variant tag `subAgent`
+    /// Serializes as `subAgent`.
     #[serde(rename = "subAgent")]
     SubAgent,
-    /// Variant tag `subAgentReview`
+    /// Serializes as `subAgentReview`.
     #[serde(rename = "subAgentReview")]
     SubAgentReview,
-    /// Variant tag `subAgentCompact`
+    /// Serializes as `subAgentCompact`.
     #[serde(rename = "subAgentCompact")]
     SubAgentCompact,
-    /// Variant tag `subAgentThreadSpawn`
+    /// Serializes as `subAgentThreadSpawn`.
     #[serde(rename = "subAgentThreadSpawn")]
     SubAgentThreadSpawn,
-    /// Variant tag `subAgentOther`
+    /// Serializes as `subAgentOther`.
     #[serde(rename = "subAgentOther")]
     SubAgentOther,
-    /// Variant tag `unknown`
+    /// Serializes as `unknown`.
     #[serde(rename = "unknown")]
     Unknown,
 }
@@ -11290,10 +11290,10 @@ pub struct ThreadStartResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadStartSource {
-    /// Variant tag `startup`
+    /// Serializes as `startup`.
     #[serde(rename = "startup")]
     Startup,
-    /// Variant tag `clear`
+    /// Serializes as `clear`.
     #[serde(rename = "clear")]
     Clear,
 }
@@ -11431,13 +11431,13 @@ pub struct ThreadUnsubscribeResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadUnsubscribeStatus {
-    /// Variant tag `notLoaded`
+    /// Serializes as `notLoaded`.
     #[serde(rename = "notLoaded")]
     NotLoaded,
-    /// Variant tag `notSubscribed`
+    /// Serializes as `notSubscribed`.
     #[serde(rename = "notSubscribed")]
     NotSubscribed,
-    /// Variant tag `unsubscribed`
+    /// Serializes as `unsubscribed`.
     #[serde(rename = "unsubscribed")]
     Unsubscribed,
 }
@@ -11739,13 +11739,13 @@ pub struct TurnPlanStep {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TurnPlanStepStatus {
-    /// Variant tag `pending`
+    /// Serializes as `pending`.
     #[serde(rename = "pending")]
     Pending,
-    /// Variant tag `inProgress`
+    /// Serializes as `inProgress`.
     #[serde(rename = "inProgress")]
     InProgress,
-    /// Variant tag `completed`
+    /// Serializes as `completed`.
     #[serde(rename = "completed")]
     Completed,
 }
@@ -11857,16 +11857,16 @@ pub struct TurnStartedNotification {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TurnStatus {
-    /// Variant tag `completed`
+    /// Serializes as `completed`.
     #[serde(rename = "completed")]
     Completed,
-    /// Variant tag `interrupted`
+    /// Serializes as `interrupted`.
     #[serde(rename = "interrupted")]
     Interrupted,
-    /// Variant tag `failed`
+    /// Serializes as `failed`.
     #[serde(rename = "failed")]
     Failed,
-    /// Variant tag `inProgress`
+    /// Serializes as `inProgress`.
     #[serde(rename = "inProgress")]
     InProgress,
 }
@@ -11973,13 +11973,13 @@ pub enum UserInput {
 /// Controls output length/detail on GPT-5 models via the Responses API. Serialized with lowercase values to match the OpenAI API.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Verbosity {
-    /// Variant tag `low`
+    /// Serializes as `low`.
     #[serde(rename = "low")]
     Low,
-    /// Variant tag `medium`
+    /// Serializes as `medium`.
     #[serde(rename = "medium")]
     Medium,
-    /// Variant tag `high`
+    /// Serializes as `high`.
     #[serde(rename = "high")]
     High,
 }
@@ -12038,13 +12038,13 @@ pub enum WebSearchAction {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WebSearchContextSize {
-    /// Variant tag `low`
+    /// Serializes as `low`.
     #[serde(rename = "low")]
     Low,
-    /// Variant tag `medium`
+    /// Serializes as `medium`.
     #[serde(rename = "medium")]
     Medium,
-    /// Variant tag `high`
+    /// Serializes as `high`.
     #[serde(rename = "high")]
     High,
 }
@@ -12067,16 +12067,16 @@ pub struct WebSearchLocation {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WebSearchMode {
-    /// Variant tag `disabled`
+    /// Serializes as `disabled`.
     #[serde(rename = "disabled")]
     Disabled,
-    /// Variant tag `cached`
+    /// Serializes as `cached`.
     #[serde(rename = "cached")]
     Cached,
-    /// Variant tag `indexed`
+    /// Serializes as `indexed`.
     #[serde(rename = "indexed")]
     Indexed,
-    /// Variant tag `live`
+    /// Serializes as `live`.
     #[serde(rename = "live")]
     Live,
 }
@@ -12096,26 +12096,26 @@ pub struct WebSearchToolConfig {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WindowsSandboxImplementation {
-    /// Variant tag `elevated`
+    /// Serializes as `elevated`.
     #[serde(rename = "elevated")]
     Elevated,
-    /// Variant tag `unelevated`
+    /// Serializes as `unelevated`.
     #[serde(rename = "unelevated")]
     Unelevated,
-    /// Variant tag `mxc`
+    /// Serializes as `mxc`.
     #[serde(rename = "mxc")]
     Mxc,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WindowsSandboxReadiness {
-    /// Variant tag `ready`
+    /// Serializes as `ready`.
     #[serde(rename = "ready")]
     Ready,
-    /// Variant tag `notConfigured`
+    /// Serializes as `notConfigured`.
     #[serde(rename = "notConfigured")]
     NotConfigured,
-    /// Variant tag `updateRequired`
+    /// Serializes as `updateRequired`.
     #[serde(rename = "updateRequired")]
     UpdateRequired,
 }
@@ -12139,10 +12139,10 @@ pub struct WindowsSandboxSetupCompletedNotification {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WindowsSandboxSetupMode {
-    /// Variant tag `elevated`
+    /// Serializes as `elevated`.
     #[serde(rename = "elevated")]
     Elevated,
-    /// Variant tag `unelevated`
+    /// Serializes as `unelevated`.
     #[serde(rename = "unelevated")]
     Unelevated,
 }
@@ -12192,13 +12192,13 @@ pub struct WorkspaceMessage {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WorkspaceMessageType {
-    /// Variant tag `headline`
+    /// Serializes as `headline`.
     #[serde(rename = "headline")]
     Headline,
-    /// Variant tag `announcement`
+    /// Serializes as `announcement`.
     #[serde(rename = "announcement")]
     Announcement,
-    /// Variant tag `unknown`
+    /// Serializes as `unknown`.
     #[serde(rename = "unknown")]
     Unknown,
 }
@@ -12215,10 +12215,10 @@ pub struct WorkspaceRouting {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WriteStatus {
-    /// Variant tag `ok`
+    /// Serializes as `ok`.
     #[serde(rename = "ok")]
     Ok,
-    /// Variant tag `okOverridden`
+    /// Serializes as `okOverridden`.
     #[serde(rename = "okOverridden")]
     OkOverridden,
 }
@@ -12241,49 +12241,49 @@ pub struct AskForApprovalGranular {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CodexErrorInfoVariant0 {
-    /// Variant tag `contextWindowExceeded`
+    /// Serializes as `contextWindowExceeded`.
     #[serde(rename = "contextWindowExceeded")]
     ContextWindowExceeded,
-    /// Variant tag `sessionBudgetExceeded`
+    /// Serializes as `sessionBudgetExceeded`.
     #[serde(rename = "sessionBudgetExceeded")]
     SessionBudgetExceeded,
-    /// Variant tag `usageLimitExceeded`
+    /// Serializes as `usageLimitExceeded`.
     #[serde(rename = "usageLimitExceeded")]
     UsageLimitExceeded,
-    /// Variant tag `rateLimitExceeded`
+    /// Serializes as `rateLimitExceeded`.
     #[serde(rename = "rateLimitExceeded")]
     RateLimitExceeded,
-    /// Variant tag `flexUnavailable`
+    /// Serializes as `flexUnavailable`.
     #[serde(rename = "flexUnavailable")]
     FlexUnavailable,
-    /// Variant tag `serverOverloaded`
+    /// Serializes as `serverOverloaded`.
     #[serde(rename = "serverOverloaded")]
     ServerOverloaded,
-    /// Variant tag `cyberPolicy`
+    /// Serializes as `cyberPolicy`.
     #[serde(rename = "cyberPolicy")]
     CyberPolicy,
-    /// Variant tag `misalignmentPolicyViolation`
+    /// Serializes as `misalignmentPolicyViolation`.
     #[serde(rename = "misalignmentPolicyViolation")]
     MisalignmentPolicyViolation,
-    /// Variant tag `tooManyDenials`
+    /// Serializes as `tooManyDenials`.
     #[serde(rename = "tooManyDenials")]
     TooManyDenials,
-    /// Variant tag `internalServerError`
+    /// Serializes as `internalServerError`.
     #[serde(rename = "internalServerError")]
     InternalServerError,
-    /// Variant tag `unauthorized`
+    /// Serializes as `unauthorized`.
     #[serde(rename = "unauthorized")]
     Unauthorized,
-    /// Variant tag `badRequest`
+    /// Serializes as `badRequest`.
     #[serde(rename = "badRequest")]
     BadRequest,
-    /// Variant tag `threadRollbackFailed`
+    /// Serializes as `threadRollbackFailed`.
     #[serde(rename = "threadRollbackFailed")]
     ThreadRollbackFailed,
-    /// Variant tag `sandboxError`
+    /// Serializes as `sandboxError`.
     #[serde(rename = "sandboxError")]
     SandboxError,
-    /// Variant tag `other`
+    /// Serializes as `other`.
     #[serde(rename = "other")]
     Other,
 }

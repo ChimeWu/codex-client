@@ -1,27 +1,6 @@
-//! Typed parsing of inbound messages, splitting by thread ownership, and constructing
-//! replies to server requests.
-//!
-//! # Build replies from generated response types
-//!
-//! Every server request has a schema-generated response type (such as
-//! `CommandExecutionRequestApprovalResponse` and `PermissionsRequestApprovalResponse`).
-//! This module constructs replies **only** from those types, never handwritten `json!`.
-//! A handwritten shape has no compile-time checks and could silently become invalid when
-//! the schema changes; the server would then never receive a valid reply and the turn
-//! could remain blocked indefinitely.
-//!
-//! # Split by thread ownership
-//!
-//! [`split_notification`] and [`split_request`] split generated `ServerNotification` and
-//! `ServerRequest` values into narrower thread-owned and global types for
-//! [`crate::client::inbound::ThreadMessage`] and
-//! [`crate::client::inbound::GlobalMessage`]. Both functions use exhaustive matches, so a
-//! new protocol variant requires an explicit ownership decision. This is intentional:
-//! inferring ownership from `params.get("threadId")` previously missed two real shapes.
-//! Legacy approvals (`ApplyPatchApproval` and `ExecCommandApproval`) use
-//! `conversationId`, while `ThreadStarted` nests its ID in `thread.id`. Those messages
-//! were silently routed to the global stream instead of their thread channel. Exhaustive
-//! matches use typed fields and prevent similar omissions when the protocol evolves.
+//! Classifies typed server messages by thread ownership and builds replies from generated
+//! response types. Unknown notifications remain available as raw JSON, while unknown
+//! requests receive a refusal so the server is not left waiting.
 
 use crate::envelope::Reply;
 use crate::generated::events::{ServerNotification, ServerRequest};
@@ -76,11 +55,7 @@ pub(crate) fn sniff_thread_id(tagged: &Value) -> Option<&str> {
         .and_then(Value::as_str)
 }
 
-/// Server notifications unrelated to any thread, such as account state, processes, MCP
-/// server lifecycle, and import tasks. Notifications with `Option<threadId>` fields
-/// (`McpServerOauthLoginCompleted`, `McpServerStartupStatusUpdated`, and `Warning`) have
-/// variants on both sides; `split_notification` chooses the scope from the runtime
-/// value rather than the type.
+/// Server notifications that are not associated with a thread.
 #[allow(clippy::large_enum_variant)]
 #[derive(Clone, Debug, Serialize)]
 #[serde(tag = "method", content = "params")]
@@ -135,9 +110,7 @@ pub enum GlobalNotification {
     AccountLoginCompleted(AccountLoginCompletedNotification),
 }
 
-/// Server notifications owned by a thread, such as item/turn event streams, thread
-/// lifecycle, and realtime sessions. `split_notification` reads ownership from each
-/// payload; most use a top-level `threadId`, while `ThreadStarted` nests it in `thread.id`.
+/// Server notifications associated with a thread.
 #[allow(clippy::large_enum_variant)]
 #[derive(Clone, Debug, Serialize)]
 #[serde(tag = "method", content = "params")]
@@ -804,8 +777,7 @@ pub(crate) fn split_notification(notification: ServerNotification) -> Notificati
     }
 }
 
-/// Server requests unrelated to any thread: MCP elicitation, ChatGPT token refresh, and
-/// attestation generation.
+/// Server requests that are not associated with a thread.
 #[derive(Clone, Debug)]
 pub enum GlobalRequest {
     McpServerElicitationRequest(McpServerElicitationRequestParams),
@@ -813,10 +785,7 @@ pub enum GlobalRequest {
     AttestationGenerate(AttestationGenerateParams),
 }
 
-/// Server requests owned by a thread: five approval requests, `item/tool/requestUserInput`,
-/// and `item/tool/call`. The two legacy approvals (`ApplyPatchApproval` and
-/// `ExecCommandApproval`) use `conversationId` rather than `threadId`; `split_request`
-/// reads their typed fields and is unaffected by field renames.
+/// Server requests associated with a thread, including approvals and tool calls.
 #[derive(Clone, Debug)]
 pub enum ThreadRequest {
     ItemCommandExecutionRequestApproval(CommandExecutionRequestApprovalParams),
@@ -998,12 +967,10 @@ pub(crate) fn decline_by_method(method: &str) -> Reply {
     }
 }
 
-/// Reconnect backoff: exponential growth capped at the limit, plus jitter over half the
-/// cap's width.
+/// Return an exponentially increasing reconnect delay with jitter.
 ///
-/// The lower bound is `cap/2`, not zero. Full jitter has a growing expected delay but can
-/// still return 1 ms, causing rapid retries while the server is down. Jitter should spread
-/// clients out without eliminating the backoff itself.
+/// The cap doubles from 500 ms per attempt and is limited by `max_ms` (minimum 2 ms). The
+/// returned delay ranges from half the cap to the cap. `attempt` starts at zero.
 pub fn reconnect_delay(attempt: u32, max_ms: u64) -> Duration {
     let cap = 500u64
         .saturating_mul(2u64.saturating_pow(attempt.min(16)))

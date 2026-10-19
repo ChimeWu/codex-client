@@ -9,6 +9,7 @@ use serde_json::Value;
 use std::fmt;
 use std::time::Duration;
 
+/// Result type returned by client operations.
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// JSON-RPC "server overloaded" error; the protocol recommends retrying with backoff.
@@ -18,50 +19,47 @@ pub const METHOD_NOT_FOUND: i64 = -32601;
 
 #[derive(Debug)]
 pub enum Error {
-    /// Could not connect or complete the WebSocket handshake.
+    /// The client could not connect or complete the WebSocket handshake.
     Connect {
         endpoint: String,
         source: Box<dyn std::error::Error + Send + Sync>,
     },
-    /// The connection closed while in use. Reconnecting usually recovers.
+    /// The connection was interrupted while in use.
     Transport {
         source: Box<dyn std::error::Error + Send + Sync>,
     },
-    /// The peer closed the connection while waiting for a response.
+    /// The connection closed before the requested response arrived.
     Closed { method: String },
-    /// The initialization handshake exceeded its connection timeout; ordinary RPCs have
-    /// no shared timeout.
+    /// Connecting or initializing exceeded the configured connection timeout.
     Timeout { method: String, after: Duration },
-    /// The server returned a JSON-RPC `error`. Preserve its structure; do not flatten it
-    /// into a string.
-    ///
-    /// Boxed because `Result` is on every request's hot path: otherwise the largest error
-    /// variant would increase the size of successful results too.
+    /// The server rejected the request with a JSON-RPC error.
     Server(Box<ServerError>),
-    /// Could not serialize the parameters. This usually means the caller supplied invalid
-    /// JSON.
+    /// The request parameters could not be serialized.
     Encode { source: serde_json::Error },
-    /// The response did not parse as the expected type, usually because the protocol
-    /// changed and the generated types need to be refreshed.
+    /// The response could not be decoded as the expected type.
     Decode {
         method: String,
         source: serde_json::Error,
     },
-    /// A protocol-level issue, such as a response missing a required field.
+    /// The message violated a protocol requirement.
     Protocol(String),
 }
 
 /// Details returned when the server explicitly rejects a request.
 #[derive(Clone, Debug, PartialEq)]
 pub struct ServerError {
+    /// Method that the server rejected.
     pub method: String,
+    /// JSON-RPC error code.
     pub code: i64,
+    /// Error message returned by the server.
     pub message: String,
+    /// Optional error details returned by the server.
     pub data: Option<Value>,
 }
 
 impl Error {
-    /// Details of the server rejection.
+    /// Return the server rejection details, if this is a server error.
     pub fn server(&self) -> Option<&ServerError> {
         match self {
             Self::Server(error) => Some(error),
@@ -69,25 +67,22 @@ impl Error {
         }
     }
 
-    /// Whether retrying on a new connection may help.
-    ///
-    /// Connection failures may be retried. An explicit server rejection should not be
-    /// retried because the server will reject it again.
+    /// Return `true` if the active connection was lost.
     pub fn is_connection_lost(&self) -> bool {
         matches!(self, Self::Transport { .. } | Self::Closed { .. })
     }
 
-    /// The server reported overload; retry with backoff (see `reconnect_delay`).
+    /// Return `true` if the server reported overload.
     pub fn is_overloaded(&self) -> bool {
         self.code() == Some(SERVER_OVERLOADED)
     }
 
-    /// The server does not recognize this method, likely because this client is newer.
+    /// Return `true` if the server does not recognize the requested method.
     pub fn is_method_not_found(&self) -> bool {
         self.code() == Some(METHOD_NOT_FOUND)
     }
 
-    /// The error code returned by the server.
+    /// Return the JSON-RPC error code, if the server rejected the request.
     pub fn code(&self) -> Option<i64> {
         self.server().map(|error| error.code)
     }

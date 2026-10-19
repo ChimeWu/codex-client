@@ -28,14 +28,9 @@ const SERVER_EVENT_CAPACITY: usize = 256;
 /// Capacity of the client command channel.
 const COMMAND_CAPACITY: usize = 128;
 
-/// A client connected to an App Server managed by the caller.
+/// A client connected to an already-running Codex App Server.
 ///
-/// The client **never** starts, stops, or supervises the App Server process; it only
-/// connects to it. Process lifecycle belongs to `codex app-server daemon` or an
-/// equivalent systemd/launchd unit. Configure and create an instance with
-/// [`AppServerClient::builder`].
-///
-/// All operations take `&self`; the builder returns a cloneable `Arc<AppServerClient>`.
+/// The client does not manage the server process. Create it with [`AppServerClient::builder`].
 pub struct AppServerClient {
     endpoint: String,
     commands: mpsc::Sender<Command>,
@@ -54,7 +49,9 @@ pub struct AppServerClientBuilder {
 }
 
 impl AppServerClientBuilder {
-    /// `endpoint` has the form `unix:///absolute/path/to/app-server-control.sock`.
+    /// Create a builder for an App Server Unix socket endpoint.
+    ///
+    /// Use the `unix:///absolute/path/to/app-server-control.sock` form.
     pub fn new(endpoint: impl Into<String>) -> Self {
         Self {
             endpoint: endpoint.into(),
@@ -71,23 +68,21 @@ impl AppServerClientBuilder {
         }
     }
 
-    /// Self-reported identity shown in server logs.
+    /// Set the client identity sent in the initialization handshake.
     pub fn with_client_info(mut self, client_info: ClientInfo) -> Self {
         self.initialize.client_info = client_info;
         self
     }
 
-    /// Declare handshake capabilities, such as experimental APIs or notification filters.
+    /// Set the capabilities declared in the initialization handshake.
     pub fn with_capabilities(mut self, capabilities: InitializeCapabilities) -> Self {
         self.initialize.capabilities = Some(capabilities);
         self
     }
 
-    /// Ask the server not to send these notifications.
+    /// Ask the server to omit the listed notifications from this connection.
     ///
-    /// Notifications such as `mcpServer/startupStatus/updated` can appear several times
-    /// per turn. If they are not needed, opting out during the handshake is cheaper than
-    /// filtering them after receipt.
+    /// This can reduce traffic when the application does not use those events.
     pub fn opt_out_notifications<I, S>(mut self, methods: I) -> Self
     where
         I: IntoIterator<Item = S>,
@@ -101,27 +96,26 @@ impl AppServerClientBuilder {
         self
     }
 
-    /// Limit only connection establishment and initialization, not RPC execution time.
+    /// Set the timeout for connecting and completing the initialization handshake.
+    ///
+    /// This does not limit the time spent waiting for an RPC response.
     pub fn with_connect_timeout(mut self, connect_timeout_ms: u64) -> Self {
         self.connect_timeout = Duration::from_millis(connect_timeout_ms);
         self
     }
 
-    /// Take ownership of server requests not claimed by a thread receiver. Read them with
-    /// [`AppServerClient::next_event`].
+    /// Deliver unclaimed server requests through [`AppServerClient::next_event`].
     ///
-    /// By default, these requests are **not** handed off and are refused immediately.
-    /// The server waits after issuing a request, so putting it on a best-effort stream
-    /// that nobody reads could leave the turn stuck indefinitely. If this option is
-    /// enabled, the caller must consume requests promptly. Dropping a message closes its
-    /// one-shot reply sender and the actor refuses it.
+    /// By default, unclaimed requests are refused immediately. When enabled, the caller
+    /// must read and answer them promptly; dropping a message refuses its request.
     pub fn handling_unrouted_requests(mut self) -> Self {
         self.handle_unrouted = true;
         self
     }
 
-    /// Create the client and start its connection actor. Must be called inside a Tokio
-    /// runtime.
+    /// Create the client and start its background connection task.
+    ///
+    /// Call this from inside a Tokio runtime.
     pub fn build(self) -> Arc<AppServerClient> {
         let initialize = serde_json::to_value(self.initialize)
             .expect("InitializeParams contains only serializable generated types");
@@ -162,45 +156,30 @@ impl AppServerClient {
         (Attach { epoch, events }, messages)
     }
 
+    /// Create a builder for the given App Server endpoint.
     pub fn builder(endpoint: impl Into<String>) -> AppServerClientBuilder {
         AppServerClientBuilder::new(endpoint)
     }
 
+    /// Return the endpoint configured for this client.
     pub fn endpoint(&self) -> &str {
         &self.endpoint
     }
 
-    /// Send a typed request.
-    ///
-    /// There is no shared timeout. A disconnected request fails and is not replayed. A
-    /// disconnect does not prove the server skipped the operation; check its result
-    /// according to the operation's semantics.
+    /// Send a typed App Server request.
     ///
     /// The parameter type implements [`Request`] and determines the method and response
-    /// type, so `client.request(ThreadListParams { .. })` has a known return type:
-    ///
-    /// ```no_run
-    /// # use codex_client_cw::{AppServerClient, types::*};
-    /// # async fn demo(client: &AppServerClient) -> anyhow::Result<()> {
-    /// let models = client.request(ModelListParams::default()).await?;
-    /// # let _ = models;
-    /// # Ok(())
-    /// # }
-    /// ```
-    ///
-    /// The actor maintains subscriptions and turn state from the method, keeping this
-    /// generic entry point consistent with convenience methods. Establish and retain the
-    /// target thread's event receiver before starting a turn.
+    /// type. Requests have no shared timeout and are not replayed after a disconnect; a
+    /// failed call does not establish whether the server processed it.
     pub async fn request<R: Request>(&self, params: R) -> Result<R::Response> {
         let result = self.call(R::METHOD, encode(params)?).await?;
         decode(result, R::METHOD)
     }
 
-    /// Execute one request and return its uninterpreted `result`.
+    /// Send a request by method name and return its JSON result.
     ///
-    /// Escape hatch for methods added to the server after this client's generated
-    /// protocol snapshot. Prefer [`AppServerClient::request`] when possible; it preserves
-    /// each method's full type information.
+    /// Use this for methods missing from the generated protocol types. Prefer
+    /// [`AppServerClient::request`] when a typed parameter type is available.
     pub async fn call(&self, method: &str, params: Value) -> Result<Value> {
         let (responder, receiver) = oneshot::channel();
         self.send(Command::Call {
@@ -215,27 +194,20 @@ impl AppServerClient {
         })?
     }
 
-    /// Read the next global message unrelated to any thread.
+    /// Read the next message on the global event stream.
     ///
-    /// This is a single-consumer, best-effort stream. Server requests carry one-shot reply
-    /// handles and cannot be broadcast to competing responders. Concurrent calls consume
-    /// messages one at a time in lock order; waiting does not block RPCs. Returns `None`
-    /// after the actor exits.
+    /// This is a single-consumer, best-effort stream. It may contain connection events,
+    /// global notifications, and unclaimed server requests; messages can be dropped when
+    /// its buffer is full. Waiting for an event does not block RPCs. Returns `None` after
+    /// the client task exits.
     pub async fn next_event(&self) -> Option<GlobalMessage> {
         self.global.lock().await.recv().await
     }
 
-    /// Create a thread, subscribe this connection to it, and return an independent
-    /// message receiver.
+    /// Start a thread and return its message receiver.
     ///
-    /// The receiver remains active across turns; `turn/completed` does not close it. The
-    /// stream ends only if the subscription cannot be restored or the actor exits. The
-    /// consuming task should hold a client `Arc`; the receiver alone does not keep the
-    /// connection alive.
-    ///
-    /// The response contains the model, sandbox, `approvalPolicy`, and other settings
-    /// ultimately selected by the server. They may differ from the supplied values
-    /// because defaults come from server configuration; read the response when needed.
+    /// The receiver remains open across turns and reconnects. Keep a client handle alive
+    /// while consuming events. The response reports the settings selected by the server.
     pub async fn start_thread(
         &self,
         params: ThreadStartParams,
@@ -243,8 +215,7 @@ impl AppServerClient {
         self.request_with_receiver(params).await
     }
 
-    /// Resume a thread and bind an independent message receiver before delivering the
-    /// response. Always sends `thread/resume`.
+    /// Resume a thread and return its message receiver.
     pub async fn resume_thread(
         &self,
         params: ThreadResumeParams,
@@ -252,8 +223,7 @@ impl AppServerClient {
         self.request_with_receiver(params).await
     }
 
-    /// Register a message route for the thread in the response. The RPC still uses
-    /// `Call`.
+    /// Send a typed request and attach a receiver to the returned thread.
     async fn request_with_receiver<R: Request>(
         &self,
         params: R,
@@ -277,14 +247,12 @@ impl AppServerClient {
         Ok((decode(value, R::METHOD)?, messages))
     }
 
-    /// Equivalent to `request(TurnStartParams)`. The actor checks the subscription and
-    /// maintains reconnect state in one place.
+    /// Start or continue a turn with the supplied parameters.
     pub async fn start_turn(&self, params: TurnStartParams) -> Result<TurnStartResponse> {
         self.request(params).await
     }
 
-    /// Append input. The server rejects the request if `expected_turn_id` is no longer
-    /// the current turn.
+    /// Append input to the active turn if `expected_turn_id` still matches.
     pub async fn steer(
         &self,
         thread_id: &str,
@@ -300,8 +268,7 @@ impl AppServerClient {
         .await
     }
 
-    /// Interrupt a turn. Subscribe first if needed without replacing the existing event
-    /// receiver.
+    /// Interrupt a turn, subscribing to its thread first if necessary.
     pub async fn interrupt(&self, thread_id: &str, turn_id: &str) -> Result<()> {
         self.subscribe(ThreadResumeParams {
             thread_id: thread_id.to_owned(),
@@ -316,11 +283,7 @@ impl AppServerClient {
         Ok(())
     }
 
-    /// Verify that a thread belongs to `expected_cwd`.
-    ///
-    /// Ownership is determined by the cwd recorded by the server, not by the list that
-    /// returned the thread. Thread IDs often come from user input, so list membership
-    /// alone does not prove that a thread belongs to the current project.
+    /// Check whether the server records `expected_cwd` as the thread's working directory.
     pub async fn thread_belongs_to(&self, thread_id: &str, expected_cwd: &str) -> Result<bool> {
         let response = self
             .request(ThreadReadParams {
@@ -331,10 +294,9 @@ impl AppServerClient {
         Ok(response.thread.cwd == expected_cwd)
     }
 
-    /// Return the most recent thread under a directory as the protocol's [`Thread`].
+    /// Return up to `limit` recent threads for a working directory.
     ///
-    /// Use `request(ThreadListParams { .. })` with complete parameters for pagination,
-    /// filtering, or sorting.
+    /// Use [`AppServerClient::request`] for pagination, filtering, or sorting.
     pub async fn recent_threads(&self, cwd: &str, limit: u32) -> Result<Vec<Thread>> {
         let response = self
             .request(ThreadListParams {
@@ -346,16 +308,11 @@ impl AppServerClient {
         Ok(response.data)
     }
 
-    /// Join a thread on this connection without taking ownership of its message stream.
+    /// Subscribe this connection to a thread without creating a message receiver.
     ///
-    /// The server routes thread operations only to connections joined to the active
-    /// thread (ADR 0005), so call this before operations such as `turn/interrupt`. No
-    /// request is sent if the connection is already subscribed.
-    ///
-    /// The tradeoff is that no route is installed: notifications for this thread become
-    /// orphan messages on this connection, and server requests are conservatively
-    /// refused. Keep the receiver returned by `start_thread` or `resume_thread` when you
-    /// need the message stream.
+    /// Use this before thread operations when this client does not already have a
+    /// subscription. Events remain available only through an existing receiver; otherwise
+    /// notifications are unclaimed and server requests are refused.
     pub async fn subscribe(&self, resume: ThreadResumeParams) -> Result<()> {
         let (responder, receiver) = oneshot::channel();
         self.send(Command::IsSubscribed {
@@ -371,10 +328,7 @@ impl AppServerClient {
         Ok(())
     }
 
-    /// Explicitly unsubscribe from a thread and remove its route.
-    ///
-    /// After the last subscriber leaves, the server unloads the thread after a quiet
-    /// period and emits `thread/closed`.
+    /// Unsubscribe this connection from a thread and close its message route.
     pub async fn unsubscribe(&self, thread_id: &str) -> Result<()> {
         self.request(ThreadUnsubscribeParams {
             thread_id: thread_id.to_owned(),
@@ -383,13 +337,10 @@ impl AppServerClient {
         Ok(())
     }
 
-    /// Read a turn through `thread/read` and return the protocol's [`Turn`].
+    /// Read a turn's latest stored state from the server.
     ///
-    /// Use this as a fallback if a push is lost, the connection drops, or the process
-    /// restarts. It cannot replace a subscription because server requests are push-only.
-    ///
-    /// The returned [`Turn`] contains `status`, `items`, `error`, and duration. The caller
-    /// decides how to turn items into user-facing text.
+    /// Returns `None` if the thread does not contain the requested turn. Polling does not
+    /// deliver push notifications or server requests; use a thread receiver for those.
     pub async fn poll_turn(&self, thread_id: &str, turn_id: &str) -> Result<Option<Turn>> {
         let response = self
             .request(ThreadReadParams {
@@ -405,12 +356,12 @@ impl AppServerClient {
     }
 }
 
-/// Parameters → JSON.
+// Serialize request parameters for the JSON-RPC envelope.
 fn encode<T: Serialize>(params: T) -> Result<Value> {
     serde_json::to_value(params).map_err(|source| Error::Encode { source })
 }
 
-/// JSON → response type.
+// Decode the JSON-RPC result as the response type for the requested method.
 fn decode<T: DeserializeOwned>(value: Value, method: &str) -> Result<T> {
     serde_json::from_value(value).map_err(|source| Error::Decode {
         method: method.to_owned(),

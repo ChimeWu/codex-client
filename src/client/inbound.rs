@@ -1,9 +1,4 @@
-//! Inbound messages and one-shot reply handles for server requests.
-//!
-//! Notifications and requests keep their schema-generated payload types. This module
-//! only splits them into [`GlobalMessage`] and [`ThreadMessage`] by thread ownership.
-//! [`ReplySender`] can be used once and sends its result to the current connection's
-//! actor reply channel; no per-request waiter task is needed.
+//! Messages received from the App Server and handles for replying to its requests.
 
 use crate::generated::types::{InitializeResponse, RequestId};
 use crate::protocol::{GlobalNotification, GlobalRequest, ThreadNotification, ThreadRequest};
@@ -25,11 +20,10 @@ struct ReplyTarget {
     replies: mpsc::UnboundedSender<ServerReply>,
 }
 
-/// A one-shot reply handle for a server request.
+/// A one-shot handle for answering a server request.
 ///
-/// [`ReplySender::send`] consumes the handle, so a request can be answered at most once.
-/// Dropping it sends the actor a conservative refusal for that method. If the connection
-/// has already closed, sending returns the original response value.
+/// Send a JSON response with [`ReplySender::send`]. Dropping the handle refuses the
+/// request. If the connection has closed, `send` returns the unsent response value.
 #[derive(Debug)]
 pub struct ReplySender {
     target: Option<ReplyTarget>,
@@ -50,6 +44,10 @@ impl ReplySender {
         }
     }
 
+    /// Send the response value to the server.
+    ///
+    /// Returns the value if the connection is already closed and the response could not
+    /// be delivered.
     pub fn send(mut self, value: Value) -> std::result::Result<(), Value> {
         let target = self
             .target
@@ -84,11 +82,9 @@ impl Drop for ReplySender {
     }
 }
 
-/// An inbound message unrelated to any thread, consumed by [`crate::AppServerClient::next_event`].
+/// A connection-level message returned by [`crate::AppServerClient::next_event`].
 ///
-/// A server request can have only one responder, so the global stream has one consumer
-/// rather than broadcasting. If no one consumes a message in time, it is dropped and its
-/// reply sender closes, causing the actor to send a conservative refusal immediately.
+/// This stream has a single consumer. Dropping an unhandled server request refuses it.
 #[derive(Debug)]
 pub enum GlobalMessage {
     /// The handshake completed. This is emitted again after a reconnect.
@@ -124,12 +120,10 @@ pub enum GlobalMessage {
     Unparsed(Value),
 }
 
-/// An inbound message owned by a thread.
+/// A message associated with a subscribed thread.
 ///
-/// A transient disconnect does not close the channel: after reconnecting, the actor
-/// restores the subscription with the saved `thread/resume` parameters. A completed turn
-/// does not close the channel. It closes only if the server rejects resume, the message
-/// route is replaced, the caller unsubscribes, or the client exits.
+/// The receiver remains open across turns and transient disconnects. It closes if the
+/// subscription cannot be restored, the caller unsubscribes, or the client exits.
 #[derive(Debug)]
 pub enum ThreadMessage {
     /// A server notification owned by this thread.

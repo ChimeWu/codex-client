@@ -130,7 +130,7 @@ pub(crate) struct Actor {
     initialize: Value,
     connect_timeout: Duration,
     /// Whether to hand server requests unclaimed by a turn to the caller; see
-    /// [`crate::AppServerClientBuilder::handling_unrouted_requests`]。
+    /// [`crate::AppServerClientBuilder::handling_unrouted_requests`].
     handle_unrouted: bool,
     commands_rx: mpsc::Receiver<Command>,
     /// Global messages unrelated to any thread. A server request can be answered by only
