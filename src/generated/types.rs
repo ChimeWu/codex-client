@@ -1,0 +1,12057 @@
+// 由 protocol-codegen 生成，请勿手工修改。
+// 重新生成：
+//   codex app-server generate-json-schema --out <dir>
+//   cargo run -p codex-client-cw --bin protocol-codegen -- <dir> src/generated
+
+//! 协议里出现的全部数据类型。
+
+#![allow(clippy::large_enum_variant)]
+
+use serde::{Deserialize, Serialize};
+
+/// A path that is guaranteed to be absolute and normalized (though it is not guaranteed to be canonicalized or exist on the filesystem).
+///
+/// IMPORTANT: When deserializing an `AbsolutePathBuf`, a base path must be set using [AbsolutePathBufGuard::new]. If no base path is set, the deserialization will fail unless the path being deserialized is already absolute.
+pub type AbsolutePathBuf = String;
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum Account {
+    #[serde(rename = "apiKey")]
+    ApiKey,
+    #[serde(rename = "chatgpt")]
+    Chatgpt {
+        #[serde(rename = "email")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        email: Option<String>,
+        #[serde(rename = "planType")]
+        plan_type: PlanType,
+    },
+    #[serde(rename = "amazonBedrock")]
+    AmazonBedrock {
+        #[serde(rename = "usesCodexManagedCredentials")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        uses_codex_managed_credentials: Option<bool>,
+    },
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AccountLoginCompletedNotification {
+    #[serde(rename = "error")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+    #[serde(rename = "loginId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub login_id: Option<String>,
+    #[serde(rename = "onboardingEntrypoint")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onboarding_entrypoint: Option<DesktopOnboardingEntrypoint>,
+    #[serde(rename = "success")]
+    pub success: bool,
+}
+
+/// Sparse rolling rate-limit update.
+///
+/// Clients should merge available values into the most recent `account/rateLimits/read` response or refetch that snapshot. Nullable account metadata may be unavailable in a rolling update and does not clear a previously observed value.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AccountRateLimitsUpdatedNotification {
+    #[serde(rename = "rateLimits")]
+    pub rate_limits: RateLimitSnapshot,
+}
+
+/// Backend routing policy. Wire values match the accounts/check contract.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AccountRoutingOverride {
+    /// 判别值 `NO_CONSTRAINT`
+    #[serde(rename = "NO_CONSTRAINT")]
+    NOCONSTRAINT,
+    /// 判别值 `us`
+    #[serde(rename = "us")]
+    Us,
+    /// 判别值 `us_cr`
+    #[serde(rename = "us_cr")]
+    UsCr,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AccountTokenUsageDailyBucket {
+    #[serde(rename = "startDate")]
+    pub start_date: String,
+    #[serde(rename = "tokens")]
+    pub tokens: i64,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AccountTokenUsageSummary {
+    #[serde(rename = "currentStreakDays")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub current_streak_days: Option<i64>,
+    #[serde(rename = "lifetimeTokens")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lifetime_tokens: Option<i64>,
+    #[serde(rename = "longestRunningTurnSec")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub longest_running_turn_sec: Option<i64>,
+    #[serde(rename = "longestStreakDays")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub longest_streak_days: Option<i64>,
+    #[serde(rename = "peakDailyTokens")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub peak_daily_tokens: Option<i64>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AccountUpdatedNotification {
+    #[serde(rename = "authMode")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub auth_mode: Option<AuthMode>,
+    #[serde(rename = "planType")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub plan_type: Option<PlanType>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ActivePermissionProfile {
+    /// Parent profile identifier from the selected permissions profile's `extends` setting, when present.
+    #[serde(rename = "extends")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub extends: Option<String>,
+    /// Identifier from `default_permissions` or the implicit built-in default, such as `:workspace` or a user-defined `[permissions.<id>]` profile.
+    #[serde(rename = "id")]
+    pub id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AddCreditsNudgeCreditType {
+    /// 判别值 `credits`
+    #[serde(rename = "credits")]
+    Credits,
+    /// 判别值 `usage_limit`
+    #[serde(rename = "usage_limit")]
+    UsageLimit,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AddCreditsNudgeEmailStatus {
+    /// 判别值 `sent`
+    #[serde(rename = "sent")]
+    Sent,
+    /// 判别值 `cooldown_active`
+    #[serde(rename = "cooldown_active")]
+    CooldownActive,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AdditionalContextEntry {
+    #[serde(rename = "kind")]
+    pub kind: AdditionalContextKind,
+    #[serde(rename = "value")]
+    pub value: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AdditionalContextKind {
+    /// 判别值 `untrusted`
+    #[serde(rename = "untrusted")]
+    Untrusted,
+    /// 判别值 `application`
+    #[serde(rename = "application")]
+    Application,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AdditionalFileSystemPermissions {
+    #[serde(rename = "entries")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub entries: Option<Vec<FileSystemSandboxEntry>>,
+    #[serde(rename = "globScanMaxDepth")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub glob_scan_max_depth: Option<u64>,
+    /// This will be removed in favor of `entries`.
+    #[serde(rename = "read")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub read: Option<Vec<LegacyAppPathString>>,
+    /// This will be removed in favor of `entries`.
+    #[serde(rename = "write")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub write: Option<Vec<LegacyAppPathString>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AdditionalNetworkPermissions {
+    #[serde(rename = "enabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AdditionalPermissionProfile {
+    #[serde(rename = "fileSystem")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub file_system: Option<AdditionalFileSystemPermissions>,
+    /// Partial overlay used for per-command permission requests.
+    #[serde(rename = "network")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub network: Option<AdditionalNetworkPermissions>,
+}
+
+pub type AgentMessageDelivery = String;
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AgentMessageDeltaNotification {
+    #[serde(rename = "delta")]
+    pub delta: String,
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum AgentMessageInputContent {
+    #[serde(rename = "input_text")]
+    InputText {
+        #[serde(rename = "text")]
+        text: String,
+    },
+    #[serde(rename = "encrypted_content")]
+    EncryptedContent {
+        #[serde(rename = "encrypted_content")]
+        encrypted_content: String,
+    },
+}
+
+pub type AgentPath = String;
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AllowDenyRequirement {
+    /// 判别值 `allow`
+    #[serde(rename = "allow")]
+    Allow,
+    /// 判别值 `deny`
+    #[serde(rename = "deny")]
+    Deny,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AnalyticsConfig {
+    #[serde(rename = "enabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+}
+
+/// EXPERIMENTAL - app metadata returned by app-list APIs.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppBranding {
+    #[serde(rename = "category")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub category: Option<String>,
+    #[serde(rename = "developer")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub developer: Option<String>,
+    #[serde(rename = "isDiscoverableApp")]
+    pub is_discoverable_app: bool,
+    #[serde(rename = "privacyPolicy")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub privacy_policy: Option<String>,
+    #[serde(rename = "termsOfService")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub terms_of_service: Option<String>,
+    #[serde(rename = "website")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub website: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppConfig {
+    #[serde(rename = "approvals_reviewer")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approvals_reviewer: Option<ApprovalsReviewer>,
+    #[serde(rename = "default_tools_approval_mode")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_tools_approval_mode: Option<AppToolApproval>,
+    #[serde(rename = "default_tools_enabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_tools_enabled: Option<bool>,
+    #[serde(rename = "destructive_enabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub destructive_enabled: Option<bool>,
+    #[serde(rename = "enabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+    /// Per-account approval settings keyed by link ID.
+    #[serde(rename = "links")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub links: Option<AppLinksConfig>,
+    /// Additional model-facing surfaces omitted for this connector's tools.
+    #[serde(rename = "omit_tools_from")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub omit_tools_from: Option<Vec<ToolExposureSurface>>,
+    #[serde(rename = "open_world_enabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub open_world_enabled: Option<bool>,
+    #[serde(rename = "tools")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tools: Option<AppToolsConfig>,
+}
+
+/// EXPERIMENTAL - app metadata returned by app-list APIs.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppInfo {
+    #[serde(rename = "appMetadata")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub app_metadata: Option<AppMetadata>,
+    #[serde(rename = "branding")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub branding: Option<AppBranding>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "distributionChannel")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub distribution_channel: Option<String>,
+    #[serde(rename = "iconAssets")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon_assets: Option<std::collections::BTreeMap<String, String>>,
+    #[serde(rename = "iconDarkAssets")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon_dark_assets: Option<std::collections::BTreeMap<String, String>>,
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(rename = "installUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub install_url: Option<String>,
+    #[serde(rename = "isAccessible")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_accessible: Option<bool>,
+    /// Whether this app is enabled in config.toml. Example: ```toml [apps.bad_app] enabled = false ```
+    #[serde(rename = "isEnabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_enabled: Option<bool>,
+    #[serde(rename = "labels")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub labels: Option<std::collections::BTreeMap<String, String>>,
+    #[serde(rename = "logoUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub logo_url: Option<String>,
+    #[serde(rename = "logoUrlDark")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub logo_url_dark: Option<String>,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "pluginDisplayNames")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub plugin_display_names: Option<Vec<String>>,
+}
+
+/// Approval settings for a connected account within an app.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppLinkConfig {
+    #[serde(rename = "approvals_reviewer")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approvals_reviewer: Option<ApprovalsReviewer>,
+    #[serde(rename = "default_tools_approval_mode")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_tools_approval_mode: Option<AppToolApproval>,
+}
+
+/// Account settings for a single app.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppLinksConfig {}
+
+/// EXPERIMENTAL - notification emitted when the app list changes.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppListUpdatedNotification {
+    #[serde(rename = "data")]
+    pub data: Vec<AppInfo>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppMetadata {
+    #[serde(rename = "categories")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub categories: Option<Vec<String>>,
+    #[serde(rename = "developer")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub developer: Option<String>,
+    #[serde(rename = "firstPartyRequiresInstall")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub first_party_requires_install: Option<bool>,
+    #[serde(rename = "review")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub review: Option<AppReview>,
+    #[serde(rename = "screenshots")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub screenshots: Option<Vec<AppScreenshot>>,
+    #[serde(rename = "seoDescription")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub seo_description: Option<String>,
+    #[serde(rename = "showInComposerWhenUnlinked")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub show_in_composer_when_unlinked: Option<bool>,
+    #[serde(rename = "subCategories")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sub_categories: Option<Vec<String>>,
+    #[serde(rename = "version")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+    #[serde(rename = "versionId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub version_id: Option<String>,
+    #[serde(rename = "versionNotes")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub version_notes: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppReview {
+    #[serde(rename = "status")]
+    pub status: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppScreenshot {
+    #[serde(rename = "fileId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub file_id: Option<String>,
+    #[serde(rename = "url")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    #[serde(rename = "userPrompt")]
+    pub user_prompt: String,
+}
+
+/// EXPERIMENTAL - app metadata summary for plugin responses.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppSummary {
+    #[serde(rename = "category")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub category: Option<String>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(rename = "installUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub install_url: Option<String>,
+    #[serde(rename = "name")]
+    pub name: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppTemplateSummary {
+    #[serde(rename = "canonicalConnectorId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub canonical_connector_id: Option<String>,
+    #[serde(rename = "category")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub category: Option<String>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "logoUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub logo_url: Option<String>,
+    #[serde(rename = "logoUrlDark")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub logo_url_dark: Option<String>,
+    #[serde(rename = "materializedAppIds")]
+    pub materialized_app_ids: Vec<String>,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "reason")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reason: Option<AppTemplateUnavailableReason>,
+    #[serde(rename = "templateId")]
+    pub template_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppTemplateUnavailableReason {
+    /// 判别值 `NOT_CONFIGURED_FOR_WORKSPACE`
+    #[serde(rename = "NOT_CONFIGURED_FOR_WORKSPACE")]
+    NOTCONFIGUREDFORWORKSPACE,
+    /// 判别值 `NO_ACTIVE_WORKSPACE`
+    #[serde(rename = "NO_ACTIVE_WORKSPACE")]
+    NOACTIVEWORKSPACE,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppToolApproval {
+    /// 判别值 `auto`
+    #[serde(rename = "auto")]
+    Auto,
+    /// 判别值 `prompt`
+    #[serde(rename = "prompt")]
+    Prompt,
+    /// 判别值 `writes`
+    #[serde(rename = "writes")]
+    Writes,
+    /// 判别值 `approve`
+    #[serde(rename = "approve")]
+    Approve,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppToolConfig {
+    #[serde(rename = "approval_mode")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approval_mode: Option<AppToolApproval>,
+    #[serde(rename = "enabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+}
+
+/// EXPERIMENTAL - metadata returned by app/read.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppToolSummary {
+    #[serde(rename = "description")]
+    pub description: String,
+    #[serde(rename = "disabledReason")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disabled_reason: Option<String>,
+    #[serde(rename = "isEnabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_enabled: Option<bool>,
+    #[serde(rename = "isReadOnly")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_read_only: Option<bool>,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppToolsConfig {}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ApplicationNetworkRequirements {
+    #[serde(rename = "domains")]
+    pub domains: std::collections::BTreeMap<String, NetworkDomainPermission>,
+    /// When enabled, only explicitly allowed exact domains may be contacted.
+    #[serde(rename = "enabled")]
+    pub enabled: bool,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ApplicationRequirements {
+    #[serde(rename = "network")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub network: Option<ApplicationNetworkRequirements>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ApplyPatchApprovalParams {
+    /// Use to correlate this with [codex_protocol::protocol::PatchApplyBeginEvent] and [codex_protocol::protocol::PatchApplyEndEvent].
+    #[serde(rename = "callId")]
+    pub call_id: String,
+    #[serde(rename = "conversationId")]
+    pub conversation_id: ThreadId,
+    #[serde(rename = "fileChanges")]
+    pub file_changes: std::collections::BTreeMap<String, FileChange>,
+    /// When set, the agent is asking the user to allow writes under this root for the remainder of the session (unclear if this is honored today).
+    #[serde(rename = "grantRoot")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub grant_root: Option<String>,
+    /// Optional explanatory reason (e.g. request for extra write access).
+    #[serde(rename = "reason")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reason: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ApplyPatchApprovalResponse {
+    #[serde(rename = "decision")]
+    pub decision: ReviewDecision,
+}
+
+/// Configures who approval requests are routed to for review. Examples include sandbox escapes, blocked network access, MCP approval prompts, and ARC escalations. Defaults to `user`. `auto_review` uses a carefully prompted subagent to gather relevant context and apply a risk-based decision framework before approving or denying the request. The legacy value `guardian_subagent` is accepted for compatibility.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ApprovalsReviewer {
+    /// 判别值 `user`
+    #[serde(rename = "user")]
+    User,
+    /// 判别值 `auto_review`
+    #[serde(rename = "auto_review")]
+    AutoReview,
+    /// 判别值 `guardian_subagent`
+    #[serde(rename = "guardian_subagent")]
+    GuardianSubagent,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppsConfig {
+    #[serde(rename = "_default")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub _default: Option<AppsDefaultConfig>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppsDefaultConfig {
+    #[serde(rename = "approvals_reviewer")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approvals_reviewer: Option<ApprovalsReviewer>,
+    #[serde(rename = "default_tools_approval_mode")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_tools_approval_mode: Option<AppToolApproval>,
+    #[serde(rename = "destructive_enabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub destructive_enabled: Option<bool>,
+    #[serde(rename = "enabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+    #[serde(rename = "open_world_enabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub open_world_enabled: Option<bool>,
+}
+
+/// Read the committed installed connector runtime snapshot.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppsInstalledParams {
+    /// When true and Apps are permitted, refresh and publish the hosted connector runtime tool snapshot first.
+    #[serde(rename = "forceRefresh")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub force_refresh: Option<bool>,
+    /// Optional loaded thread id used to evaluate effective app configuration.
+    #[serde(rename = "threadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+}
+
+/// The installed connectors in one committed runtime snapshot.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppsInstalledResponse {
+    #[serde(rename = "apps")]
+    pub apps: Vec<InstalledApp>,
+}
+
+/// EXPERIMENTAL - list available apps/connectors.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppsListParams {
+    /// Opaque pagination cursor returned by a previous call.
+    #[serde(rename = "cursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cursor: Option<String>,
+    /// When true, bypass app caches and fetch the latest data from sources.
+    #[serde(rename = "forceRefetch")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub force_refetch: Option<bool>,
+    /// Optional page size; defaults to a reasonable server-side value.
+    #[serde(rename = "limit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u32>,
+    /// Optional thread id used to evaluate app feature gating from that thread's config.
+    #[serde(rename = "threadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+}
+
+/// EXPERIMENTAL - app list response.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppsListResponse {
+    #[serde(rename = "data")]
+    pub data: Vec<AppInfo>,
+    /// Opaque cursor to pass to the next call to continue after the last item. If None, there are no more items to return.
+    #[serde(rename = "nextCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}
+
+/// EXPERIMENTAL - read metadata for specific apps/connectors.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppsReadParams {
+    /// App ids to read. The server accepts at most 100 ids and deduplicates repeated ids while preserving their first-request order.
+    #[serde(rename = "appIds")]
+    pub app_ids: Vec<String>,
+    /// When true, include display-only public tool summaries in the returned metadata.
+    #[serde(rename = "includeTools")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub include_tools: Option<bool>,
+    /// Optional loaded thread id used to evaluate effective app configuration.
+    #[serde(rename = "threadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+}
+
+/// EXPERIMENTAL - app/read response.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AppsReadResponse {
+    #[serde(rename = "apps")]
+    pub apps: Vec<ConnectorMetadata>,
+    #[serde(rename = "missingAppIds")]
+    pub missing_app_ids: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum AskForApproval {
+    #[serde(rename = "untrusted")]
+    Untrusted,
+    #[serde(rename = "on-request")]
+    OnRequest,
+    #[serde(rename = "never")]
+    Never,
+    #[serde(rename = "granular")]
+    Granular(AskForApprovalGranular),
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AsyncUserInputQuestion {
+    #[serde(rename = "options")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub options: Option<Vec<String>>,
+    #[serde(rename = "title")]
+    pub title: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AttestationGenerateParams {}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AttestationGenerateResponse {
+    /// Opaque client attestation token.
+    #[serde(rename = "token")]
+    pub token: String,
+}
+
+/// Authentication mode for OpenAI-backed providers.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum AuthMode {
+    /// OpenAI API key provided by the caller and stored by Codex.
+    #[serde(rename = "apikey")]
+    Apikey,
+    /// ChatGPT OAuth managed by Codex (tokens persisted and refreshed by Codex).
+    #[serde(rename = "chatgpt")]
+    Chatgpt,
+    /// [UNSTABLE] FOR OPENAI INTERNAL USE ONLY - DO NOT USE.
+    ///
+    /// ChatGPT auth tokens are supplied by an external host app and are only stored in memory. Token refresh must be handled by the external host app.
+    #[serde(rename = "chatgptAuthTokens")]
+    ChatgptAuthTokens,
+    /// Backend auth supplied as request headers.
+    #[serde(rename = "headers")]
+    Headers,
+    /// Programmatic Codex auth backed by a registered Agent Identity.
+    #[serde(rename = "agentIdentity")]
+    AgentIdentity,
+    /// Programmatic Codex auth backed by a personal access token.
+    #[serde(rename = "personalAccessToken")]
+    PersonalAccessToken,
+    /// Amazon Bedrock bearer token managed by Codex.
+    #[serde(rename = "bedrockApiKey")]
+    BedrockApiKey,
+    /// Amazon Bedrock AWS access keys managed by Codex.
+    #[serde(rename = "bedrockAccessKeys")]
+    BedrockAccessKeys,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AuthRecoveryNotification {
+    #[serde(rename = "message")]
+    pub message: String,
+    #[serde(rename = "provider")]
+    pub provider: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+/// Selects which part of the active context is charged against `model_auto_compact_token_limit`.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum AutoCompactTokenLimitScope {
+    /// Count the full active context against the limit.
+    #[serde(rename = "total")]
+    Total,
+    /// Count sampled output and later growth after the carried window prefix.
+    #[serde(rename = "body_after_prefix")]
+    BodyAfterPrefix,
+}
+
+/// [UNSTABLE] Source that produced a terminal approval auto-review decision.
+pub type AutoReviewDecisionSource = String;
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AutoReviewRequirements {
+    #[serde(rename = "ignoreRules")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ignore_rules: Option<Vec<String>>,
+    #[serde(rename = "requiredOnModels")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub required_on_models: Option<Vec<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserUseAccessApprovalLifetime {
+    /// 判别值 `turn`
+    #[serde(rename = "turn")]
+    Turn,
+    /// 判别值 `thread`
+    #[serde(rename = "thread")]
+    Thread,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct BrowserUseConfig {
+    #[serde(rename = "allow_history_access")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_history_access: Option<bool>,
+    #[serde(rename = "default_origin_policy")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_origin_policy: Option<BrowserUseOriginPolicyConfig>,
+    #[serde(rename = "origins")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub origins: Option<std::collections::BTreeMap<String, BrowserUseOriginPolicyConfig>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct BrowserUseOriginPolicy {
+    #[serde(rename = "access")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub access: Option<AllowDenyRequirement>,
+    #[serde(rename = "accessApprovalLifetime")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub access_approval_lifetime: Option<BrowserUseAccessApprovalLifetime>,
+    #[serde(rename = "autoReview")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub auto_review: Option<AllowDenyRequirement>,
+    #[serde(rename = "downloads")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub downloads: Option<AllowDenyRequirement>,
+    #[serde(rename = "fullCdpAccess")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub full_cdp_access: Option<AllowDenyRequirement>,
+    #[serde(rename = "persistentApproval")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub persistent_approval: Option<bool>,
+    #[serde(rename = "uploads")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub uploads: Option<AllowDenyRequirement>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct BrowserUseOriginPolicyConfig {
+    #[serde(rename = "access")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub access: Option<AllowDenyRequirement>,
+    #[serde(rename = "downloads")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub downloads: Option<AllowDenyRequirement>,
+    #[serde(rename = "full_cdp_access")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub full_cdp_access: Option<AllowDenyRequirement>,
+    #[serde(rename = "uploads")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub uploads: Option<AllowDenyRequirement>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct BrowserUseRequirements {
+    #[serde(rename = "allowGlobalPersistentApproval")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_global_persistent_approval: Option<bool>,
+    #[serde(rename = "allowHistoryAccess")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_history_access: Option<bool>,
+    #[serde(rename = "allowWebmcp")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_webmcp: Option<bool>,
+    #[serde(rename = "defaultOriginPolicy")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_origin_policy: Option<BrowserUseOriginPolicy>,
+    #[serde(rename = "disableAutoReview")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disable_auto_review: Option<bool>,
+    #[serde(rename = "origins")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub origins: Option<std::collections::BTreeMap<String, BrowserUseOriginPolicy>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ByteRange {
+    #[serde(rename = "end")]
+    pub end: u64,
+    #[serde(rename = "start")]
+    pub start: u64,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CancelLoginAccountParams {
+    #[serde(rename = "loginId")]
+    pub login_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CancelLoginAccountResponse {
+    #[serde(rename = "status")]
+    pub status: CancelLoginAccountStatus,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CancelLoginAccountStatus {
+    /// 判别值 `canceled`
+    #[serde(rename = "canceled")]
+    Canceled,
+    /// 判别值 `notFound`
+    #[serde(rename = "notFound")]
+    NotFound,
+}
+
+/// Location used to resolve a selected capability root.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum CapabilityRootLocation {
+    /// A path owned by an execution environment.
+    #[serde(rename = "environment")]
+    Environment {
+        #[serde(rename = "environmentId")]
+        environment_id: String,
+        /// Absolute path for the root in the selected environment.
+        #[serde(rename = "path")]
+        path: String,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ChatgptAuthTokensRefreshParams {
+    /// Workspace/account identifier that Codex was previously using.
+    ///
+    /// Clients that manage multiple accounts/workspaces can use this as a hint to refresh the token for the correct workspace.
+    ///
+    /// This may be `null` when the prior auth state did not include a workspace identifier (`chatgpt_account_id`).
+    #[serde(rename = "previousAccountId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub previous_account_id: Option<String>,
+    #[serde(rename = "reason")]
+    pub reason: ChatgptAuthTokensRefreshReason,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum ChatgptAuthTokensRefreshReason {
+    /// Codex attempted a backend request and received `401 Unauthorized`.
+    #[serde(rename = "unauthorized")]
+    Unauthorized,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ChatgptAuthTokensRefreshResponse {
+    #[serde(rename = "accessToken")]
+    pub access_token: String,
+    #[serde(rename = "chatgptAccountId")]
+    pub chatgpt_account_id: String,
+    #[serde(rename = "chatgptPlanType")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub chatgpt_plan_type: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CliAuthCredentialsStoreMode {
+    /// 判别值 `file`
+    #[serde(rename = "file")]
+    File,
+    /// 判别值 `keyring`
+    #[serde(rename = "keyring")]
+    Keyring,
+    /// 判别值 `auto`
+    #[serde(rename = "auto")]
+    Auto,
+    /// 判别值 `ephemeral`
+    #[serde(rename = "ephemeral")]
+    Ephemeral,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ClientInfo {
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(rename = "version")]
+    pub version: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "method")]
+pub enum ClientNotification {
+    #[serde(rename = "initialized")]
+    Initialized,
+}
+
+/// Request from the client to the server.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "method")]
+pub enum ClientRequest {
+    #[serde(rename = "initialize")]
+    Initialize {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: InitializeParams,
+    },
+    /// NEW APIs
+    #[serde(rename = "thread/start")]
+    ThreadStart {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadStartParams,
+    },
+    #[serde(rename = "thread/resume")]
+    ThreadResume {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadResumeParams,
+    },
+    #[serde(rename = "thread/fork")]
+    ThreadFork {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadForkParams,
+    },
+    #[serde(rename = "thread/archive")]
+    ThreadArchive {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadArchiveParams,
+    },
+    #[serde(rename = "thread/delete")]
+    ThreadDelete {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadDeleteParams,
+    },
+    #[serde(rename = "thread/unsubscribe")]
+    ThreadUnsubscribe {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadUnsubscribeParams,
+    },
+    #[serde(rename = "thread/name/set")]
+    ThreadNameSet {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadSetNameParams,
+    },
+    #[serde(rename = "thread/goal/set")]
+    ThreadGoalSet {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadGoalSetParams,
+    },
+    #[serde(rename = "thread/goal/get")]
+    ThreadGoalGet {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadGoalGetParams,
+    },
+    #[serde(rename = "thread/goal/clear")]
+    ThreadGoalClear {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadGoalClearParams,
+    },
+    #[serde(rename = "thread/metadata/update")]
+    ThreadMetadataUpdate {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadMetadataUpdateParams,
+    },
+    #[serde(rename = "thread/attachment/add")]
+    ThreadAttachmentAdd {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadAttachmentAddParams,
+    },
+    #[serde(rename = "thread/attachment/list")]
+    ThreadAttachmentList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadAttachmentListParams,
+    },
+    #[serde(rename = "thread/attachment/remove")]
+    ThreadAttachmentRemove {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadAttachmentRemoveParams,
+    },
+    #[serde(rename = "thread/section/move")]
+    ThreadSectionMove {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadSectionMoveParams,
+    },
+    #[serde(rename = "thread/unarchive")]
+    ThreadUnarchive {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadUnarchiveParams,
+    },
+    #[serde(rename = "thread/compact/start")]
+    ThreadCompactStart {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadCompactStartParams,
+    },
+    #[serde(rename = "thread/shellCommand")]
+    ThreadShellCommand {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadShellCommandParams,
+    },
+    #[serde(rename = "thread/approveGuardianDeniedAction")]
+    ThreadApproveGuardianDeniedAction {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadApproveGuardianDeniedActionParams,
+    },
+    #[serde(rename = "thread/revert")]
+    ThreadRevert {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadRevertParams,
+    },
+    #[serde(rename = "thread/list")]
+    ThreadList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadListParams,
+    },
+    #[serde(rename = "threadSection/list")]
+    ThreadSectionList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadSectionListParams,
+    },
+    #[serde(rename = "threadSection/create")]
+    ThreadSectionCreate {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadSectionCreateParams,
+    },
+    #[serde(rename = "threadSection/update")]
+    ThreadSectionUpdate {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadSectionUpdateParams,
+    },
+    #[serde(rename = "threadSection/delete")]
+    ThreadSectionDelete {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadSectionDeleteParams,
+    },
+    #[serde(rename = "thread/loaded/list")]
+    ThreadLoadedList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadLoadedListParams,
+    },
+    #[serde(rename = "thread/read")]
+    ThreadRead {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadReadParams,
+    },
+    #[serde(rename = "thread/turns/list")]
+    ThreadTurnsList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadTurnsListParams,
+    },
+    #[serde(rename = "thread/items/list")]
+    ThreadItemsList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadItemsListParams,
+    },
+    /// Append raw Responses API items to the thread history without starting a user turn.
+    #[serde(rename = "thread/inject_items")]
+    ThreadInjectItems {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ThreadInjectItemsParams,
+    },
+    #[serde(rename = "skills/list")]
+    SkillsList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: SkillsListParams,
+    },
+    #[serde(rename = "skills/extraRoots/set")]
+    SkillsExtraRootsSet {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: SkillsExtraRootsSetParams,
+    },
+    #[serde(rename = "hooks/list")]
+    HooksList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: HooksListParams,
+    },
+    #[serde(rename = "marketplace/add")]
+    MarketplaceAdd {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: MarketplaceAddParams,
+    },
+    #[serde(rename = "marketplace/remove")]
+    MarketplaceRemove {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: MarketplaceRemoveParams,
+    },
+    #[serde(rename = "marketplace/upgrade")]
+    MarketplaceUpgrade {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: MarketplaceUpgradeParams,
+    },
+    #[serde(rename = "plugin/list")]
+    PluginList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PluginListParams,
+    },
+    #[serde(rename = "plugin/installed")]
+    PluginInstalled {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PluginInstalledParams,
+    },
+    #[serde(rename = "plugin/reconcile")]
+    PluginReconcile {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PluginReconcileParams,
+    },
+    #[serde(rename = "plugin/read")]
+    PluginRead {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PluginReadParams,
+    },
+    #[serde(rename = "plugin/skill/read")]
+    PluginSkillRead {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PluginSkillReadParams,
+    },
+    #[serde(rename = "plugin/share/save")]
+    PluginShareSave {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PluginShareSaveParams,
+    },
+    #[serde(rename = "plugin/share/updateTargets")]
+    PluginShareUpdateTargets {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PluginShareUpdateTargetsParams,
+    },
+    #[serde(rename = "plugin/share/list")]
+    PluginShareList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PluginShareListParams,
+    },
+    #[serde(rename = "plugin/share/checkout")]
+    PluginShareCheckout {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PluginShareCheckoutParams,
+    },
+    #[serde(rename = "plugin/share/delete")]
+    PluginShareDelete {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PluginShareDeleteParams,
+    },
+    #[serde(rename = "app/read")]
+    AppRead {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: AppsReadParams,
+    },
+    #[serde(rename = "app/list")]
+    AppList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: AppsListParams,
+    },
+    #[serde(rename = "app/installed")]
+    AppInstalled {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: AppsInstalledParams,
+    },
+    #[serde(rename = "fs/readFile")]
+    FsReadFile {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: FsReadFileParams,
+    },
+    #[serde(rename = "fs/writeFile")]
+    FsWriteFile {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: FsWriteFileParams,
+    },
+    #[serde(rename = "fs/createDirectory")]
+    FsCreateDirectory {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: FsCreateDirectoryParams,
+    },
+    #[serde(rename = "fs/getMetadata")]
+    FsGetMetadata {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: FsGetMetadataParams,
+    },
+    #[serde(rename = "fs/readDirectory")]
+    FsReadDirectory {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: FsReadDirectoryParams,
+    },
+    #[serde(rename = "fs/remove")]
+    FsRemove {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: FsRemoveParams,
+    },
+    #[serde(rename = "fs/copy")]
+    FsCopy {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: FsCopyParams,
+    },
+    #[serde(rename = "fs/watch")]
+    FsWatch {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: FsWatchParams,
+    },
+    #[serde(rename = "fs/unwatch")]
+    FsUnwatch {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: FsUnwatchParams,
+    },
+    #[serde(rename = "skills/config/write")]
+    SkillsConfigWrite {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: SkillsConfigWriteParams,
+    },
+    #[serde(rename = "plugin/install")]
+    PluginInstall {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PluginInstallParams,
+    },
+    #[serde(rename = "plugin/uninstall")]
+    PluginUninstall {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PluginUninstallParams,
+    },
+    #[serde(rename = "turn/start")]
+    TurnStart {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: TurnStartParams,
+    },
+    #[serde(rename = "turn/steer")]
+    TurnSteer {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: TurnSteerParams,
+    },
+    #[serde(rename = "turn/interrupt")]
+    TurnInterrupt {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: TurnInterruptParams,
+    },
+    #[serde(rename = "review/start")]
+    ReviewStart {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ReviewStartParams,
+    },
+    #[serde(rename = "model/list")]
+    ModelList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ModelListParams,
+    },
+    #[serde(rename = "account/gatewayOAuth/read")]
+    AccountGatewayOAuthRead {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        params: Option<serde_json::Value>,
+    },
+    #[serde(rename = "account/gatewayOAuth/login")]
+    AccountGatewayOAuthLogin {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        params: Option<serde_json::Value>,
+    },
+    #[serde(rename = "account/gatewayOAuth/cancel")]
+    AccountGatewayOAuthCancel {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        params: Option<serde_json::Value>,
+    },
+    #[serde(rename = "modelProvider/capabilities/read")]
+    ModelProviderCapabilitiesRead {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ModelProviderCapabilitiesReadParams,
+    },
+    #[serde(rename = "experimentalFeature/list")]
+    ExperimentalFeatureList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ExperimentalFeatureListParams,
+    },
+    #[serde(rename = "permissionProfile/list")]
+    PermissionProfileList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PermissionProfileListParams,
+    },
+    #[serde(rename = "experimentalFeature/enablement/set")]
+    ExperimentalFeatureEnablementSet {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ExperimentalFeatureEnablementSetParams,
+    },
+    #[serde(rename = "mcpServer/oauth/login")]
+    McpServerOauthLogin {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: McpServerOauthLoginParams,
+    },
+    #[serde(rename = "config/mcpServer/reload")]
+    ConfigMcpServerReload {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        params: Option<serde_json::Value>,
+    },
+    #[serde(rename = "mcpServerStatus/list")]
+    McpServerStatusList {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ListMcpServerStatusParams,
+    },
+    #[serde(rename = "mcpServer/resource/read")]
+    McpServerResourceRead {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: McpResourceReadParams,
+    },
+    #[serde(rename = "mcpServer/tool/call")]
+    McpServerToolCall {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: McpServerToolCallParams,
+    },
+    #[serde(rename = "windowsSandbox/setupStart")]
+    WindowsSandboxSetupStart {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: WindowsSandboxSetupStartParams,
+    },
+    #[serde(rename = "windowsSandbox/readiness")]
+    WindowsSandboxReadiness {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        params: Option<serde_json::Value>,
+    },
+    #[serde(rename = "account/login/start")]
+    AccountLoginStart {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: LoginAccountParams,
+    },
+    #[serde(rename = "account/login/cancel")]
+    AccountLoginCancel {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: CancelLoginAccountParams,
+    },
+    #[serde(rename = "account/logout")]
+    AccountLogout {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        params: Option<serde_json::Value>,
+    },
+    #[serde(rename = "account/rateLimits/read")]
+    AccountRateLimitsRead {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        params: Option<GetAccountRateLimitsParams>,
+    },
+    #[serde(rename = "account/rateLimitResetCredit/consume")]
+    AccountRateLimitResetCreditConsume {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ConsumeAccountRateLimitResetCreditParams,
+    },
+    #[serde(rename = "account/usage/read")]
+    AccountUsageRead {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        params: Option<GetAccountTokenUsageParams>,
+    },
+    #[serde(rename = "account/workspaceMessages/read")]
+    AccountWorkspaceMessagesRead {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        params: Option<serde_json::Value>,
+    },
+    #[serde(rename = "account/sendAddCreditsNudgeEmail")]
+    AccountSendAddCreditsNudgeEmail {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: SendAddCreditsNudgeEmailParams,
+    },
+    #[serde(rename = "feedback/upload")]
+    FeedbackUpload {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: FeedbackUploadParams,
+    },
+    /// Execute a standalone command (argv vector) under the server's sandbox.
+    #[serde(rename = "command/exec")]
+    CommandExec {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: CommandExecParams,
+    },
+    /// Write stdin bytes to a running `command/exec` session or close stdin.
+    #[serde(rename = "command/exec/write")]
+    CommandExecWrite {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: CommandExecWriteParams,
+    },
+    /// Terminate a running `command/exec` session by client-supplied `processId`.
+    #[serde(rename = "command/exec/terminate")]
+    CommandExecTerminate {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: CommandExecTerminateParams,
+    },
+    /// Resize a running PTY-backed `command/exec` session by client-supplied `processId`.
+    #[serde(rename = "command/exec/resize")]
+    CommandExecResize {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: CommandExecResizeParams,
+    },
+    #[serde(rename = "config/read")]
+    ConfigRead {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ConfigReadParams,
+    },
+    #[serde(rename = "externalAgentConfig/detect")]
+    ExternalAgentConfigDetect {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ExternalAgentConfigDetectParams,
+    },
+    #[serde(rename = "externalAgentConfig/import")]
+    ExternalAgentConfigImport {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ExternalAgentConfigImportParams,
+    },
+    #[serde(rename = "externalAgentConfig/import/recordHistory")]
+    ExternalAgentConfigImportRecordHistory {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ExternalAgentConfigImportHistoryRecordParams,
+    },
+    #[serde(rename = "externalAgentConfig/import/readHistories")]
+    ExternalAgentConfigImportReadHistories {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        params: Option<serde_json::Value>,
+    },
+    #[serde(rename = "config/value/write")]
+    ConfigValueWrite {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ConfigValueWriteParams,
+    },
+    #[serde(rename = "config/batchWrite")]
+    ConfigBatchWrite {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ConfigBatchWriteParams,
+    },
+    #[serde(rename = "configRequirements/read")]
+    ConfigRequirementsRead {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        params: Option<serde_json::Value>,
+    },
+    #[serde(rename = "account/read")]
+    AccountRead {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: GetAccountParams,
+    },
+    #[serde(rename = "fuzzyFileSearch")]
+    FuzzyFileSearch {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: FuzzyFileSearchParams,
+    },
+}
+
+/// This translation layer make sure that we expose codex error code in camel case.
+///
+/// When an upstream HTTP status is available (for example, from the Responses API or a provider), it is forwarded in `httpStatusCode` on the relevant `codexErrorInfo` variant.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum CodexErrorInfo {
+    #[serde(rename = "contextWindowExceeded")]
+    ContextWindowExceeded,
+    #[serde(rename = "sessionBudgetExceeded")]
+    SessionBudgetExceeded,
+    #[serde(rename = "usageLimitExceeded")]
+    UsageLimitExceeded,
+    #[serde(rename = "rateLimitExceeded")]
+    RateLimitExceeded,
+    #[serde(rename = "flexUnavailable")]
+    FlexUnavailable,
+    #[serde(rename = "serverOverloaded")]
+    ServerOverloaded,
+    #[serde(rename = "cyberPolicy")]
+    CyberPolicy,
+    #[serde(rename = "misalignmentPolicyViolation")]
+    MisalignmentPolicyViolation,
+    #[serde(rename = "internalServerError")]
+    InternalServerError,
+    #[serde(rename = "unauthorized")]
+    Unauthorized,
+    #[serde(rename = "badRequest")]
+    BadRequest,
+    #[serde(rename = "threadRollbackFailed")]
+    ThreadRollbackFailed,
+    #[serde(rename = "sandboxError")]
+    SandboxError,
+    #[serde(rename = "other")]
+    Other,
+    #[serde(rename = "httpConnectionFailed")]
+    HttpConnectionFailed(CodexErrorInfoHttpConnectionFailed),
+    /// Failed to connect to the response SSE stream.
+    #[serde(rename = "responseStreamConnectionFailed")]
+    ResponseStreamConnectionFailed(CodexErrorInfoResponseStreamConnectionFailed),
+    /// The response SSE stream disconnected in the middle of a turn before completion.
+    #[serde(rename = "responseStreamDisconnected")]
+    ResponseStreamDisconnected(CodexErrorInfoResponseStreamDisconnected),
+    /// Reached the retry limit for responses.
+    #[serde(rename = "responseTooManyFailedAttempts")]
+    ResponseTooManyFailedAttempts(CodexErrorInfoResponseTooManyFailedAttempts),
+    /// Returned when `turn/start` or `turn/steer` is submitted while the current active turn cannot accept same-turn steering, for example `/review` or manual `/compact`.
+    #[serde(rename = "activeTurnNotSteerable")]
+    ActiveTurnNotSteerable(CodexErrorInfoActiveTurnNotSteerable),
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CodexResponseHandoffMode {
+    /// 判别值 `thinking`
+    #[serde(rename = "thinking")]
+    Thinking,
+    /// 判别值 `commentary`
+    #[serde(rename = "commentary")]
+    Commentary,
+    /// 判别值 `bemTags`
+    #[serde(rename = "bemTags")]
+    BemTags,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CollabAgentState {
+    #[serde(rename = "message")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    #[serde(rename = "status")]
+    pub status: CollabAgentStatus,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CollabAgentStatus {
+    /// 判别值 `pendingInit`
+    #[serde(rename = "pendingInit")]
+    PendingInit,
+    /// 判别值 `running`
+    #[serde(rename = "running")]
+    Running,
+    /// 判别值 `interrupted`
+    #[serde(rename = "interrupted")]
+    Interrupted,
+    /// 判别值 `completed`
+    #[serde(rename = "completed")]
+    Completed,
+    /// 判别值 `errored`
+    #[serde(rename = "errored")]
+    Errored,
+    /// 判别值 `shutdown`
+    #[serde(rename = "shutdown")]
+    Shutdown,
+    /// 判别值 `notFound`
+    #[serde(rename = "notFound")]
+    NotFound,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CollabAgentTool {
+    /// 判别值 `spawnAgent`
+    #[serde(rename = "spawnAgent")]
+    SpawnAgent,
+    /// 判别值 `sendInput`
+    #[serde(rename = "sendInput")]
+    SendInput,
+    /// 判别值 `resumeAgent`
+    #[serde(rename = "resumeAgent")]
+    ResumeAgent,
+    /// 判别值 `wait`
+    #[serde(rename = "wait")]
+    Wait,
+    /// 判别值 `closeAgent`
+    #[serde(rename = "closeAgent")]
+    CloseAgent,
+    /// 判别值 `sendMessage`
+    #[serde(rename = "sendMessage")]
+    SendMessage,
+    /// 判别值 `followupTask`
+    #[serde(rename = "followupTask")]
+    FollowupTask,
+    /// 判别值 `interruptAgent`
+    #[serde(rename = "interruptAgent")]
+    InterruptAgent,
+    /// 判别值 `listAgents`
+    #[serde(rename = "listAgents")]
+    ListAgents,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CollabAgentToolCallStatus {
+    /// 判别值 `inProgress`
+    #[serde(rename = "inProgress")]
+    InProgress,
+    /// 判别值 `completed`
+    #[serde(rename = "completed")]
+    Completed,
+    /// 判别值 `failed`
+    #[serde(rename = "failed")]
+    Failed,
+    /// 判别值 `interrupted`
+    #[serde(rename = "interrupted")]
+    Interrupted,
+}
+
+/// Collaboration mode for a Codex session.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CollaborationMode {
+    #[serde(rename = "mode")]
+    pub mode: ModeKind,
+    #[serde(rename = "settings")]
+    pub settings: Settings,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum CommandAction {
+    #[serde(rename = "read")]
+    Read {
+        #[serde(rename = "command")]
+        command: String,
+        #[serde(rename = "name")]
+        name: String,
+        #[serde(rename = "path")]
+        path: LegacyAppPathString,
+    },
+    #[serde(rename = "listFiles")]
+    ListFiles {
+        #[serde(rename = "command")]
+        command: String,
+        #[serde(rename = "path")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        path: Option<String>,
+    },
+    #[serde(rename = "search")]
+    Search {
+        #[serde(rename = "command")]
+        command: String,
+        #[serde(rename = "path")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        path: Option<String>,
+        #[serde(rename = "query")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        query: Option<String>,
+    },
+    #[serde(rename = "unknown")]
+    Unknown {
+        #[serde(rename = "command")]
+        command: String,
+    },
+}
+
+/// Base64-encoded output chunk emitted for a streaming `command/exec` request.
+///
+/// These notifications are connection-scoped. If the originating connection closes, the server terminates the process.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecOutputDeltaNotification {
+    /// `true` on the final streamed chunk for a stream when `outputBytesCap` truncated later output on that stream.
+    #[serde(rename = "capReached")]
+    pub cap_reached: bool,
+    /// Base64-encoded output bytes.
+    #[serde(rename = "deltaBase64")]
+    pub delta_base64: String,
+    /// Client-supplied, connection-scoped `processId` from the original `command/exec` request.
+    #[serde(rename = "processId")]
+    pub process_id: String,
+    /// Output stream for this chunk.
+    #[serde(rename = "stream")]
+    pub stream: CommandExecOutputStream,
+}
+
+/// Stream label for `command/exec/outputDelta` notifications.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum CommandExecOutputStream {
+    /// stdout stream. PTY mode multiplexes terminal output here.
+    #[serde(rename = "stdout")]
+    Stdout,
+    /// stderr stream.
+    #[serde(rename = "stderr")]
+    Stderr,
+}
+
+/// Run a standalone command (argv vector) in the server sandbox without creating a thread or turn.
+///
+/// The final `command/exec` response is deferred until the process exits and is sent only after all `command/exec/outputDelta` notifications for that connection have been emitted.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecParams {
+    /// Command argv vector. Empty arrays are rejected.
+    #[serde(rename = "command")]
+    pub command: Vec<String>,
+    /// Optional working directory. Defaults to the server cwd.
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<String>,
+    /// Disable stdout/stderr capture truncation for this request.
+    ///
+    /// Cannot be combined with `outputBytesCap`.
+    #[serde(rename = "disableOutputCap")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disable_output_cap: Option<bool>,
+    /// Disable the timeout entirely for this request.
+    ///
+    /// Cannot be combined with `timeoutMs`.
+    #[serde(rename = "disableTimeout")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disable_timeout: Option<bool>,
+    /// Optional environment overrides merged into the server-computed environment.
+    ///
+    /// Matching names override inherited values. Set a key to `null` to unset an inherited variable.
+    #[serde(rename = "env")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub env: Option<std::collections::BTreeMap<String, Option<String>>>,
+    /// Optional per-stream stdout/stderr capture cap in bytes.
+    ///
+    /// When omitted, the server default applies. Cannot be combined with `disableOutputCap`.
+    #[serde(rename = "outputBytesCap")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub output_bytes_cap: Option<u64>,
+    /// Optional client-supplied, connection-scoped process id.
+    ///
+    /// Required for `tty`, `streamStdin`, `streamStdoutStderr`, and follow-up `command/exec/write`, `command/exec/resize`, and `command/exec/terminate` calls. When omitted, buffered execution gets an internal id that is not exposed to the client.
+    #[serde(rename = "processId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub process_id: Option<String>,
+    /// Optional sandbox policy for this command.
+    ///
+    /// Uses the same shape as thread/turn execution sandbox configuration and defaults to the user's configured policy when omitted. Cannot be combined with `permissionProfile`.
+    #[serde(rename = "sandboxPolicy")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sandbox_policy: Option<SandboxPolicy>,
+    /// Optional initial PTY size in character cells. Only valid when `tty` is true.
+    #[serde(rename = "size")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size: Option<CommandExecTerminalSize>,
+    /// Allow follow-up `command/exec/write` requests to write stdin bytes.
+    ///
+    /// Requires a client-supplied `processId`.
+    #[serde(rename = "streamStdin")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stream_stdin: Option<bool>,
+    /// Stream stdout/stderr via `command/exec/outputDelta` notifications.
+    ///
+    /// Streamed bytes are not duplicated into the final response and require a client-supplied `processId`.
+    #[serde(rename = "streamStdoutStderr")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stream_stdout_stderr: Option<bool>,
+    /// Optional timeout in milliseconds.
+    ///
+    /// When omitted, the server default applies. Cannot be combined with `disableTimeout`.
+    #[serde(rename = "timeoutMs")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub timeout_ms: Option<i64>,
+    /// Enable PTY mode.
+    ///
+    /// This implies `streamStdin` and `streamStdoutStderr`.
+    #[serde(rename = "tty")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tty: Option<bool>,
+}
+
+/// Resize a running PTY-backed `command/exec` session.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecResizeParams {
+    /// Client-supplied, connection-scoped `processId` from the original `command/exec` request.
+    #[serde(rename = "processId")]
+    pub process_id: String,
+    /// New PTY size in character cells.
+    #[serde(rename = "size")]
+    pub size: CommandExecTerminalSize,
+}
+
+/// Empty success response for `command/exec/resize`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecResizeResponse {}
+
+/// Final buffered result for `command/exec`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecResponse {
+    /// Process exit code.
+    #[serde(rename = "exitCode")]
+    pub exit_code: i32,
+    /// Buffered stderr capture.
+    ///
+    /// Empty when stderr was streamed via `command/exec/outputDelta`.
+    #[serde(rename = "stderr")]
+    pub stderr: String,
+    /// Buffered stdout capture.
+    ///
+    /// Empty when stdout was streamed via `command/exec/outputDelta`.
+    #[serde(rename = "stdout")]
+    pub stdout: String,
+}
+
+/// PTY size in character cells for `command/exec` PTY sessions.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecTerminalSize {
+    /// Terminal width in character cells.
+    #[serde(rename = "cols")]
+    pub cols: u16,
+    /// Terminal height in character cells.
+    #[serde(rename = "rows")]
+    pub rows: u16,
+}
+
+/// Terminate a running `command/exec` session.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecTerminateParams {
+    /// Client-supplied, connection-scoped `processId` from the original `command/exec` request.
+    #[serde(rename = "processId")]
+    pub process_id: String,
+}
+
+/// Empty success response for `command/exec/terminate`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecTerminateResponse {}
+
+/// Write stdin bytes to a running `command/exec` session, close stdin, or both.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecWriteParams {
+    /// Close stdin after writing `deltaBase64`, if present.
+    #[serde(rename = "closeStdin")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub close_stdin: Option<bool>,
+    /// Optional base64-encoded stdin bytes to write.
+    #[serde(rename = "deltaBase64")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub delta_base64: Option<String>,
+    /// Client-supplied, connection-scoped `processId` from the original `command/exec` request.
+    #[serde(rename = "processId")]
+    pub process_id: String,
+}
+
+/// Empty success response for `command/exec/write`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecWriteResponse {}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum CommandExecutionApprovalDecision {
+    /// User approved the command.
+    #[serde(rename = "accept")]
+    Accept,
+    /// User approved the command and future prompts in the same session-scoped approval cache should run without prompting.
+    #[serde(rename = "acceptForSession")]
+    AcceptForSession,
+    /// User approved the command, and wants to apply the proposed execpolicy amendment so future matching commands can run without prompting.
+    #[serde(rename = "acceptWithExecpolicyAmendment")]
+    AcceptWithExecpolicyAmendment(CommandExecutionApprovalDecisionAcceptWithExecpolicyAmendment),
+    /// User chose a persistent network policy rule (allow/deny) for this host.
+    #[serde(rename = "applyNetworkPolicyAmendment")]
+    ApplyNetworkPolicyAmendment(CommandExecutionApprovalDecisionApplyNetworkPolicyAmendment),
+    /// User denied the command. The agent will continue the turn.
+    #[serde(rename = "decline")]
+    Decline,
+    /// User denied the command. The turn will also be immediately interrupted.
+    #[serde(rename = "cancel")]
+    Cancel,
+}
+
+/// Distinguishes a command approval from input sent to an existing terminal.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CommandExecutionApprovalKind {
+    /// 判别值 `command`
+    #[serde(rename = "command")]
+    Command,
+    /// 判别值 `writeStdin`
+    #[serde(rename = "writeStdin")]
+    WriteStdin,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecutionOutputDeltaNotification {
+    #[serde(rename = "delta")]
+    pub delta: String,
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecutionRequestApprovalParams {
+    /// Unique identifier for this specific approval callback.
+    ///
+    /// For regular shell/unified_exec approvals, this is null.
+    ///
+    /// For zsh-exec-bridge subcommand approvals, multiple callbacks can belong to one parent `itemId`, so `approvalId` is a distinct opaque callback id (a UUID) used to disambiguate routing. Stdin approvals also use a distinct callback id; inspect `kind` to distinguish them.
+    #[serde(rename = "approvalId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approval_id: Option<String>,
+    /// The command to be executed.
+    #[serde(rename = "command")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub command: Option<String>,
+    /// Best-effort parsed command actions for friendly display.
+    #[serde(rename = "commandActions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub command_actions: Option<Vec<CommandAction>>,
+    /// The command's working directory.
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<LegacyAppPathString>,
+    /// Environment in which the command will run.
+    #[serde(rename = "environmentId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub environment_id: Option<String>,
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    /// Kind of action under review. Defaults to `command` for older servers.
+    #[serde(rename = "kind")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kind: Option<CommandExecutionApprovalKind>,
+    /// Optional context for a managed-network approval prompt.
+    #[serde(rename = "networkApprovalContext")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub network_approval_context: Option<NetworkApprovalContext>,
+    /// Optional proposed execpolicy amendment to allow similar commands without prompting.
+    #[serde(rename = "proposedExecpolicyAmendment")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub proposed_execpolicy_amendment: Option<Vec<String>>,
+    /// Optional proposed network policy amendments (allow/deny host) for future requests.
+    #[serde(rename = "proposedNetworkPolicyAmendments")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub proposed_network_policy_amendments: Option<Vec<NetworkPolicyAmendment>>,
+    /// Optional explanatory reason (e.g. request for network access).
+    #[serde(rename = "reason")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reason: Option<String>,
+    /// Unix timestamp (in milliseconds) when this approval request started.
+    #[serde(rename = "startedAtMs")]
+    pub started_at_ms: i64,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecutionRequestApprovalResponse {
+    #[serde(rename = "decision")]
+    pub decision: CommandExecutionApprovalDecision,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CommandExecutionSource {
+    /// 判别值 `agent`
+    #[serde(rename = "agent")]
+    Agent,
+    /// 判别值 `userShell`
+    #[serde(rename = "userShell")]
+    UserShell,
+    /// 判别值 `unifiedExecStartup`
+    #[serde(rename = "unifiedExecStartup")]
+    UnifiedExecStartup,
+    /// 判别值 `unifiedExecInteraction`
+    #[serde(rename = "unifiedExecInteraction")]
+    UnifiedExecInteraction,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CommandExecutionStatus {
+    /// 判别值 `inProgress`
+    #[serde(rename = "inProgress")]
+    InProgress,
+    /// 判别值 `completed`
+    #[serde(rename = "completed")]
+    Completed,
+    /// 判别值 `failed`
+    #[serde(rename = "failed")]
+    Failed,
+    /// 判别值 `declined`
+    #[serde(rename = "declined")]
+    Declined,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CommandMigration {
+    #[serde(rename = "name")]
+    pub name: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ComputerUseConfig {
+    #[serde(rename = "default_app_access")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_app_access: Option<AllowDenyRequirement>,
+    #[serde(rename = "macos")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub macos: Option<ComputerUseMacosConfig>,
+    #[serde(rename = "windows")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub windows: Option<ComputerUseWindowsConfig>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ComputerUseMacosConfig {
+    #[serde(rename = "bundle_ids")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bundle_ids: Option<std::collections::BTreeMap<String, AllowDenyRequirement>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ComputerUseMacosRequirements {
+    #[serde(rename = "bundleIds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bundle_ids: Option<std::collections::BTreeMap<String, AllowDenyRequirement>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ComputerUseRequirements {
+    #[serde(rename = "allowLockedComputerUse")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_locked_computer_use: Option<bool>,
+    #[serde(rename = "allowPersistentApproval")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_persistent_approval: Option<bool>,
+    #[serde(rename = "defaultAppAccess")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_app_access: Option<AllowDenyRequirement>,
+    #[serde(rename = "macos")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub macos: Option<ComputerUseMacosRequirements>,
+    #[serde(rename = "windows")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub windows: Option<ComputerUseWindowsRequirements>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ComputerUseWindowsConfig {
+    #[serde(rename = "aumids")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub aumids: Option<std::collections::BTreeMap<String, AllowDenyRequirement>>,
+    #[serde(rename = "exes")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exes: Option<Vec<ComputerUseWindowsExeConfig>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ComputerUseWindowsExeConfig {
+    #[serde(rename = "access")]
+    pub access: AllowDenyRequirement,
+    #[serde(rename = "binary_name")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub binary_name: Option<String>,
+    #[serde(rename = "product_name")]
+    pub product_name: String,
+    #[serde(rename = "publisher_name")]
+    pub publisher_name: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ComputerUseWindowsExeRequirement {
+    #[serde(rename = "access")]
+    pub access: AllowDenyRequirement,
+    #[serde(rename = "binaryName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub binary_name: Option<String>,
+    #[serde(rename = "productName")]
+    pub product_name: String,
+    #[serde(rename = "publisherName")]
+    pub publisher_name: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ComputerUseWindowsRequirements {
+    #[serde(rename = "aumids")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub aumids: Option<std::collections::BTreeMap<String, AllowDenyRequirement>>,
+    #[serde(rename = "exes")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exes: Option<Vec<ComputerUseWindowsExeRequirement>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct Config {
+    #[serde(rename = "analytics")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub analytics: Option<AnalyticsConfig>,
+    #[serde(rename = "approval_policy")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approval_policy: Option<AskForApproval>,
+    /// [UNSTABLE] Optional default for where approval requests are routed for review.
+    #[serde(rename = "approvals_reviewer")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approvals_reviewer: Option<ApprovalsReviewer>,
+    #[serde(rename = "browser_use")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub browser_use: Option<BrowserUseConfig>,
+    #[serde(rename = "compact_prompt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub compact_prompt: Option<String>,
+    #[serde(rename = "computer_use")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub computer_use: Option<ComputerUseConfig>,
+    #[serde(rename = "desktop")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub desktop: Option<serde_json::Value>,
+    #[serde(rename = "developer_instructions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub developer_instructions: Option<String>,
+    #[serde(rename = "forced_chatgpt_workspace_id")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub forced_chatgpt_workspace_id: Option<ForcedChatgptWorkspaceIds>,
+    #[serde(rename = "forced_login_method")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub forced_login_method: Option<ForcedLoginMethod>,
+    #[serde(rename = "instructions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub instructions: Option<String>,
+    #[serde(rename = "model")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    #[serde(rename = "model_auto_compact_token_limit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_auto_compact_token_limit: Option<i64>,
+    #[serde(rename = "model_auto_compact_token_limit_scope")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_auto_compact_token_limit_scope: Option<AutoCompactTokenLimitScope>,
+    #[serde(rename = "model_context_window")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_context_window: Option<i64>,
+    #[serde(rename = "model_provider")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_provider: Option<String>,
+    #[serde(rename = "model_reasoning_effort")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_reasoning_effort: Option<ReasoningEffort>,
+    #[serde(rename = "model_reasoning_summary")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_reasoning_summary: Option<ReasoningSummary>,
+    #[serde(rename = "model_verbosity")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_verbosity: Option<Verbosity>,
+    #[serde(rename = "review_model")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub review_model: Option<String>,
+    #[serde(rename = "sandbox_mode")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sandbox_mode: Option<SandboxMode>,
+    #[serde(rename = "sandbox_workspace_write")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sandbox_workspace_write: Option<SandboxWorkspaceWrite>,
+    #[serde(rename = "service_tier")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_tier: Option<String>,
+    #[serde(rename = "tools")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tools: Option<ToolsV2>,
+    #[serde(rename = "web_search")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub web_search: Option<WebSearchMode>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ConfigBatchWriteParams {
+    #[serde(rename = "edits")]
+    pub edits: Vec<ConfigEdit>,
+    #[serde(rename = "expectedVersion")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expected_version: Option<String>,
+    /// Path to the config file to write; defaults to the user's `config.toml` when omitted.
+    #[serde(rename = "filePath")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub file_path: Option<String>,
+    /// When true, hot-reload updated runtime settings into loaded threads after writing. Session-static model, reasoning-effort, Plan-mode reasoning-effort, and service-tier defaults are not reloaded. The deprecated personality setting is also not reloaded.
+    #[serde(rename = "reloadUserConfig")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reload_user_config: Option<bool>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ConfigEdit {
+    #[serde(rename = "keyPath")]
+    pub key_path: String,
+    #[serde(rename = "mergeStrategy")]
+    pub merge_strategy: MergeStrategy,
+    #[serde(rename = "value")]
+    pub value: serde_json::Value,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ConfigLayer {
+    #[serde(rename = "config")]
+    pub config: serde_json::Value,
+    #[serde(rename = "disabledReason")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disabled_reason: Option<String>,
+    #[serde(rename = "name")]
+    pub name: ConfigLayerSource,
+    #[serde(rename = "version")]
+    pub version: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ConfigLayerMetadata {
+    #[serde(rename = "name")]
+    pub name: ConfigLayerSource,
+    #[serde(rename = "version")]
+    pub version: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ConfigLayerSource {
+    /// Default configuration supplied with the installed Codex package.
+    #[serde(rename = "packagedDefaults")]
+    PackagedDefaults {
+        /// Path to the packaged default configuration file.
+        #[serde(rename = "file")]
+        file: AbsolutePathBuf,
+    },
+    /// Managed preferences layer delivered by MDM (macOS only).
+    #[serde(rename = "mdm")]
+    Mdm {
+        #[serde(rename = "domain")]
+        domain: String,
+        #[serde(rename = "key")]
+        key: String,
+    },
+    /// Managed config layer from a file (usually `managed_config.toml`).
+    #[serde(rename = "system")]
+    System {
+        /// This is the path to the system config.toml file, though it is not guaranteed to exist.
+        #[serde(rename = "file")]
+        file: AbsolutePathBuf,
+    },
+    /// Enterprise-managed config layer delivered by the cloud config bundle.
+    #[serde(rename = "enterpriseManaged")]
+    EnterpriseManaged {
+        /// Stable identifier for the delivered layer.
+        #[serde(rename = "id")]
+        id: String,
+        /// Admin-facing name for the delivered layer. This is surfaced in diagnostics so users know which cloud layer needs administrator attention.
+        #[serde(rename = "name")]
+        name: String,
+    },
+    /// User config layer from $CODEX_HOME/config.toml. This layer is special in that it is expected to be: - writable by the user - generally outside the workspace directory
+    #[serde(rename = "user")]
+    User {
+        /// This is the path to the user's config.toml file, though it is not guaranteed to exist.
+        #[serde(rename = "file")]
+        file: AbsolutePathBuf,
+        /// Name of the selected profile-v2 config layered on top of the base user config, when this layer represents one.
+        #[serde(rename = "profile")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        profile: Option<String>,
+    },
+    /// Path to a .codex/ folder within a project. There could be multiple of these between `cwd` and the project/repo root.
+    #[serde(rename = "project")]
+    Project {
+        #[serde(rename = "dotCodexFolder")]
+        dot_codex_folder: AbsolutePathBuf,
+    },
+    /// Session-layer overrides supplied via `-c`/`--config`.
+    #[serde(rename = "sessionFlags")]
+    SessionFlags,
+    /// `managed_config.toml` was designed to be a config that was loaded as the last layer on top of everything else. This scheme did not quite work out as intended, but we keep this variant as a "best effort" while we phase out `managed_config.toml` in favor of `requirements.toml`.
+    #[serde(rename = "legacyManagedConfigTomlFromFile")]
+    LegacyManagedConfigTomlFromFile {
+        #[serde(rename = "file")]
+        file: AbsolutePathBuf,
+    },
+    #[serde(rename = "legacyManagedConfigTomlFromMdm")]
+    LegacyManagedConfigTomlFromMdm,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ConfigReadParams {
+    /// Optional working directory to resolve project config layers. If specified, return the effective config as seen from that directory (i.e., including any project layers between `cwd` and the project/repo root).
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<String>,
+    #[serde(rename = "includeLayers")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub include_layers: Option<bool>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ConfigReadResponse {
+    #[serde(rename = "config")]
+    pub config: Config,
+    #[serde(rename = "layers")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub layers: Option<Vec<ConfigLayer>>,
+    #[serde(rename = "origins")]
+    pub origins: std::collections::BTreeMap<String, ConfigLayerMetadata>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ConfigRequirements {
+    #[serde(rename = "additionalDeveloperInstructions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub additional_developer_instructions: Option<String>,
+    #[serde(rename = "allowAppshots")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_appshots: Option<bool>,
+    #[serde(rename = "allowBrowserAndComputerUse")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_browser_and_computer_use: Option<bool>,
+    #[serde(rename = "allowLoginShell")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_login_shell: Option<bool>,
+    #[serde(rename = "allowManagedHooksOnly")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_managed_hooks_only: Option<bool>,
+    #[serde(rename = "allowRemoteControl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_remote_control: Option<bool>,
+    #[serde(rename = "allowedApprovalPolicies")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allowed_approval_policies: Option<Vec<AskForApproval>>,
+    /// Effective login methods after managed, forced-login, and workspace restrictions. An empty list permits no login method. Older servers may omit this field.
+    #[serde(rename = "allowedLoginMethods")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allowed_login_methods: Option<Vec<ForcedLoginMethod>>,
+    #[serde(rename = "allowedPermissionProfiles")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allowed_permission_profiles: Option<std::collections::BTreeMap<String, bool>>,
+    #[serde(rename = "allowedSandboxModes")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allowed_sandbox_modes: Option<Vec<SandboxMode>>,
+    #[serde(rename = "allowedWebSearchModes")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allowed_web_search_modes: Option<Vec<WebSearchMode>>,
+    #[serde(rename = "allowedWindowsSandboxImplementations")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allowed_windows_sandbox_implementations: Option<Vec<WindowsSandboxImplementation>>,
+    #[serde(rename = "autoReview")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub auto_review: Option<AutoReviewRequirements>,
+    #[serde(rename = "browserUse")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub browser_use: Option<BrowserUseRequirements>,
+    #[serde(rename = "chatgptBaseUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub chatgpt_base_url: Option<String>,
+    #[serde(rename = "checkForUpdateOnStartup")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub check_for_update_on_startup: Option<bool>,
+    #[serde(rename = "cliAuthCredentialsStore")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cli_auth_credentials_store: Option<CliAuthCredentialsStoreMode>,
+    #[serde(rename = "computerUse")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub computer_use: Option<ComputerUseRequirements>,
+    #[serde(rename = "defaultPermissions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_permissions: Option<String>,
+    #[serde(rename = "enforceResidency")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enforce_residency: Option<ResidencyRequirement>,
+    #[serde(rename = "featureRequirements")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub feature_requirements: Option<std::collections::BTreeMap<String, bool>>,
+    #[serde(rename = "feedback")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub feedback: Option<FeedbackRequirements>,
+    #[serde(rename = "inAppBrowser")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub in_app_browser: Option<InAppBrowserRequirements>,
+    #[serde(rename = "logDir")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub log_dir: Option<String>,
+    #[serde(rename = "modelCatalogJson")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_catalog_json: Option<String>,
+    /// Exact provider selection required by managed policy.
+    #[serde(rename = "modelProvider")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_provider: Option<String>,
+    /// Complete required provider definitions, using config.toml field names.
+    #[serde(rename = "modelProviders")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_providers: Option<serde_json::Value>,
+    #[serde(rename = "models")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub models: Option<ModelsRequirements>,
+    #[serde(rename = "sqliteHome")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sqlite_home: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ConfigRequirementsReadResponse {
+    /// Null if no requirements are configured (e.g. no requirements.toml/MDM entries).
+    #[serde(rename = "requirements")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub requirements: Option<ConfigRequirements>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ConfigValueWriteParams {
+    #[serde(rename = "expectedVersion")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expected_version: Option<String>,
+    /// Path to the config file to write; defaults to the user's `config.toml` when omitted.
+    #[serde(rename = "filePath")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub file_path: Option<String>,
+    #[serde(rename = "keyPath")]
+    pub key_path: String,
+    #[serde(rename = "mergeStrategy")]
+    pub merge_strategy: MergeStrategy,
+    #[serde(rename = "value")]
+    pub value: serde_json::Value,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ConfigWarningNotification {
+    /// Optional extra guidance or error details.
+    #[serde(rename = "details")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub details: Option<String>,
+    /// Optional path to the config file that triggered the warning.
+    #[serde(rename = "path")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
+    /// Optional range for the error location inside the config file.
+    #[serde(rename = "range")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub range: Option<TextRange>,
+    /// Concise summary of the warning.
+    #[serde(rename = "summary")]
+    pub summary: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ConfigWriteResponse {
+    /// Canonical path to the config file that was written.
+    #[serde(rename = "filePath")]
+    pub file_path: AbsolutePathBuf,
+    #[serde(rename = "overriddenMetadata")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub overridden_metadata: Option<OverriddenMetadata>,
+    #[serde(rename = "status")]
+    pub status: WriteStatus,
+    #[serde(rename = "version")]
+    pub version: String,
+}
+
+/// Reasoning settings interpreted by the backend for the routed model.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ConfigurationReasoning {
+    #[serde(rename = "effort")]
+    pub effort: ReasoningEffort,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ConfiguredHookHandler {
+    #[serde(rename = "command")]
+    Command {
+        /// Approximate token threshold for spilling this hook's `additionalContext` to disk. `null` uses 2,500 tokens; `0` disables spilling for this hook. The threshold is evaluated against the original context; a spilled preview also includes recovery metadata.
+        #[serde(rename = "additionalContextLimit")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        additional_context_limit: Option<u64>,
+        #[serde(rename = "async")]
+        r#async: bool,
+        #[serde(rename = "command")]
+        command: String,
+        #[serde(rename = "commandWindows")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        command_windows: Option<String>,
+        #[serde(rename = "statusMessage")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        status_message: Option<String>,
+        #[serde(rename = "timeoutSec")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        timeout_sec: Option<u64>,
+    },
+    #[serde(rename = "mcp_tool")]
+    McpTool {
+        #[serde(rename = "input")]
+        input: serde_json::Value,
+        #[serde(rename = "server")]
+        server: String,
+        #[serde(rename = "statusMessage")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        status_message: Option<String>,
+        #[serde(rename = "timeoutSec")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        timeout_sec: Option<u64>,
+        #[serde(rename = "tool")]
+        tool: String,
+    },
+    #[serde(rename = "prompt")]
+    Prompt,
+    #[serde(rename = "agent")]
+    Agent,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ConfiguredHookMatcherGroup {
+    #[serde(rename = "hooks")]
+    pub hooks: Vec<ConfiguredHookHandler>,
+    #[serde(rename = "matcher")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub matcher: Option<String>,
+}
+
+/// EXPERIMENTAL - metadata returned by app/read.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ConnectorMetadata {
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "distributionChannel")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub distribution_channel: Option<String>,
+    #[serde(rename = "iconUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon_url: Option<String>,
+    #[serde(rename = "iconUrlDark")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon_url_dark: Option<String>,
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(rename = "installUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub install_url: Option<String>,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "pluginDisplayNames")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub plugin_display_names: Option<Vec<String>>,
+    #[serde(rename = "toolSummaries")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tool_summaries: Option<Vec<AppToolSummary>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum ConsumeAccountRateLimitResetCreditOutcome {
+    /// A reset credit was consumed and the eligible rate-limit windows were reset.
+    #[serde(rename = "reset")]
+    Reset,
+    /// No current rate-limit window is eligible for a reset.
+    #[serde(rename = "nothingToReset")]
+    NothingToReset,
+    /// The account has no earned reset credits available.
+    #[serde(rename = "noCredit")]
+    NoCredit,
+    /// The same idempotency key already completed a reset successfully.
+    #[serde(rename = "alreadyRedeemed")]
+    AlreadyRedeemed,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ConsumeAccountRateLimitResetCreditParams {
+    /// Opaque reset-credit identifier to redeem. When omitted, the backend selects the next available credit.
+    #[serde(rename = "creditId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub credit_id: Option<String>,
+    /// Identifies one logical reset attempt. A UUID is recommended; reuse the same value when retrying that attempt.
+    #[serde(rename = "idempotencyKey")]
+    pub idempotency_key: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ConsumeAccountRateLimitResetCreditResponse {
+    #[serde(rename = "outcome")]
+    pub outcome: ConsumeAccountRateLimitResetCreditOutcome,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ContentItem {
+    #[serde(rename = "input_text")]
+    InputText {
+        #[serde(rename = "text")]
+        text: String,
+    },
+    #[serde(rename = "input_image")]
+    InputImage {
+        #[serde(rename = "detail")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        detail: Option<ImageDetail>,
+    },
+    #[serde(rename = "input_audio")]
+    InputAudio {
+        #[serde(rename = "audio_url")]
+        audio_url: String,
+    },
+    #[serde(rename = "output_text")]
+    OutputText {
+        #[serde(rename = "text")]
+        text: String,
+    },
+}
+
+/// Deprecated: Use `ContextCompaction` item type instead.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ContextCompactedNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ConversationTextRole {
+    /// 判别值 `user`
+    #[serde(rename = "user")]
+    User,
+    /// 判别值 `developer`
+    #[serde(rename = "developer")]
+    Developer,
+    /// 判别值 `assistant`
+    #[serde(rename = "assistant")]
+    Assistant,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CreditsSnapshot {
+    #[serde(rename = "balance")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub balance: Option<String>,
+    #[serde(rename = "hasCredits")]
+    pub has_credits: bool,
+    #[serde(rename = "unlimited")]
+    pub unlimited: bool,
+}
+
+/// Requested cyber treatment for a ChatGPT-authenticated Codex turn. Authorization and model-tier restrictions remain server-owned.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CyberAccessProgram {
+    /// 判别值 `standard`
+    #[serde(rename = "standard")]
+    Standard,
+    /// 判别值 `daybreakBlue`
+    #[serde(rename = "daybreakBlue")]
+    DaybreakBlue,
+    /// 判别值 `daybreakRed`
+    #[serde(rename = "daybreakRed")]
+    DaybreakRed,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct DeprecationNoticeNotification {
+    /// Optional extra guidance, such as migration steps or rationale.
+    #[serde(rename = "details")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub details: Option<String>,
+    /// Concise summary of what is deprecated.
+    #[serde(rename = "summary")]
+    pub summary: String,
+}
+
+pub type DesktopOnboardingEntrypoint = String;
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum DynamicToolCallOutputContentItem {
+    #[serde(rename = "inputText")]
+    InputText {
+        #[serde(rename = "text")]
+        text: String,
+    },
+    #[serde(rename = "inputImage")]
+    InputImage {
+        #[serde(rename = "imageUrl")]
+        image_url: String,
+    },
+    #[serde(rename = "inputAudio")]
+    InputAudio {
+        #[serde(rename = "audioUrl")]
+        audio_url: String,
+    },
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct DynamicToolCallParams {
+    #[serde(rename = "arguments")]
+    pub arguments: serde_json::Value,
+    #[serde(rename = "callId")]
+    pub call_id: String,
+    #[serde(rename = "namespace")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub namespace: Option<String>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "tool")]
+    pub tool: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct DynamicToolCallResponse {
+    #[serde(rename = "contentItems")]
+    pub content_items: Vec<DynamicToolCallOutputContentItem>,
+    #[serde(rename = "success")]
+    pub success: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum DynamicToolCallStatus {
+    /// 判别值 `inProgress`
+    #[serde(rename = "inProgress")]
+    InProgress,
+    /// 判别值 `completed`
+    #[serde(rename = "completed")]
+    Completed,
+    /// 判别值 `failed`
+    #[serde(rename = "failed")]
+    Failed,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum DynamicToolNamespaceTool {
+    #[serde(rename = "function")]
+    Function {
+        #[serde(rename = "deferLoading")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        defer_loading: Option<bool>,
+        #[serde(rename = "description")]
+        description: String,
+        #[serde(rename = "inputSchema")]
+        input_schema: serde_json::Value,
+        #[serde(rename = "name")]
+        name: String,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum DynamicToolSpec {
+    #[serde(rename = "function")]
+    Function {
+        #[serde(rename = "deferLoading")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        defer_loading: Option<bool>,
+        #[serde(rename = "description")]
+        description: String,
+        #[serde(rename = "inputSchema")]
+        input_schema: serde_json::Value,
+        #[serde(rename = "name")]
+        name: String,
+    },
+    #[serde(rename = "namespace")]
+    Namespace {
+        #[serde(rename = "description")]
+        description: String,
+        #[serde(rename = "name")]
+        name: String,
+        #[serde(rename = "tools")]
+        tools: Vec<DynamicToolNamespaceTool>,
+    },
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct EnvironmentConnectionNotification {
+    #[serde(rename = "environmentId")]
+    pub environment_id: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ErrorNotification {
+    #[serde(rename = "error")]
+    pub error: TurnError,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+    #[serde(rename = "willRetry")]
+    pub will_retry: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ExecCommandApprovalParams {
+    /// Identifier for this specific approval callback.
+    #[serde(rename = "approvalId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approval_id: Option<String>,
+    /// Use to correlate this with [codex_protocol::protocol::ExecCommandBeginEvent] and [codex_protocol::protocol::ExecCommandEndEvent].
+    #[serde(rename = "callId")]
+    pub call_id: String,
+    #[serde(rename = "command")]
+    pub command: Vec<String>,
+    #[serde(rename = "conversationId")]
+    pub conversation_id: ThreadId,
+    #[serde(rename = "cwd")]
+    pub cwd: String,
+    #[serde(rename = "parsedCmd")]
+    pub parsed_cmd: Vec<ParsedCommand>,
+    #[serde(rename = "reason")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reason: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ExecCommandApprovalResponse {
+    #[serde(rename = "decision")]
+    pub decision: ReviewDecision,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ExperimentalFeature {
+    /// Announcement copy shown to users when the feature is introduced. Null when this feature is not in beta.
+    #[serde(rename = "announcement")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub announcement: Option<String>,
+    /// Whether this feature is enabled by default.
+    #[serde(rename = "defaultEnabled")]
+    pub default_enabled: bool,
+    /// Short summary describing what the feature does. Null when this feature is not in beta.
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    /// User-facing display name shown in the experimental features UI. Null when this feature is not in beta.
+    #[serde(rename = "displayName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub display_name: Option<String>,
+    /// Whether this feature is currently enabled in the loaded config.
+    #[serde(rename = "enabled")]
+    pub enabled: bool,
+    /// Stable key used in config.toml and CLI flag toggles.
+    #[serde(rename = "name")]
+    pub name: String,
+    /// Lifecycle stage of this feature flag.
+    #[serde(rename = "stage")]
+    pub stage: ExperimentalFeatureStage,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExperimentalFeatureEnablementSetParams {
+    /// Process-wide runtime feature enablement keyed by canonical feature name.
+    ///
+    /// Only named features are updated. Omitted features are left unchanged. Send an empty map for a no-op.
+    #[serde(rename = "enablement")]
+    pub enablement: std::collections::BTreeMap<String, bool>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExperimentalFeatureEnablementSetResponse {
+    /// Feature enablement entries updated by this request.
+    #[serde(rename = "enablement")]
+    pub enablement: std::collections::BTreeMap<String, bool>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExperimentalFeatureListParams {
+    /// Opaque pagination cursor returned by a previous call.
+    #[serde(rename = "cursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cursor: Option<String>,
+    /// Optional page size; defaults to a reasonable server-side value.
+    #[serde(rename = "limit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u32>,
+    /// Optional loaded thread id. Pass this when showing feature state for an existing thread so enablement is computed from that thread's refreshed config, including project-local config for the thread's cwd.
+    #[serde(rename = "threadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExperimentalFeatureListResponse {
+    #[serde(rename = "data")]
+    pub data: Vec<ExperimentalFeature>,
+    /// Opaque cursor to pass to the next call to continue after the last item. If None, there are no more items to return.
+    #[serde(rename = "nextCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum ExperimentalFeatureStage {
+    /// Feature is available for user testing and feedback.
+    #[serde(rename = "beta")]
+    Beta,
+    /// Feature is still being built and not ready for broad use.
+    #[serde(rename = "underDevelopment")]
+    UnderDevelopment,
+    /// Feature is production-ready.
+    #[serde(rename = "stable")]
+    Stable,
+    /// Feature is deprecated and should be avoided.
+    #[serde(rename = "deprecated")]
+    Deprecated,
+    /// Feature flag is retained only for backwards compatibility.
+    #[serde(rename = "removed")]
+    Removed,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigDetectParams {
+    /// Zero or more working directories to include for repo-scoped detection.
+    #[serde(rename = "cwds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwds: Option<Vec<String>>,
+    /// If true, include detection under the user's home directory.
+    #[serde(rename = "includeHome")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub include_home: Option<bool>,
+    /// Maximum age in days for detected sessions. Missing values use the default limit.
+    #[serde(rename = "maxSessionAgeDays")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_session_age_days: Option<u32>,
+    /// Maximum number of sessions to detect. Missing values use the default limit.
+    #[serde(rename = "maxSessions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_sessions: Option<u32>,
+    /// Optional migration-source selector. Missing or unrecognized values use the default source.
+    #[serde(rename = "migrationSource")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub migration_source: Option<String>,
+    /// Deprecated field retained for compatibility. This field is ignored; use `migrationSource` to select the migration source.
+    #[serde(rename = "source")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigDetectResponse {
+    #[serde(rename = "connectors")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub connectors: Option<Vec<ExternalAgentDetectedConnectorCandidate>>,
+    #[serde(rename = "items")]
+    pub items: Vec<ExternalAgentConfigMigrationItem>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigImportCompletedNotification {
+    #[serde(rename = "importId")]
+    pub import_id: String,
+    #[serde(rename = "itemTypeResults")]
+    pub item_type_results: Vec<ExternalAgentConfigImportTypeResult>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigImportHistoriesReadResponse {
+    #[serde(rename = "connectors")]
+    pub connectors: Vec<ExternalAgentImportedConnectorCandidate>,
+    #[serde(rename = "data")]
+    pub data: Vec<ExternalAgentConfigImportHistory>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigImportHistory {
+    #[serde(rename = "completedAtMs")]
+    pub completed_at_ms: i64,
+    #[serde(rename = "failures")]
+    pub failures: Vec<ExternalAgentConfigImportItemTypeFailure>,
+    #[serde(rename = "importId")]
+    pub import_id: String,
+    #[serde(rename = "providerId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub provider_id: Option<String>,
+    #[serde(rename = "successes")]
+    pub successes: Vec<ExternalAgentConfigImportItemTypeSuccess>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigImportHistoryRecordParams {
+    /// Completed results grouped by imported item type.
+    #[serde(rename = "itemTypeResults")]
+    pub item_type_results: Vec<ExternalAgentConfigImportHistoryRecordTypeResultParams>,
+    /// Opaque provider identifier for the externally completed import.
+    #[serde(rename = "providerId")]
+    pub provider_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigImportHistoryRecordResponse {
+    #[serde(rename = "importId")]
+    pub import_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigImportHistoryRecordSuccessParams {
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<String>,
+    #[serde(rename = "itemType")]
+    pub item_type: ExternalAgentConfigMigrationItemType,
+    #[serde(rename = "source")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
+    #[serde(rename = "target")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target: Option<String>,
+    /// Original title for an imported session, when available.
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigImportHistoryRecordTypeResultParams {
+    #[serde(rename = "failures")]
+    pub failures: Vec<ExternalAgentConfigImportItemTypeFailure>,
+    #[serde(rename = "itemType")]
+    pub item_type: ExternalAgentConfigMigrationItemType,
+    #[serde(rename = "successes")]
+    pub successes: Vec<ExternalAgentConfigImportHistoryRecordSuccessParams>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigImportItemTypeFailure {
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<String>,
+    #[serde(rename = "errorType")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error_type: Option<String>,
+    #[serde(rename = "failureStage")]
+    pub failure_stage: String,
+    #[serde(rename = "itemType")]
+    pub item_type: ExternalAgentConfigMigrationItemType,
+    #[serde(rename = "message")]
+    pub message: String,
+    #[serde(rename = "source")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
+    #[serde(rename = "subErrorType")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sub_error_type: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigImportItemTypeSuccess {
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<String>,
+    #[serde(rename = "itemType")]
+    pub item_type: ExternalAgentConfigMigrationItemType,
+    #[serde(rename = "source")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
+    #[serde(rename = "target")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target: Option<String>,
+    /// Original title for an imported session; null for other item types.
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigImportParams {
+    #[serde(rename = "migrationItems")]
+    pub migration_items: Vec<ExternalAgentConfigMigrationItem>,
+    /// Migration-source selector used to produce the migration items. Pass the same value to detection and import; missing or unrecognized values use the default source.
+    #[serde(rename = "migrationSource")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub migration_source: Option<String>,
+    /// Opaque provider identifier supplied by the caller for analytics attribution and import history display. This does not select the migration source.
+    #[serde(rename = "providerId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub provider_id: Option<String>,
+    /// Optional identifier for the product that initiated the import.
+    #[serde(rename = "source")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigImportProgressNotification {
+    #[serde(rename = "importId")]
+    pub import_id: String,
+    #[serde(rename = "itemTypeResults")]
+    pub item_type_results: Vec<ExternalAgentConfigImportTypeResult>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigImportResponse {
+    #[serde(rename = "importId")]
+    pub import_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigImportTypeResult {
+    #[serde(rename = "failures")]
+    pub failures: Vec<ExternalAgentConfigImportItemTypeFailure>,
+    #[serde(rename = "itemType")]
+    pub item_type: ExternalAgentConfigMigrationItemType,
+    #[serde(rename = "successes")]
+    pub successes: Vec<ExternalAgentConfigImportItemTypeSuccess>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentConfigMigrationItem {
+    /// Null or empty means home-scoped migration; non-empty means repo-scoped migration.
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<String>,
+    #[serde(rename = "description")]
+    pub description: String,
+    #[serde(rename = "details")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub details: Option<MigrationDetails>,
+    #[serde(rename = "itemType")]
+    pub item_type: ExternalAgentConfigMigrationItemType,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ExternalAgentConfigMigrationItemType {
+    /// 判别值 `AGENTS_MD`
+    #[serde(rename = "AGENTS_MD")]
+    AGENTSMD,
+    /// 判别值 `CONFIG`
+    #[serde(rename = "CONFIG")]
+    CONFIG,
+    /// 判别值 `SKILLS`
+    #[serde(rename = "SKILLS")]
+    SKILLS,
+    /// 判别值 `PLUGINS`
+    #[serde(rename = "PLUGINS")]
+    PLUGINS,
+    /// 判别值 `MCP_SERVER_CONFIG`
+    #[serde(rename = "MCP_SERVER_CONFIG")]
+    MCPSERVERCONFIG,
+    /// 判别值 `SUBAGENTS`
+    #[serde(rename = "SUBAGENTS")]
+    SUBAGENTS,
+    /// 判别值 `HOOKS`
+    #[serde(rename = "HOOKS")]
+    HOOKS,
+    /// 判别值 `COMMANDS`
+    #[serde(rename = "COMMANDS")]
+    COMMANDS,
+    /// 判别值 `MEMORY`
+    #[serde(rename = "MEMORY")]
+    MEMORY,
+    /// 判别值 `SESSIONS`
+    #[serde(rename = "SESSIONS")]
+    SESSIONS,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentDetectedConnectorCandidate {
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "sessionCount")]
+    pub session_count: u32,
+    #[serde(rename = "source")]
+    pub source: ExternalAgentDetectedConnectorSource,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ExternalAgentDetectedConnectorSource {
+    /// 判别值 `remoteMcpServersConfig`
+    #[serde(rename = "remoteMcpServersConfig")]
+    RemoteMcpServersConfig,
+    /// 判别值 `sessionToolUse`
+    #[serde(rename = "sessionToolUse")]
+    SessionToolUse,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ExternalAgentImportedConnectorCandidate {
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "sessionCount")]
+    pub session_count: u32,
+    #[serde(rename = "source")]
+    pub source: ExternalAgentImportedConnectorSource,
+}
+
+pub type ExternalAgentImportedConnectorSource = String;
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FeedbackRequirements {
+    #[serde(rename = "enabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FeedbackUploadParams {
+    #[serde(rename = "classification")]
+    pub classification: String,
+    #[serde(rename = "extraLogFiles")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub extra_log_files: Option<Vec<String>>,
+    #[serde(rename = "includeLogs")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub include_logs: Option<bool>,
+    #[serde(rename = "reason")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reason: Option<String>,
+    #[serde(rename = "tags")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tags: Option<std::collections::BTreeMap<String, String>>,
+    #[serde(rename = "threadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FeedbackUploadResponse {
+    /// Whitespace-normalized SHA-256 of the session base instructions, matching the uploaded `prompt_hash` tag. Does not include later developer messages. Null when the reported rollout has no prompt metadata.
+    #[serde(rename = "promptHash")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub prompt_hash: Option<String>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum FileChange {
+    #[serde(rename = "add")]
+    Add {
+        #[serde(rename = "content")]
+        content: String,
+    },
+    #[serde(rename = "delete")]
+    Delete {
+        #[serde(rename = "content")]
+        content: String,
+    },
+    #[serde(rename = "update")]
+    Update {
+        #[serde(rename = "move_path")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        move_path: Option<String>,
+        #[serde(rename = "unified_diff")]
+        unified_diff: String,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum FileChangeApprovalDecision {
+    /// User approved the file changes.
+    #[serde(rename = "accept")]
+    Accept,
+    /// User approved the file changes and future changes to the same files should run without prompting.
+    #[serde(rename = "acceptForSession")]
+    AcceptForSession,
+    /// User denied the file changes. The agent will continue the turn.
+    #[serde(rename = "decline")]
+    Decline,
+    /// User denied the file changes. The turn will also be immediately interrupted.
+    #[serde(rename = "cancel")]
+    Cancel,
+}
+
+/// Deprecated legacy notification for `apply_patch` textual output.
+///
+/// The server no longer emits this notification.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FileChangeOutputDeltaNotification {
+    #[serde(rename = "delta")]
+    pub delta: String,
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FileChangePatchUpdatedNotification {
+    #[serde(rename = "changes")]
+    pub changes: Vec<FileUpdateChange>,
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FileChangeRequestApprovalParams {
+    /// [UNSTABLE] When set, the agent is asking the user to allow writes under this root for the remainder of the session (unclear if this is honored today).
+    #[serde(rename = "grantRoot")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub grant_root: Option<String>,
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    /// Optional explanatory reason (e.g. request for extra write access).
+    #[serde(rename = "reason")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reason: Option<String>,
+    /// Unix timestamp (in milliseconds) when this approval request started.
+    #[serde(rename = "startedAtMs")]
+    pub started_at_ms: i64,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FileChangeRequestApprovalResponse {
+    #[serde(rename = "decision")]
+    pub decision: FileChangeApprovalDecision,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum FileSystemAccessMode {
+    /// 判别值 `read`
+    #[serde(rename = "read")]
+    Read,
+    /// 判别值 `write`
+    #[serde(rename = "write")]
+    Write,
+    /// 判别值 `deny`
+    #[serde(rename = "deny")]
+    Deny,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum FileSystemPath {
+    #[serde(rename = "path")]
+    Path {
+        #[serde(rename = "path")]
+        path: LegacyAppPathString,
+    },
+    #[serde(rename = "glob_pattern")]
+    GlobPattern {
+        #[serde(rename = "pattern")]
+        pattern: String,
+    },
+    #[serde(rename = "special")]
+    Special {
+        #[serde(rename = "value")]
+        value: FileSystemSpecialPath,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FileSystemSandboxEntry {
+    #[serde(rename = "access")]
+    pub access: FileSystemAccessMode,
+    #[serde(rename = "path")]
+    pub path: FileSystemPath,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "kind")]
+pub enum FileSystemSpecialPath {
+    #[serde(rename = "root")]
+    Root,
+    #[serde(rename = "minimal")]
+    Minimal,
+    #[serde(rename = "project_roots")]
+    ProjectRoots {
+        #[serde(rename = "subpath")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        subpath: Option<LegacyAppPathString>,
+    },
+    #[serde(rename = "tmpdir")]
+    Tmpdir,
+    #[serde(rename = "slash_tmp")]
+    SlashTmp,
+    #[serde(rename = "unknown")]
+    Unknown {
+        #[serde(rename = "path")]
+        path: String,
+        #[serde(rename = "subpath")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        subpath: Option<LegacyAppPathString>,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FileUpdateChange {
+    #[serde(rename = "diff")]
+    pub diff: String,
+    #[serde(rename = "kind")]
+    pub kind: PatchChangeKind,
+    #[serde(rename = "path")]
+    pub path: String,
+}
+
+/// Backward-compatible API shape for ChatGPT workspace login restrictions.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ForcedChatgptWorkspaceIds {
+    Text(String),
+    List(Vec<String>),
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ForcedLoginMethod {
+    /// 判别值 `chatgpt`
+    #[serde(rename = "chatgpt")]
+    Chatgpt,
+    /// 判别值 `api`
+    #[serde(rename = "api")]
+    Api,
+}
+
+/// Filesystem watch notification emitted for `fs/watch` subscribers.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FsChangedNotification {
+    /// File or directory paths associated with this event.
+    #[serde(rename = "changedPaths")]
+    pub changed_paths: Vec<AbsolutePathBuf>,
+    /// Watch identifier previously provided to `fs/watch`.
+    #[serde(rename = "watchId")]
+    pub watch_id: String,
+}
+
+/// Copy a file or directory tree on the host filesystem.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FsCopyParams {
+    /// Absolute destination path.
+    #[serde(rename = "destinationPath")]
+    pub destination_path: AbsolutePathBuf,
+    /// Required for directory copies; ignored for file copies.
+    #[serde(rename = "recursive")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub recursive: Option<bool>,
+    /// Absolute source path.
+    #[serde(rename = "sourcePath")]
+    pub source_path: AbsolutePathBuf,
+}
+
+/// Successful response for `fs/copy`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FsCopyResponse {}
+
+/// Create a directory on the host filesystem.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FsCreateDirectoryParams {
+    /// Absolute directory path to create.
+    #[serde(rename = "path")]
+    pub path: AbsolutePathBuf,
+    /// Whether parent directories should also be created. Defaults to `true`.
+    #[serde(rename = "recursive")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub recursive: Option<bool>,
+}
+
+/// Successful response for `fs/createDirectory`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FsCreateDirectoryResponse {}
+
+/// Request metadata for an absolute path.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FsGetMetadataParams {
+    /// Absolute path to inspect.
+    #[serde(rename = "path")]
+    pub path: AbsolutePathBuf,
+}
+
+/// Metadata returned by `fs/getMetadata`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FsGetMetadataResponse {
+    /// File creation time in Unix milliseconds when available, otherwise `0`.
+    #[serde(rename = "createdAtMs")]
+    pub created_at_ms: i64,
+    /// Whether the path resolves to a directory.
+    #[serde(rename = "isDirectory")]
+    pub is_directory: bool,
+    /// Whether the path resolves to a regular file.
+    #[serde(rename = "isFile")]
+    pub is_file: bool,
+    /// Whether the path itself is a symbolic link.
+    #[serde(rename = "isSymlink")]
+    pub is_symlink: bool,
+    /// File modification time in Unix milliseconds when available, otherwise `0`.
+    #[serde(rename = "modifiedAtMs")]
+    pub modified_at_ms: i64,
+}
+
+/// A directory entry returned by `fs/readDirectory`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FsReadDirectoryEntry {
+    /// Direct child entry name only, not an absolute or relative path.
+    #[serde(rename = "fileName")]
+    pub file_name: String,
+    /// Whether this entry resolves to a directory.
+    #[serde(rename = "isDirectory")]
+    pub is_directory: bool,
+    /// Whether this entry resolves to a regular file.
+    #[serde(rename = "isFile")]
+    pub is_file: bool,
+}
+
+/// List direct child names for a directory.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FsReadDirectoryParams {
+    /// Absolute directory path to read.
+    #[serde(rename = "path")]
+    pub path: AbsolutePathBuf,
+}
+
+/// Directory entries returned by `fs/readDirectory`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FsReadDirectoryResponse {
+    /// Direct child entries in the requested directory.
+    #[serde(rename = "entries")]
+    pub entries: Vec<FsReadDirectoryEntry>,
+}
+
+/// Read a file from the host filesystem.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FsReadFileParams {
+    /// Absolute path to read.
+    #[serde(rename = "path")]
+    pub path: AbsolutePathBuf,
+}
+
+/// Base64-encoded file contents returned by `fs/readFile`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FsReadFileResponse {
+    /// File contents encoded as base64.
+    #[serde(rename = "dataBase64")]
+    pub data_base64: String,
+}
+
+/// Remove a file or directory tree from the host filesystem.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FsRemoveParams {
+    /// Whether missing paths should be ignored. Defaults to `true`.
+    #[serde(rename = "force")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub force: Option<bool>,
+    /// Absolute path to remove.
+    #[serde(rename = "path")]
+    pub path: AbsolutePathBuf,
+    /// Whether directory removal should recurse. Defaults to `true`.
+    #[serde(rename = "recursive")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub recursive: Option<bool>,
+}
+
+/// Successful response for `fs/remove`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FsRemoveResponse {}
+
+/// Stop filesystem watch notifications for a prior `fs/watch`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FsUnwatchParams {
+    /// Watch identifier previously provided to `fs/watch`.
+    #[serde(rename = "watchId")]
+    pub watch_id: String,
+}
+
+/// Successful response for `fs/unwatch`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FsUnwatchResponse {}
+
+/// Start filesystem watch notifications for an absolute path.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FsWatchParams {
+    /// Absolute file or directory path to watch.
+    #[serde(rename = "path")]
+    pub path: AbsolutePathBuf,
+    /// Connection-scoped watch identifier used for `fs/unwatch` and `fs/changed`.
+    #[serde(rename = "watchId")]
+    pub watch_id: String,
+}
+
+/// Successful response for `fs/watch`.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FsWatchResponse {
+    /// Canonicalized path associated with the watch.
+    #[serde(rename = "path")]
+    pub path: AbsolutePathBuf,
+}
+
+/// Write a file on the host filesystem.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FsWriteFileParams {
+    /// File contents encoded as base64.
+    #[serde(rename = "dataBase64")]
+    pub data_base64: String,
+    /// Absolute path to write.
+    #[serde(rename = "path")]
+    pub path: AbsolutePathBuf,
+}
+
+/// Successful response for `fs/writeFile`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FsWriteFileResponse {}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum FunctionCallOutputBody {
+    Text(String),
+    FunctionCallOutputContentItemList(Vec<FunctionCallOutputContentItem>),
+}
+
+/// Responses API compatible content items that can be returned by a tool call. This is a subset of ContentItem with the types we support as function call outputs.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum FunctionCallOutputContentItem {
+    #[serde(rename = "input_text")]
+    InputText {
+        #[serde(rename = "text")]
+        text: String,
+    },
+    #[serde(rename = "input_image")]
+    InputImage {
+        #[serde(rename = "detail")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        detail: Option<ImageDetail>,
+    },
+    #[serde(rename = "input_audio")]
+    InputAudio {
+        #[serde(rename = "audio_url")]
+        audio_url: String,
+    },
+    #[serde(rename = "encrypted_content")]
+    EncryptedContent {
+        #[serde(rename = "encrypted_content")]
+        encrypted_content: String,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum FuzzyFileSearchMatchType {
+    /// 判别值 `file`
+    #[serde(rename = "file")]
+    File,
+    /// 判别值 `directory`
+    #[serde(rename = "directory")]
+    Directory,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FuzzyFileSearchParams {
+    #[serde(rename = "cancellationToken")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cancellation_token: Option<String>,
+    #[serde(rename = "query")]
+    pub query: String,
+    #[serde(rename = "roots")]
+    pub roots: Vec<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FuzzyFileSearchResponse {
+    #[serde(rename = "files")]
+    pub files: Vec<FuzzyFileSearchResult>,
+}
+
+/// Superset of [`codex_file_search::FileMatch`]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FuzzyFileSearchResult {
+    #[serde(rename = "file_name")]
+    pub file_name: String,
+    #[serde(rename = "indices")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub indices: Option<Vec<u32>>,
+    #[serde(rename = "match_type")]
+    pub match_type: FuzzyFileSearchMatchType,
+    #[serde(rename = "path")]
+    pub path: String,
+    #[serde(rename = "root")]
+    pub root: String,
+    #[serde(rename = "score")]
+    pub score: u32,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FuzzyFileSearchSessionCompletedNotification {
+    #[serde(rename = "sessionId")]
+    pub session_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FuzzyFileSearchSessionUpdatedNotification {
+    #[serde(rename = "files")]
+    pub files: Vec<FuzzyFileSearchResult>,
+    #[serde(rename = "query")]
+    pub query: String,
+    #[serde(rename = "sessionId")]
+    pub session_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct GatewayOAuthCancelResponse {}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct GatewayOAuthChangedNotification {
+    /// Authorization handoff, sent only to the connection that started login.
+    #[serde(rename = "authUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub auth_url: Option<String>,
+    #[serde(rename = "error")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+    #[serde(rename = "providerId")]
+    pub provider_id: String,
+    #[serde(rename = "status")]
+    pub status: GatewayOAuthStatus,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct GatewayOAuthLoginResponse {}
+
+/// Current effective gateway policy and credential readiness; never contains credentials.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct GatewayOAuthReadResponse {
+    #[serde(rename = "error")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+    #[serde(rename = "providerId")]
+    pub provider_id: String,
+    #[serde(rename = "providerName")]
+    pub provider_name: String,
+    /// Whether the selected provider uses gateway OAuth, even when already signed in.
+    #[serde(rename = "required")]
+    pub required: bool,
+    /// Null when the effective provider does not use gateway OAuth.
+    #[serde(rename = "status")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status: Option<GatewayOAuthStatus>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum GatewayOAuthStatus {
+    /// 判别值 `notReady`
+    #[serde(rename = "notReady")]
+    NotReady,
+    /// 判别值 `started`
+    #[serde(rename = "started")]
+    Started,
+    /// 判别值 `succeeded`
+    #[serde(rename = "succeeded")]
+    Succeeded,
+    /// 判别值 `failed`
+    #[serde(rename = "failed")]
+    Failed,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct GetAccountParams {
+    /// When `true`, requests a proactive token refresh before returning.
+    ///
+    /// In managed auth mode this triggers the normal refresh-token flow. In external auth mode this flag is ignored. Clients should refresh tokens themselves and call `account/login/start` with `chatgptAuthTokens`.
+    #[serde(rename = "refreshToken")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub refresh_token: Option<bool>,
+}
+
+/// Usage-read capabilities of the requesting client, never inferred from its experiment arm.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct GetAccountRateLimitsParams {
+    /// Skip the separate reset-credit detail lookup for background usage polls. The usage response still includes the available count; omitted/false preserves detailed reads.
+    #[serde(rename = "excludeResetCreditDetails")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exclude_reset_credit_details: Option<bool>,
+    /// The client supports automatic Luna Reserve fallback. For eligible ChatGPT CLI users, allow the backend to record experiment exposure after ordinary usage is blocked.
+    #[serde(rename = "supportsLunaReserve")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub supports_luna_reserve: Option<bool>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct GetAccountRateLimitsResponse {
+    /// Account associated with this usage snapshot, when supplied by the backend.
+    #[serde(rename = "accountId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub account_id: Option<String>,
+    /// Backend permission for ordinary included usage, validated against the active account. Null means unavailable; clients must not infer recovery from percentages or reset times.
+    #[serde(rename = "ordinaryUsageAllowed")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ordinary_usage_allowed: Option<bool>,
+    #[serde(rename = "rateLimitResetCredits")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rate_limit_reset_credits: Option<RateLimitResetCreditsSummary>,
+    /// Optional backend-owned banner from the same usage read. Its nested keys retain the backend's snake_case contract; an absent banner leaves the client's existing UI unchanged.
+    #[serde(rename = "rateLimitUpsell")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rate_limit_upsell: Option<serde_json::Value>,
+    /// Backward-compatible single-bucket view; mirrors the historical payload.
+    #[serde(rename = "rateLimits")]
+    pub rate_limits: RateLimitSnapshot,
+    /// Multi-bucket view keyed by metered `limit_id` (for example, `codex`).
+    #[serde(rename = "rateLimitsByLimitId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rate_limits_by_limit_id: Option<std::collections::BTreeMap<String, RateLimitSnapshot>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct GetAccountResponse {
+    #[serde(rename = "account")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub account: Option<Account>,
+    #[serde(rename = "requiresOpenaiAuth")]
+    pub requires_openai_auth: bool,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct GetAccountTokenUsageParams {
+    /// When present, read estimated usage for this thread instead of account-wide token activity.
+    #[serde(rename = "threadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct GetAccountTokenUsageResponse {
+    #[serde(rename = "dailyUsageBuckets")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub daily_usage_buckets: Option<Vec<AccountTokenUsageDailyBucket>>,
+    #[serde(rename = "summary")]
+    pub summary: AccountTokenUsageSummary,
+    /// Estimated usage when a thread was requested and its billing route is available.
+    #[serde(rename = "threadUsage")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_usage: Option<ThreadUsage>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct GetWorkspaceMessagesResponse {
+    /// Whether the workspace-message backend route is available for this client.
+    #[serde(rename = "featureEnabled")]
+    pub feature_enabled: bool,
+    /// Active workspace messages returned by the backend.
+    #[serde(rename = "messages")]
+    pub messages: Vec<WorkspaceMessage>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct GitInfo {
+    #[serde(rename = "branch")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub branch: Option<String>,
+    #[serde(rename = "originUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub origin_url: Option<String>,
+    #[serde(rename = "sha")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sha: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct GrantedPermissionProfile {
+    #[serde(rename = "fileSystem")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub file_system: Option<AdditionalFileSystemPermissions>,
+    #[serde(rename = "network")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub network: Option<AdditionalNetworkPermissions>,
+}
+
+/// [UNSTABLE] Temporary approval auto-review payload used by `item/autoApprovalReview/*` notifications. This shape is expected to change soon.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct GuardianApprovalReview {
+    #[serde(rename = "rationale")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rationale: Option<String>,
+    #[serde(rename = "riskLevel")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub risk_level: Option<GuardianRiskLevel>,
+    #[serde(rename = "status")]
+    pub status: GuardianApprovalReviewStatus,
+    #[serde(rename = "userAuthorization")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub user_authorization: Option<GuardianUserAuthorization>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum GuardianApprovalReviewAction {
+    #[serde(rename = "command")]
+    Command {
+        #[serde(rename = "command")]
+        command: String,
+        #[serde(rename = "cwd")]
+        cwd: LegacyAppPathString,
+        #[serde(rename = "source")]
+        source: GuardianCommandSource,
+    },
+    #[serde(rename = "execve")]
+    Execve {
+        #[serde(rename = "argv")]
+        argv: Vec<String>,
+        #[serde(rename = "cwd")]
+        cwd: AbsolutePathBuf,
+        #[serde(rename = "program")]
+        program: String,
+        #[serde(rename = "source")]
+        source: GuardianCommandSource,
+    },
+    /// A child approval for input to an existing command execution item.
+    #[serde(rename = "writeStdin")]
+    WriteStdin {
+        #[serde(rename = "approvalId")]
+        approval_id: String,
+        #[serde(rename = "cwd")]
+        cwd: LegacyAppPathString,
+        #[serde(rename = "processId")]
+        process_id: String,
+        #[serde(rename = "stdin")]
+        stdin: String,
+    },
+    #[serde(rename = "applyPatch")]
+    ApplyPatch {
+        #[serde(rename = "cwd")]
+        cwd: LegacyAppPathString,
+        #[serde(rename = "files")]
+        files: Vec<LegacyAppPathString>,
+    },
+    #[serde(rename = "networkAccess")]
+    NetworkAccess {
+        #[serde(rename = "host")]
+        host: String,
+        #[serde(rename = "port")]
+        port: u16,
+        #[serde(rename = "protocol")]
+        protocol: NetworkApprovalProtocol,
+        #[serde(rename = "target")]
+        target: String,
+    },
+    #[serde(rename = "mcpToolCall")]
+    McpToolCall {
+        #[serde(rename = "connectorId")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        connector_id: Option<String>,
+        #[serde(rename = "connectorName")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        connector_name: Option<String>,
+        #[serde(rename = "server")]
+        server: String,
+        #[serde(rename = "toolName")]
+        tool_name: String,
+        #[serde(rename = "toolTitle")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        tool_title: Option<String>,
+    },
+    #[serde(rename = "requestPermissions")]
+    RequestPermissions {
+        #[serde(rename = "permissions")]
+        permissions: RequestPermissionProfile,
+        #[serde(rename = "reason")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        reason: Option<String>,
+    },
+}
+
+/// [UNSTABLE] Lifecycle state for an approval auto-review.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum GuardianApprovalReviewStatus {
+    /// 判别值 `inProgress`
+    #[serde(rename = "inProgress")]
+    InProgress,
+    /// 判别值 `approved`
+    #[serde(rename = "approved")]
+    Approved,
+    /// 判别值 `denied`
+    #[serde(rename = "denied")]
+    Denied,
+    /// 判别值 `timedOut`
+    #[serde(rename = "timedOut")]
+    TimedOut,
+    /// 判别值 `aborted`
+    #[serde(rename = "aborted")]
+    Aborted,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum GuardianCommandSource {
+    /// 判别值 `shell`
+    #[serde(rename = "shell")]
+    Shell,
+    /// 判别值 `unifiedExec`
+    #[serde(rename = "unifiedExec")]
+    UnifiedExec,
+}
+
+/// [UNSTABLE] Risk level assigned by approval auto-review.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum GuardianRiskLevel {
+    /// 判别值 `low`
+    #[serde(rename = "low")]
+    Low,
+    /// 判别值 `medium`
+    #[serde(rename = "medium")]
+    Medium,
+    /// 判别值 `high`
+    #[serde(rename = "high")]
+    High,
+    /// 判别值 `critical`
+    #[serde(rename = "critical")]
+    Critical,
+}
+
+/// [UNSTABLE] Authorization level assigned by approval auto-review.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum GuardianUserAuthorization {
+    /// 判别值 `unknown`
+    #[serde(rename = "unknown")]
+    Unknown,
+    /// 判别值 `low`
+    #[serde(rename = "low")]
+    Low,
+    /// 判别值 `medium`
+    #[serde(rename = "medium")]
+    Medium,
+    /// 判别值 `high`
+    #[serde(rename = "high")]
+    High,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct GuardianWarningNotification {
+    /// Concise guardian warning message for the user.
+    #[serde(rename = "message")]
+    pub message: String,
+    /// Thread target for the guardian warning.
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct HookCompletedNotification {
+    #[serde(rename = "run")]
+    pub run: HookRunSummary,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub turn_id: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct HookErrorInfo {
+    #[serde(rename = "message")]
+    pub message: String,
+    #[serde(rename = "path")]
+    pub path: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HookEventName {
+    /// 判别值 `preToolUse`
+    #[serde(rename = "preToolUse")]
+    PreToolUse,
+    /// 判别值 `permissionRequest`
+    #[serde(rename = "permissionRequest")]
+    PermissionRequest,
+    /// 判别值 `postToolUse`
+    #[serde(rename = "postToolUse")]
+    PostToolUse,
+    /// 判别值 `preCompact`
+    #[serde(rename = "preCompact")]
+    PreCompact,
+    /// 判别值 `postCompact`
+    #[serde(rename = "postCompact")]
+    PostCompact,
+    /// 判别值 `sessionStart`
+    #[serde(rename = "sessionStart")]
+    SessionStart,
+    /// 判别值 `sessionEnd`
+    #[serde(rename = "sessionEnd")]
+    SessionEnd,
+    /// 判别值 `userPromptSubmit`
+    #[serde(rename = "userPromptSubmit")]
+    UserPromptSubmit,
+    /// 判别值 `subagentStart`
+    #[serde(rename = "subagentStart")]
+    SubagentStart,
+    /// 判别值 `subagentStop`
+    #[serde(rename = "subagentStop")]
+    SubagentStop,
+    /// 判别值 `stop`
+    #[serde(rename = "stop")]
+    Stop,
+    /// 判别值 `interrupt`
+    #[serde(rename = "interrupt")]
+    Interrupt,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HookExecutionMode {
+    /// 判别值 `sync`
+    #[serde(rename = "sync")]
+    Sync,
+    /// 判别值 `async`
+    #[serde(rename = "async")]
+    Async,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HookHandlerType {
+    /// 判别值 `command`
+    #[serde(rename = "command")]
+    Command,
+    /// 判别值 `mcpTool`
+    #[serde(rename = "mcpTool")]
+    McpTool,
+    /// 判别值 `prompt`
+    #[serde(rename = "prompt")]
+    Prompt,
+    /// 判别值 `agent`
+    #[serde(rename = "agent")]
+    Agent,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "handlerType")]
+pub enum HookMetadata {
+    #[serde(rename = "command")]
+    Command {
+        #[serde(rename = "async")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        r#async: Option<bool>,
+        #[serde(rename = "command")]
+        command: String,
+    },
+    #[serde(rename = "mcpTool")]
+    McpTool {
+        #[serde(rename = "server")]
+        server: String,
+        #[serde(rename = "tool")]
+        tool: String,
+    },
+    #[serde(rename = "prompt")]
+    Prompt,
+    #[serde(rename = "agent")]
+    Agent,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct HookMigration {
+    #[serde(rename = "name")]
+    pub name: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct HookOutputEntry {
+    #[serde(rename = "kind")]
+    pub kind: HookOutputEntryKind,
+    #[serde(rename = "text")]
+    pub text: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HookOutputEntryKind {
+    /// 判别值 `warning`
+    #[serde(rename = "warning")]
+    Warning,
+    /// 判别值 `stop`
+    #[serde(rename = "stop")]
+    Stop,
+    /// 判别值 `feedback`
+    #[serde(rename = "feedback")]
+    Feedback,
+    /// 判别值 `context`
+    #[serde(rename = "context")]
+    Context,
+    /// 判别值 `error`
+    #[serde(rename = "error")]
+    Error,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct HookPromptFragment {
+    #[serde(rename = "hookRunId")]
+    pub hook_run_id: String,
+    #[serde(rename = "text")]
+    pub text: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HookRunStatus {
+    /// 判别值 `running`
+    #[serde(rename = "running")]
+    Running,
+    /// 判别值 `completed`
+    #[serde(rename = "completed")]
+    Completed,
+    /// 判别值 `failed`
+    #[serde(rename = "failed")]
+    Failed,
+    /// 判别值 `blocked`
+    #[serde(rename = "blocked")]
+    Blocked,
+    /// 判别值 `stopped`
+    #[serde(rename = "stopped")]
+    Stopped,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct HookRunSummary {
+    #[serde(rename = "completedAt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub completed_at: Option<i64>,
+    #[serde(rename = "displayOrder")]
+    pub display_order: i64,
+    #[serde(rename = "durationMs")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub duration_ms: Option<i64>,
+    #[serde(rename = "entries")]
+    pub entries: Vec<HookOutputEntry>,
+    #[serde(rename = "eventName")]
+    pub event_name: HookEventName,
+    #[serde(rename = "executionMode")]
+    pub execution_mode: HookExecutionMode,
+    #[serde(rename = "handlerType")]
+    pub handler_type: HookHandlerType,
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(rename = "scope")]
+    pub scope: HookScope,
+    #[serde(rename = "source")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<HookSource>,
+    #[serde(rename = "sourcePath")]
+    pub source_path: AbsolutePathBuf,
+    #[serde(rename = "startedAt")]
+    pub started_at: i64,
+    #[serde(rename = "status")]
+    pub status: HookRunStatus,
+    #[serde(rename = "statusMessage")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status_message: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HookScope {
+    /// 判别值 `thread`
+    #[serde(rename = "thread")]
+    Thread,
+    /// 判别值 `turn`
+    #[serde(rename = "turn")]
+    Turn,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HookSource {
+    /// 判别值 `system`
+    #[serde(rename = "system")]
+    System,
+    /// 判别值 `user`
+    #[serde(rename = "user")]
+    User,
+    /// 判别值 `project`
+    #[serde(rename = "project")]
+    Project,
+    /// 判别值 `mdm`
+    #[serde(rename = "mdm")]
+    Mdm,
+    /// 判别值 `sessionFlags`
+    #[serde(rename = "sessionFlags")]
+    SessionFlags,
+    /// 判别值 `plugin`
+    #[serde(rename = "plugin")]
+    Plugin,
+    /// 判别值 `cloudRequirements`
+    #[serde(rename = "cloudRequirements")]
+    CloudRequirements,
+    /// 判别值 `cloudManagedConfig`
+    #[serde(rename = "cloudManagedConfig")]
+    CloudManagedConfig,
+    /// 判别值 `legacyManagedConfigFile`
+    #[serde(rename = "legacyManagedConfigFile")]
+    LegacyManagedConfigFile,
+    /// 判别值 `legacyManagedConfigMdm`
+    #[serde(rename = "legacyManagedConfigMdm")]
+    LegacyManagedConfigMdm,
+    /// 判别值 `unknown`
+    #[serde(rename = "unknown")]
+    Unknown,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct HookStartedNotification {
+    #[serde(rename = "run")]
+    pub run: HookRunSummary,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub turn_id: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HookTrustStatus {
+    /// 判别值 `managed`
+    #[serde(rename = "managed")]
+    Managed,
+    /// 判别值 `untrusted`
+    #[serde(rename = "untrusted")]
+    Untrusted,
+    /// 判别值 `trusted`
+    #[serde(rename = "trusted")]
+    Trusted,
+    /// 判别值 `modified`
+    #[serde(rename = "modified")]
+    Modified,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct HooksListEntry {
+    #[serde(rename = "cwd")]
+    pub cwd: String,
+    #[serde(rename = "errors")]
+    pub errors: Vec<HookErrorInfo>,
+    #[serde(rename = "hooks")]
+    pub hooks: Vec<HookMetadata>,
+    #[serde(rename = "warnings")]
+    pub warnings: Vec<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct HooksListParams {
+    /// When empty, defaults to the current session working directory.
+    #[serde(rename = "cwds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwds: Option<Vec<String>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct HooksListResponse {
+    #[serde(rename = "data")]
+    pub data: Vec<HooksListEntry>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ImageDetail {
+    /// 判别值 `auto`
+    #[serde(rename = "auto")]
+    Auto,
+    /// 判别值 `low`
+    #[serde(rename = "low")]
+    Low,
+    /// 判别值 `high`
+    #[serde(rename = "high")]
+    High,
+    /// 判别值 `original`
+    #[serde(rename = "original")]
+    Original,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ImageGenerationFailure {
+    #[serde(rename = "usageLimitExceeded")]
+    UsageLimitExceeded {
+        #[serde(rename = "limitId")]
+        limit_id: String,
+        #[serde(rename = "resetsAt")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        resets_at: Option<i64>,
+    },
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct InAppBrowserRequirements {
+    #[serde(rename = "allowExternalBrowserSettingsImport")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_external_browser_settings_import: Option<bool>,
+}
+
+/// Client-declared capabilities negotiated during initialize.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct InitializeCapabilities {
+    /// Opt into receiving experimental API methods and fields.
+    #[serde(rename = "experimentalApi")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub experimental_api: Option<bool>,
+    /// Use explicit gateway OAuth login instead of automatic browser authorization. Applies to this app-server's gateway runtime; later connections cannot undo it.
+    #[serde(rename = "explicitGatewayOauth")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub explicit_gateway_oauth: Option<bool>,
+    /// MCP extension settings declared by the app-server client.
+    #[serde(rename = "extensions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub extensions: Option<serde_json::Value>,
+    /// Legacy opt-in for the `openai/form` MCP extension.
+    ///
+    /// New clients should declare `openai/form` in [`Self::extensions`].
+    #[serde(rename = "mcpServerOpenaiFormElicitation")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mcp_server_openai_form_elicitation: Option<bool>,
+    /// Exact notification method names that should be suppressed for this connection (for example `thread/started`).
+    #[serde(rename = "optOutNotificationMethods")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub opt_out_notification_methods: Option<Vec<String>>,
+    /// Opt into `attestation/generate` requests for upstream `x-oai-attestation`.
+    #[serde(rename = "requestAttestation")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub request_attestation: Option<bool>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct InitializeParams {
+    #[serde(rename = "capabilities")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub capabilities: Option<InitializeCapabilities>,
+    #[serde(rename = "clientInfo")]
+    pub client_info: ClientInfo,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct InitializeResponse {
+    /// Absolute path to the server's $CODEX_HOME directory.
+    #[serde(rename = "codexHome")]
+    pub codex_home: AbsolutePathBuf,
+    /// Platform family for the running app-server target, for example `"unix"` or `"windows"`.
+    #[serde(rename = "platformFamily")]
+    pub platform_family: String,
+    /// Operating system for the running app-server target, for example `"macos"`, `"linux"`, or `"windows"`.
+    #[serde(rename = "platformOs")]
+    pub platform_os: String,
+    #[serde(rename = "userAgent")]
+    pub user_agent: String,
+}
+
+/// Canonical user-input modality tags advertised by a model.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum InputModality {
+    /// Plain text turns and tool payloads.
+    #[serde(rename = "text")]
+    Text,
+    /// Image attachments included in user turns.
+    #[serde(rename = "image")]
+    Image,
+    /// Audio attachments included in user turns.
+    #[serde(rename = "audio")]
+    Audio,
+}
+
+/// Installed connector runtime state.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct InstalledApp {
+    /// Whether the connector is enabled and has a non-synthetic, model-visible tool allowed by effective MCP and app/tool policy in the committed runtime snapshot.
+    #[serde(rename = "callable")]
+    pub callable: bool,
+    /// Effective enabled state after applying global, workspace, local, and managed configuration at read time.
+    #[serde(rename = "enabled")]
+    pub enabled: bool,
+    #[serde(rename = "id")]
+    pub id: String,
+    /// Best-effort name carried by the runtime tool catalog. Canonical app metadata remains owned by `app/read`.
+    #[serde(rename = "runtimeName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub runtime_name: Option<String>,
+}
+
+/// Internal Responses API passthrough metadata copied into underlying chat messages.
+///
+/// Responses API strongly types this payload. Do not modify it without first getting API approval and making the corresponding Responses API change.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct InternalChatMessageMetadataPassthrough {
+    #[serde(rename = "turn_id")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub turn_id: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ItemCompletedNotification {
+    /// Unix timestamp (in milliseconds) when this item lifecycle completed.
+    #[serde(rename = "completedAtMs")]
+    pub completed_at_ms: i64,
+    #[serde(rename = "item")]
+    pub item: ThreadItem,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+/// [UNSTABLE] Temporary notification payload for approval auto-review. This shape is expected to change soon.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ItemGuardianApprovalReviewCompletedNotification {
+    #[serde(rename = "action")]
+    pub action: GuardianApprovalReviewAction,
+    /// Unix timestamp (in milliseconds) when this review completed.
+    #[serde(rename = "completedAtMs")]
+    pub completed_at_ms: i64,
+    #[serde(rename = "decisionSource")]
+    pub decision_source: AutoReviewDecisionSource,
+    #[serde(rename = "review")]
+    pub review: GuardianApprovalReview,
+    /// Stable identifier for this review.
+    #[serde(rename = "reviewId")]
+    pub review_id: String,
+    /// Unix timestamp (in milliseconds) when this review started.
+    #[serde(rename = "startedAtMs")]
+    pub started_at_ms: i64,
+    /// Identifier for the reviewed item or tool call when one exists.
+    ///
+    /// In most cases, one review maps to one target item. The exceptions are - execve reviews, where a single command may contain multiple execve calls to review (only possible when using the shell_zsh_fork feature) - stdin reviews, which refer to the existing parent command item and have a separate approval ID in the action payload - network policy reviews, where there is no target item
+    ///
+    /// A network call is triggered by a CommandExecution item, so having a target_item_id set to the CommandExecution item would be misleading because the review is about the network call, not the command execution. Therefore, target_item_id is set to None for network policy reviews.
+    #[serde(rename = "targetItemId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target_item_id: Option<String>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+/// [UNSTABLE] Temporary notification payload for approval auto-review. This shape is expected to change soon.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ItemGuardianApprovalReviewStartedNotification {
+    #[serde(rename = "action")]
+    pub action: GuardianApprovalReviewAction,
+    #[serde(rename = "review")]
+    pub review: GuardianApprovalReview,
+    /// Stable identifier for this review.
+    #[serde(rename = "reviewId")]
+    pub review_id: String,
+    /// Unix timestamp (in milliseconds) when this review started.
+    #[serde(rename = "startedAtMs")]
+    pub started_at_ms: i64,
+    /// Identifier for the reviewed item or tool call when one exists.
+    ///
+    /// In most cases, one review maps to one target item. The exceptions are - execve reviews, where a single command may contain multiple execve calls to review (only possible when using the shell_zsh_fork feature) - stdin reviews, which refer to the existing parent command item and have a separate approval ID in the action payload - network policy reviews, where there is no target item
+    ///
+    /// A network call is triggered by a CommandExecution item, so having a target_item_id set to the CommandExecution item would be misleading because the review is about the network call, not the command execution. Therefore, target_item_id is set to None for network policy reviews.
+    #[serde(rename = "targetItemId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target_item_id: Option<String>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ItemStartedNotification {
+    #[serde(rename = "item")]
+    pub item: ThreadItem,
+    /// Unix timestamp (in milliseconds) when this item lifecycle started.
+    #[serde(rename = "startedAtMs")]
+    pub started_at_ms: i64,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+/// A response to a request that indicates an error occurred.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct JSONRPCError {
+    #[serde(rename = "error")]
+    pub error: JSONRPCErrorError,
+    #[serde(rename = "id")]
+    pub id: RequestId,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct JSONRPCErrorError {
+    #[serde(rename = "code")]
+    pub code: i64,
+    #[serde(rename = "data")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub data: Option<serde_json::Value>,
+    #[serde(rename = "message")]
+    pub message: String,
+}
+
+/// Refers to any valid JSON-RPC object that can be decoded off the wire, or encoded to be sent.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum JSONRPCMessage {
+    JSONRPCRequest(JSONRPCRequest),
+    JSONRPCNotification(JSONRPCNotification),
+    JSONRPCResponse(JSONRPCResponse),
+    JSONRPCError(JSONRPCError),
+}
+
+/// A notification which does not expect a response.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct JSONRPCNotification {
+    #[serde(rename = "method")]
+    pub method: String,
+    #[serde(rename = "params")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub params: Option<serde_json::Value>,
+}
+
+/// A request that expects a response.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct JSONRPCRequest {
+    #[serde(rename = "id")]
+    pub id: RequestId,
+    #[serde(rename = "method")]
+    pub method: String,
+    #[serde(rename = "params")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub params: Option<serde_json::Value>,
+    /// Optional W3C Trace Context for distributed tracing.
+    #[serde(rename = "trace")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub trace: Option<W3cTraceContext>,
+}
+
+/// A successful (non-error) response to a request.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct JSONRPCResponse {
+    #[serde(rename = "id")]
+    pub id: RequestId,
+    #[serde(rename = "result")]
+    pub result: serde_json::Value,
+}
+
+pub type LegacyAppPathString = String;
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ListMcpServerStatusParams {
+    /// Opaque pagination cursor returned by a previous call.
+    #[serde(rename = "cursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cursor: Option<String>,
+    /// Controls how much MCP inventory data to fetch for each server. Defaults to `Full` when omitted.
+    #[serde(rename = "detail")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub detail: Option<McpServerStatusDetail>,
+    /// Optional page size; defaults to a server-defined value.
+    #[serde(rename = "limit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u32>,
+    #[serde(rename = "threadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ListMcpServerStatusResponse {
+    #[serde(rename = "data")]
+    pub data: Vec<McpServerStatus>,
+    /// Opaque cursor to pass to the next call to continue after the last item. If None, there are no more items to return.
+    #[serde(rename = "nextCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum LocalShellAction {
+    #[serde(rename = "exec")]
+    Exec {
+        #[serde(rename = "command")]
+        command: Vec<String>,
+        #[serde(rename = "env")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        env: Option<std::collections::BTreeMap<String, String>>,
+        #[serde(rename = "timeout_ms")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        timeout_ms: Option<u64>,
+        #[serde(rename = "user")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        user: Option<String>,
+        #[serde(rename = "working_directory")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        working_directory: Option<String>,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum LocalShellStatus {
+    /// 判别值 `completed`
+    #[serde(rename = "completed")]
+    Completed,
+    /// 判别值 `in_progress`
+    #[serde(rename = "in_progress")]
+    InProgress,
+    /// 判别值 `incomplete`
+    #[serde(rename = "incomplete")]
+    Incomplete,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum LoginAccountParams {
+    #[serde(rename = "apiKey")]
+    ApiKey {
+        #[serde(rename = "apiKey")]
+        api_key: String,
+    },
+    #[serde(rename = "chatgpt")]
+    Chatgpt {
+        #[serde(rename = "appBrand")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        app_brand: Option<LoginAppBrand>,
+        #[serde(rename = "codexStreamlinedLogin")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        codex_streamlined_login: Option<bool>,
+        #[serde(rename = "useHostedLoginSuccessPage")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        use_hosted_login_success_page: Option<bool>,
+    },
+    #[serde(rename = "chatgptDeviceCode")]
+    ChatgptDeviceCode,
+    /// [UNSTABLE] FOR OPENAI INTERNAL USE ONLY - DO NOT USE. The access token must contain the same scopes that Codex-managed ChatGPT auth tokens have.
+    #[serde(rename = "chatgptAuthTokens")]
+    ChatgptAuthTokens {
+        /// Access token (JWT) supplied by the client. This token is used for backend API requests and email extraction.
+        #[serde(rename = "accessToken")]
+        access_token: String,
+        /// Workspace/account identifier supplied by the client.
+        #[serde(rename = "chatgptAccountId")]
+        chatgpt_account_id: String,
+        /// Optional plan type supplied by the client.
+        ///
+        /// When `null`, Codex attempts to derive the plan type from access-token claims. If unavailable, the plan defaults to `unknown`.
+        #[serde(rename = "chatgptPlanType")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        chatgpt_plan_type: Option<String>,
+    },
+    /// [UNSTABLE] Managed Amazon Bedrock login is experimental.
+    #[serde(rename = "amazonBedrock")]
+    AmazonBedrock {
+        #[serde(rename = "apiKey")]
+        api_key: String,
+        #[serde(rename = "region")]
+        region: String,
+    },
+    /// [UNSTABLE] Managed Amazon Bedrock AWS access key login is experimental.
+    #[serde(rename = "amazonBedrockAccessKeys")]
+    AmazonBedrockAccessKeys {
+        #[serde(rename = "accessKeyId")]
+        access_key_id: String,
+        #[serde(rename = "region")]
+        region: String,
+        #[serde(rename = "secretAccessKey")]
+        secret_access_key: String,
+        #[serde(rename = "sessionToken")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        session_token: Option<String>,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum LoginAccountResponse {
+    #[serde(rename = "apiKey")]
+    ApiKey,
+    #[serde(rename = "chatgpt")]
+    Chatgpt {
+        /// URL the client should open in a browser to initiate the OAuth flow.
+        #[serde(rename = "authUrl")]
+        auth_url: String,
+        #[serde(rename = "loginId")]
+        login_id: String,
+    },
+    #[serde(rename = "chatgptDeviceCode")]
+    ChatgptDeviceCode {
+        #[serde(rename = "loginId")]
+        login_id: String,
+        /// One-time code the user must enter after signing in.
+        #[serde(rename = "userCode")]
+        user_code: String,
+        /// URL the client should open in a browser to complete device code authorization.
+        #[serde(rename = "verificationUrl")]
+        verification_url: String,
+    },
+    #[serde(rename = "chatgptAuthTokens")]
+    ChatgptAuthTokens,
+    #[serde(rename = "amazonBedrock")]
+    AmazonBedrock,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum LoginAppBrand {
+    /// 判别值 `codex`
+    #[serde(rename = "codex")]
+    Codex,
+    /// 判别值 `chatgpt`
+    #[serde(rename = "chatgpt")]
+    Chatgpt,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct LogoutAccountResponse {}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ManagedHooksRequirements {
+    #[serde(rename = "Interrupt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub interrupt: Option<Vec<ConfiguredHookMatcherGroup>>,
+    #[serde(rename = "PermissionRequest")]
+    pub permission_request: Vec<ConfiguredHookMatcherGroup>,
+    #[serde(rename = "PostCompact")]
+    pub post_compact: Vec<ConfiguredHookMatcherGroup>,
+    #[serde(rename = "PostToolUse")]
+    pub post_tool_use: Vec<ConfiguredHookMatcherGroup>,
+    #[serde(rename = "PreCompact")]
+    pub pre_compact: Vec<ConfiguredHookMatcherGroup>,
+    #[serde(rename = "PreToolUse")]
+    pub pre_tool_use: Vec<ConfiguredHookMatcherGroup>,
+    #[serde(rename = "SessionEnd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub session_end: Option<Vec<ConfiguredHookMatcherGroup>>,
+    #[serde(rename = "SessionStart")]
+    pub session_start: Vec<ConfiguredHookMatcherGroup>,
+    #[serde(rename = "Stop")]
+    pub stop: Vec<ConfiguredHookMatcherGroup>,
+    #[serde(rename = "SubagentStart")]
+    pub subagent_start: Vec<ConfiguredHookMatcherGroup>,
+    #[serde(rename = "SubagentStop")]
+    pub subagent_stop: Vec<ConfiguredHookMatcherGroup>,
+    #[serde(rename = "UserPromptSubmit")]
+    pub user_prompt_submit: Vec<ConfiguredHookMatcherGroup>,
+    #[serde(rename = "managedDir")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub managed_dir: Option<String>,
+    #[serde(rename = "windowsManagedDir")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub windows_managed_dir: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MarketplaceAddParams {
+    #[serde(rename = "refName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ref_name: Option<String>,
+    #[serde(rename = "source")]
+    pub source: String,
+    #[serde(rename = "sparsePaths")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sparse_paths: Option<Vec<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MarketplaceAddResponse {
+    #[serde(rename = "alreadyAdded")]
+    pub already_added: bool,
+    #[serde(rename = "installedRoot")]
+    pub installed_root: AbsolutePathBuf,
+    #[serde(rename = "marketplaceName")]
+    pub marketplace_name: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MarketplaceInterface {
+    #[serde(rename = "displayName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub display_name: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MarketplaceLoadErrorInfo {
+    #[serde(rename = "marketplacePath")]
+    pub marketplace_path: AbsolutePathBuf,
+    #[serde(rename = "message")]
+    pub message: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MarketplaceRemoveParams {
+    #[serde(rename = "marketplaceName")]
+    pub marketplace_name: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MarketplaceRemoveResponse {
+    #[serde(rename = "installedRoot")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub installed_root: Option<AbsolutePathBuf>,
+    #[serde(rename = "marketplaceName")]
+    pub marketplace_name: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MarketplaceUpgradeErrorInfo {
+    #[serde(rename = "marketplaceName")]
+    pub marketplace_name: String,
+    #[serde(rename = "message")]
+    pub message: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MarketplaceUpgradeParams {
+    #[serde(rename = "marketplaceName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub marketplace_name: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MarketplaceUpgradeResponse {
+    #[serde(rename = "errors")]
+    pub errors: Vec<MarketplaceUpgradeErrorInfo>,
+    #[serde(rename = "selectedMarketplaces")]
+    pub selected_marketplaces: Vec<String>,
+    #[serde(rename = "upgradedRoots")]
+    pub upgraded_roots: Vec<AbsolutePathBuf>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum McpAppDisplayMode {
+    /// 判别值 `inline`
+    #[serde(rename = "inline")]
+    Inline,
+    /// 判别值 `fullscreen`
+    #[serde(rename = "fullscreen")]
+    Fullscreen,
+}
+
+/// UI resource and display preference for model invocations, captured from the tool descriptor.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpAppUi {
+    #[serde(rename = "preferredModelDisplayMode")]
+    pub preferred_model_display_mode: McpAppDisplayMode,
+    #[serde(rename = "resourceUri")]
+    pub resource_uri: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum McpAuthStatus {
+    /// 判别值 `unknown`
+    #[serde(rename = "unknown")]
+    Unknown,
+    /// 判别值 `unsupported`
+    #[serde(rename = "unsupported")]
+    Unsupported,
+    /// 判别值 `notLoggedIn`
+    #[serde(rename = "notLoggedIn")]
+    NotLoggedIn,
+    /// 判别值 `bearerToken`
+    #[serde(rename = "bearerToken")]
+    BearerToken,
+    /// 判别值 `oAuth`
+    #[serde(rename = "oAuth")]
+    OAuth,
+}
+
+pub type McpElicitationArrayType = String;
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpElicitationBooleanSchema {
+    #[serde(rename = "default")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default: Option<bool>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(rename = "type")]
+    pub r#type: McpElicitationBooleanType,
+}
+
+pub type McpElicitationBooleanType = String;
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpElicitationConstOption {
+    #[serde(rename = "const")]
+    pub r#const: String,
+    #[serde(rename = "title")]
+    pub title: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum McpElicitationEnumSchema {
+    McpElicitationSingleSelectEnumSchema(McpElicitationSingleSelectEnumSchema),
+    McpElicitationMultiSelectEnumSchema(McpElicitationMultiSelectEnumSchema),
+    McpElicitationLegacyTitledEnumSchema(McpElicitationLegacyTitledEnumSchema),
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpElicitationLegacyTitledEnumSchema {
+    #[serde(rename = "default")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default: Option<String>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "enum")]
+    pub r#enum: Vec<String>,
+    #[serde(rename = "enumNames")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enum_names: Option<Vec<String>>,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(rename = "type")]
+    pub r#type: McpElicitationStringType,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum McpElicitationMultiSelectEnumSchema {
+    McpElicitationUntitledMultiSelectEnumSchema(McpElicitationUntitledMultiSelectEnumSchema),
+    McpElicitationTitledMultiSelectEnumSchema(McpElicitationTitledMultiSelectEnumSchema),
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpElicitationNumberSchema {
+    #[serde(rename = "default")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default: Option<f64>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "maximum")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub maximum: Option<f64>,
+    #[serde(rename = "minimum")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub minimum: Option<f64>,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(rename = "type")]
+    pub r#type: McpElicitationNumberType,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum McpElicitationNumberType {
+    /// 判别值 `number`
+    #[serde(rename = "number")]
+    Number,
+    /// 判别值 `integer`
+    #[serde(rename = "integer")]
+    Integer,
+}
+
+pub type McpElicitationObjectType = String;
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum McpElicitationPrimitiveSchema {
+    McpElicitationEnumSchema(McpElicitationEnumSchema),
+    McpElicitationStringSchema(McpElicitationStringSchema),
+    McpElicitationNumberSchema(McpElicitationNumberSchema),
+    McpElicitationBooleanSchema(McpElicitationBooleanSchema),
+}
+
+/// Typed form schema for MCP `elicitation/create` requests.
+///
+/// This matches the `requestedSchema` shape from the MCP 2025-11-25 `ElicitRequestFormParams` schema.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpElicitationSchema {
+    #[serde(rename = "$schema")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub _schema: Option<String>,
+    #[serde(rename = "properties")]
+    pub properties: std::collections::BTreeMap<String, McpElicitationPrimitiveSchema>,
+    #[serde(rename = "required")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub required: Option<Vec<String>>,
+    #[serde(rename = "type")]
+    pub r#type: McpElicitationObjectType,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum McpElicitationSingleSelectEnumSchema {
+    McpElicitationUntitledSingleSelectEnumSchema(McpElicitationUntitledSingleSelectEnumSchema),
+    McpElicitationTitledSingleSelectEnumSchema(McpElicitationTitledSingleSelectEnumSchema),
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum McpElicitationStringFormat {
+    /// 判别值 `email`
+    #[serde(rename = "email")]
+    Email,
+    /// 判别值 `uri`
+    #[serde(rename = "uri")]
+    Uri,
+    /// 判别值 `date`
+    #[serde(rename = "date")]
+    Date,
+    /// 判别值 `date-time`
+    #[serde(rename = "date-time")]
+    DateTime,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpElicitationStringSchema {
+    #[serde(rename = "default")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default: Option<String>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "format")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub format: Option<McpElicitationStringFormat>,
+    #[serde(rename = "maxLength")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_length: Option<u32>,
+    #[serde(rename = "minLength")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min_length: Option<u32>,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(rename = "type")]
+    pub r#type: McpElicitationStringType,
+}
+
+pub type McpElicitationStringType = String;
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpElicitationTitledEnumItems {
+    #[serde(rename = "anyOf")]
+    pub any_of: Vec<McpElicitationConstOption>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpElicitationTitledMultiSelectEnumSchema {
+    #[serde(rename = "default")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default: Option<Vec<String>>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "items")]
+    pub items: McpElicitationTitledEnumItems,
+    #[serde(rename = "maxItems")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_items: Option<u64>,
+    #[serde(rename = "minItems")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min_items: Option<u64>,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(rename = "type")]
+    pub r#type: McpElicitationArrayType,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpElicitationTitledSingleSelectEnumSchema {
+    #[serde(rename = "default")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default: Option<String>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "oneOf")]
+    pub one_of: Vec<McpElicitationConstOption>,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(rename = "type")]
+    pub r#type: McpElicitationStringType,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpElicitationUntitledEnumItems {
+    #[serde(rename = "enum")]
+    pub r#enum: Vec<String>,
+    #[serde(rename = "type")]
+    pub r#type: McpElicitationStringType,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpElicitationUntitledMultiSelectEnumSchema {
+    #[serde(rename = "default")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default: Option<Vec<String>>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "items")]
+    pub items: McpElicitationUntitledEnumItems,
+    #[serde(rename = "maxItems")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_items: Option<u64>,
+    #[serde(rename = "minItems")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min_items: Option<u64>,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(rename = "type")]
+    pub r#type: McpElicitationArrayType,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpElicitationUntitledSingleSelectEnumSchema {
+    #[serde(rename = "default")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default: Option<String>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "enum")]
+    pub r#enum: Vec<String>,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(rename = "type")]
+    pub r#type: McpElicitationStringType,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpResourceReadParams {
+    #[serde(rename = "connectorId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub connector_id: Option<String>,
+    /// Originating MCP tool call used to select the resource's app.
+    #[serde(rename = "originCallId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub origin_call_id: Option<String>,
+    #[serde(rename = "server")]
+    pub server: String,
+    /// Explicit hosted app/account. Omit to retain legacy resource discovery.
+    #[serde(rename = "target")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target: Option<McpResourceReadTarget>,
+    #[serde(rename = "threadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+    #[serde(rename = "uri")]
+    pub uri: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpResourceReadResponse {
+    #[serde(rename = "contents")]
+    pub contents: Vec<ResourceContent>,
+    /// Originating call when the server applied app-specific resource scoping.
+    #[serde(rename = "originCallId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub origin_call_id: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpResourceReadTarget {
+    #[serde(rename = "connectorId")]
+    pub connector_id: String,
+    /// Null explicitly requests no-auth access, subject to the app's resource policy.
+    #[serde(rename = "linkId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub link_id: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum McpServerConnectionStatus {
+    /// 判别值 `notStarted`
+    #[serde(rename = "notStarted")]
+    NotStarted,
+    /// 判别值 `starting`
+    #[serde(rename = "starting")]
+    Starting,
+    /// 判别值 `connected`
+    #[serde(rename = "connected")]
+    Connected,
+    /// 判别值 `authenticationRequired`
+    #[serde(rename = "authenticationRequired")]
+    AuthenticationRequired,
+    /// 判别值 `failed`
+    #[serde(rename = "failed")]
+    Failed,
+    /// 判别值 `cancelled`
+    #[serde(rename = "cancelled")]
+    Cancelled,
+    /// 判别值 `disabled`
+    #[serde(rename = "disabled")]
+    Disabled,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum McpServerElicitationAction {
+    /// 判别值 `accept`
+    #[serde(rename = "accept")]
+    Accept,
+    /// 判别值 `decline`
+    #[serde(rename = "decline")]
+    Decline,
+    /// 判别值 `cancel`
+    #[serde(rename = "cancel")]
+    Cancel,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "mode")]
+pub enum McpServerElicitationRequestParams {
+    #[serde(rename = "form")]
+    Form {
+        #[serde(rename = "_meta")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        _meta: Option<serde_json::Value>,
+        #[serde(rename = "message")]
+        message: String,
+        #[serde(rename = "requestedSchema")]
+        requested_schema: McpElicitationSchema,
+    },
+    #[serde(rename = "openai/form")]
+    OpenaiForm {
+        #[serde(rename = "_meta")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        _meta: Option<serde_json::Value>,
+        #[serde(rename = "message")]
+        message: String,
+        #[serde(rename = "requestedSchema")]
+        requested_schema: serde_json::Value,
+    },
+    #[serde(rename = "openaiForm")]
+    OpenaiForm2 {
+        #[serde(rename = "_meta")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        _meta: Option<serde_json::Value>,
+        #[serde(rename = "message")]
+        message: String,
+        #[serde(rename = "requestedSchema")]
+        requested_schema: serde_json::Value,
+    },
+    #[serde(rename = "url")]
+    Url {
+        #[serde(rename = "_meta")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        _meta: Option<serde_json::Value>,
+        #[serde(rename = "elicitationId")]
+        elicitation_id: String,
+        #[serde(rename = "message")]
+        message: String,
+        #[serde(rename = "url")]
+        url: String,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpServerElicitationRequestResponse {
+    /// Optional client metadata for form-mode action handling.
+    #[serde(rename = "_meta")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub _meta: Option<serde_json::Value>,
+    #[serde(rename = "action")]
+    pub action: McpServerElicitationAction,
+    /// Structured user input for accepted elicitations, mirroring RMCP `CreateElicitationResult`.
+    ///
+    /// This is nullable because decline/cancel responses have no content.
+    #[serde(rename = "content")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content: Option<serde_json::Value>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpServerEventNotification {
+    #[serde(rename = "method")]
+    pub method: String,
+    #[serde(rename = "params")]
+    pub params: serde_json::Value,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpServerEventStreamNotification {
+    #[serde(rename = "notification")]
+    pub notification: McpServerEventNotification,
+    #[serde(rename = "subscriptionId")]
+    pub subscription_id: String,
+}
+
+/// Presentation metadata advertised by an initialized MCP server.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpServerInfo {
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "icons")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icons: Option<Vec<serde_json::Value>>,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(rename = "version")]
+    pub version: String,
+    #[serde(rename = "websiteUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub website_url: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpServerMigration {
+    #[serde(rename = "name")]
+    pub name: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum McpServerOauthClientRegistration {
+    /// 判别值 `auto`
+    #[serde(rename = "auto")]
+    Auto,
+    /// 判别值 `cimd`
+    #[serde(rename = "cimd")]
+    Cimd,
+    /// 判别值 `dcr`
+    #[serde(rename = "dcr")]
+    Dcr,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpServerOauthLoginCompletedNotification {
+    #[serde(rename = "error")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "success")]
+    pub success: bool,
+    #[serde(rename = "threadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpServerOauthLoginParams {
+    /// Registration strategy for this login only; omission selects automatic discovery.
+    #[serde(rename = "clientRegistration")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub client_registration: Option<McpServerOauthClientRegistration>,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "scopes")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub scopes: Option<Vec<String>>,
+    #[serde(rename = "threadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+    #[serde(rename = "timeoutSecs")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub timeout_secs: Option<i64>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpServerOauthLoginResponse {
+    #[serde(rename = "authorizationUrl")]
+    pub authorization_url: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpServerRefreshResponse {}
+
+pub type McpServerStartupFailureReason = String;
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum McpServerStartupState {
+    /// 判别值 `starting`
+    #[serde(rename = "starting")]
+    Starting,
+    /// 判别值 `ready`
+    #[serde(rename = "ready")]
+    Ready,
+    /// 判别值 `failed`
+    #[serde(rename = "failed")]
+    Failed,
+    /// 判别值 `cancelled`
+    #[serde(rename = "cancelled")]
+    Cancelled,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpServerStatus {
+    #[serde(rename = "authStatus")]
+    pub auth_status: McpAuthStatus,
+    /// HTTP origin of the effective configured endpoint, including plugin servers. Excludes credentials, path, query, and fragment; null for non-HTTP transports.
+    #[serde(rename = "httpOrigin")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub http_origin: Option<String>,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "pluginId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub plugin_id: Option<String>,
+    #[serde(rename = "resourceTemplates")]
+    pub resource_templates: Vec<ResourceTemplate>,
+    #[serde(rename = "resources")]
+    pub resources: Vec<Resource>,
+    /// Current thread-runtime connection state; null when unavailable or the configuration changed.
+    #[serde(rename = "runtimeStatus")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub runtime_status: Option<McpServerConnectionStatus>,
+    /// Capabilities advertised by the initialized MCP server; null when unavailable.
+    #[serde(rename = "serverCapabilities")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub server_capabilities: Option<serde_json::Value>,
+    #[serde(rename = "serverInfo")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub server_info: Option<McpServerInfo>,
+    #[serde(rename = "tools")]
+    pub tools: std::collections::BTreeMap<String, Tool>,
+    /// Tool discovery failed and no catalog was returned. Null when a catalog is returned, including cached or empty catalogs.
+    #[serde(rename = "toolsError")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tools_error: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum McpServerStatusDetail {
+    /// 判别值 `full`
+    #[serde(rename = "full")]
+    Full,
+    /// 判别值 `toolsAndAuthOnly`
+    #[serde(rename = "toolsAndAuthOnly")]
+    ToolsAndAuthOnly,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct McpServerStatusUpdatedNotification {
+    #[serde(rename = "error")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+    #[serde(rename = "failureReason")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub failure_reason: Option<McpServerStartupFailureReason>,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "status")]
+    pub status: McpServerStartupState,
+    #[serde(rename = "threadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpServerToolCallParams {
+    #[serde(rename = "_meta")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub _meta: Option<serde_json::Value>,
+    #[serde(rename = "arguments")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub arguments: Option<serde_json::Value>,
+    #[serde(rename = "server")]
+    pub server: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "tool")]
+    pub tool: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpServerToolCallResponse {
+    #[serde(rename = "_meta")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub _meta: Option<serde_json::Value>,
+    #[serde(rename = "content")]
+    pub content: Vec<serde_json::Value>,
+    #[serde(rename = "isError")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_error: Option<bool>,
+    #[serde(rename = "structuredContent")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub structured_content: Option<serde_json::Value>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpToolCallAppContext {
+    #[serde(rename = "actionName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub action_name: Option<String>,
+    #[serde(rename = "appName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub app_name: Option<String>,
+    #[serde(rename = "connectorId")]
+    pub connector_id: String,
+    #[serde(rename = "linkId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub link_id: Option<String>,
+    #[serde(rename = "resourceUri")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub resource_uri: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpToolCallError {
+    #[serde(rename = "message")]
+    pub message: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpToolCallProgressNotification {
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    #[serde(rename = "message")]
+    pub message: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct McpToolCallResult {
+    #[serde(rename = "_meta")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub _meta: Option<serde_json::Value>,
+    #[serde(rename = "content")]
+    pub content: Vec<serde_json::Value>,
+    #[serde(rename = "structuredContent")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub structured_content: Option<serde_json::Value>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum McpToolCallStatus {
+    /// 判别值 `inProgress`
+    #[serde(rename = "inProgress")]
+    InProgress,
+    /// 判别值 `completed`
+    #[serde(rename = "completed")]
+    Completed,
+    /// 判别值 `failed`
+    #[serde(rename = "failed")]
+    Failed,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MemoryCitation {
+    #[serde(rename = "entries")]
+    pub entries: Vec<MemoryCitationEntry>,
+    #[serde(rename = "threadIds")]
+    pub thread_ids: Vec<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MemoryCitationEntry {
+    #[serde(rename = "lineEnd")]
+    pub line_end: u32,
+    #[serde(rename = "lineStart")]
+    pub line_start: u32,
+    #[serde(rename = "note")]
+    pub note: String,
+    #[serde(rename = "path")]
+    pub path: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum MergeStrategy {
+    /// 判别值 `replace`
+    #[serde(rename = "replace")]
+    Replace,
+    /// 判别值 `upsert`
+    #[serde(rename = "upsert")]
+    Upsert,
+}
+
+/// Classifies an assistant message as interim commentary or final answer text.
+///
+/// Providers do not emit this consistently, so callers must treat `None` as "phase unknown" and keep compatibility behavior for legacy models.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum MessagePhase {
+    /// Mid-turn assistant text (for example preamble/progress narration).
+    ///
+    /// Additional tool calls or assistant output may follow before turn completion.
+    #[serde(rename = "commentary")]
+    Commentary,
+    /// The assistant's terminal answer text for the current turn.
+    #[serde(rename = "final_answer")]
+    FinalAnswer,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MigrationDetails {
+    #[serde(rename = "commands")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub commands: Option<Vec<CommandMigration>>,
+    #[serde(rename = "hooks")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hooks: Option<Vec<HookMigration>>,
+    #[serde(rename = "mcpServers")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mcp_servers: Option<Vec<McpServerMigration>>,
+    #[serde(rename = "memory")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub memory: Option<Vec<String>>,
+    #[serde(rename = "plugins")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub plugins: Option<Vec<PluginsMigration>>,
+    #[serde(rename = "sessions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sessions: Option<Vec<SessionMigration>>,
+    #[serde(rename = "skills")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub skills: Option<Vec<SkillMigration>>,
+    #[serde(rename = "subagents")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub subagents: Option<Vec<SubagentMigration>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MisalignmentErrorDetails {
+    /// A substantive localized explanation is required before offering continuation.
+    #[serde(rename = "detailedExplanation")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub detailed_explanation: Option<String>,
+    /// Open-ended classification; clients must accept categories added by Responses.
+    #[serde(rename = "errorType")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error_type: Option<String>,
+    /// Instruction to submit as the next turn's user input if continuation is confirmed.
+    #[serde(rename = "steer")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub steer: Option<MisalignmentSteer>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MisalignmentSteer {
+    #[serde(rename = "message")]
+    pub message: String,
+}
+
+/// Initial collaboration mode to use when the TUI starts.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ModeKind {
+    /// 判别值 `plan`
+    #[serde(rename = "plan")]
+    Plan,
+    /// 判别值 `default`
+    #[serde(rename = "default")]
+    Default,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Model {
+    /// Deprecated: use `serviceTiers` instead.
+    #[serde(rename = "additionalSpeedTiers")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub additional_speed_tiers: Option<Vec<String>>,
+    #[serde(rename = "availabilityNux")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub availability_nux: Option<ModelAvailabilityNux>,
+    /// Null when the catalog does not provide access-program metadata.
+    #[serde(rename = "availableAccessPrograms")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub available_access_programs: Option<ModelAccessPrograms>,
+    #[serde(rename = "defaultReasoningEffort")]
+    pub default_reasoning_effort: ReasoningEffort,
+    /// Catalog default service tier id for this model, when one is configured.
+    #[serde(rename = "defaultServiceTier")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_service_tier: Option<String>,
+    #[serde(rename = "description")]
+    pub description: String,
+    #[serde(rename = "displayName")]
+    pub display_name: String,
+    #[serde(rename = "hidden")]
+    pub hidden: bool,
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(rename = "inputModalities")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub input_modalities: Option<Vec<InputModality>>,
+    #[serde(rename = "isDefault")]
+    pub is_default: bool,
+    #[serde(rename = "model")]
+    pub model: String,
+    #[serde(rename = "modelSpecialty")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_specialty: Option<String>,
+    /// Multi-agent runtime declared by this model, when available.
+    #[serde(rename = "multiAgentVersion")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub multi_agent_version: Option<MultiAgentVersion>,
+    #[serde(rename = "serviceTiers")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_tiers: Option<Vec<ModelServiceTier>>,
+    #[serde(rename = "supportedReasoningEfforts")]
+    pub supported_reasoning_efforts: Vec<ReasoningEffortOption>,
+    /// @deprecated Always false; models no longer support personality selection.
+    #[serde(rename = "supportsPersonality")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub supports_personality: Option<bool>,
+    #[serde(rename = "upgrade")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub upgrade: Option<String>,
+    #[serde(rename = "upgradeInfo")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub upgrade_info: Option<ModelUpgradeInfo>,
+}
+
+/// Caller-specific explicit access programs advertised by model discovery.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ModelAccessPrograms {
+    /// Accepted explicit selections.
+    #[serde(rename = "cyber")]
+    pub cyber: Vec<CyberAccessProgram>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ModelAvailabilityNux {
+    #[serde(rename = "message")]
+    pub message: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ModelListParams {
+    /// Opaque pagination cursor returned by a previous call.
+    #[serde(rename = "cursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cursor: Option<String>,
+    /// When true, include models that are hidden from the default picker list.
+    #[serde(rename = "includeHidden")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub include_hidden: Option<bool>,
+    /// Optional page size; defaults to a reasonable server-side value.
+    #[serde(rename = "limit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u32>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ModelListResponse {
+    #[serde(rename = "data")]
+    pub data: Vec<Model>,
+    /// Opaque cursor to pass to the next call to continue after the last item. If None, there are no more items to return.
+    #[serde(rename = "nextCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ModelProviderCapabilitiesReadParams {}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ModelProviderCapabilitiesReadResponse {
+    #[serde(rename = "imageGeneration")]
+    pub image_generation: bool,
+    #[serde(rename = "namespaceTools")]
+    pub namespace_tools: bool,
+    #[serde(rename = "webSearch")]
+    pub web_search: bool,
+}
+
+pub type ModelRerouteReason = String;
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ModelReroutedNotification {
+    #[serde(rename = "fromModel")]
+    pub from_model: String,
+    #[serde(rename = "reason")]
+    pub reason: ModelRerouteReason,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "toModel")]
+    pub to_model: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ModelSafetyBufferingUpdatedNotification {
+    #[serde(rename = "fasterModel")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub faster_model: Option<String>,
+    #[serde(rename = "model")]
+    pub model: String,
+    #[serde(rename = "reasons")]
+    pub reasons: Vec<String>,
+    #[serde(rename = "showBufferingUi")]
+    pub show_buffering_ui: bool,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+    #[serde(rename = "useCases")]
+    pub use_cases: Vec<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ModelServiceTier {
+    #[serde(rename = "description")]
+    pub description: String,
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(rename = "name")]
+    pub name: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ModelUpgradeInfo {
+    #[serde(rename = "migrationMarkdown")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub migration_markdown: Option<String>,
+    #[serde(rename = "model")]
+    pub model: String,
+    #[serde(rename = "modelLink")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_link: Option<String>,
+    /// Informational Unix timestamp for this upgrade's scheduled retirement, if known.
+    #[serde(rename = "retirementAt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub retirement_at: Option<i64>,
+    #[serde(rename = "upgradeCopy")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub upgrade_copy: Option<String>,
+}
+
+pub type ModelVerification = String;
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ModelVerificationNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+    #[serde(rename = "verifications")]
+    pub verifications: Vec<ModelVerification>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ModelsRequirements {
+    #[serde(rename = "newThread")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub new_thread: Option<NewThreadModelDefaults>,
+}
+
+/// Controls the effective multi-agent delegation instructions for a turn. `custom` means the configured mode hint defines the policy instead of a built-in policy.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum MultiAgentMode {
+    #[serde(rename = "explicitRequestOnly")]
+    ExplicitRequestOnly,
+    #[serde(rename = "proactive")]
+    Proactive,
+    #[serde(rename = "custom")]
+    Custom(String),
+}
+
+/// Multi-agent runtime supported by a model.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum MultiAgentVersion {
+    /// 判别值 `disabled`
+    #[serde(rename = "disabled")]
+    Disabled,
+    /// 判别值 `v1`
+    #[serde(rename = "v1")]
+    V1,
+    /// 判别值 `v2`
+    #[serde(rename = "v2")]
+    V2,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkAccess {
+    /// 判别值 `restricted`
+    #[serde(rename = "restricted")]
+    Restricted,
+    /// 判别值 `enabled`
+    #[serde(rename = "enabled")]
+    Enabled,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct NetworkApprovalContext {
+    #[serde(rename = "host")]
+    pub host: String,
+    #[serde(rename = "protocol")]
+    pub protocol: NetworkApprovalProtocol,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkApprovalProtocol {
+    /// 判别值 `http`
+    #[serde(rename = "http")]
+    Http,
+    /// 判别值 `https`
+    #[serde(rename = "https")]
+    Https,
+    /// 判别值 `socks5Tcp`
+    #[serde(rename = "socks5Tcp")]
+    Socks5Tcp,
+    /// 判别值 `socks5Udp`
+    #[serde(rename = "socks5Udp")]
+    Socks5Udp,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkDomainPermission {
+    /// 判别值 `allow`
+    #[serde(rename = "allow")]
+    Allow,
+    /// 判别值 `deny`
+    #[serde(rename = "deny")]
+    Deny,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct NetworkPolicyAmendment {
+    #[serde(rename = "action")]
+    pub action: NetworkPolicyRuleAction,
+    #[serde(rename = "host")]
+    pub host: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkPolicyRuleAction {
+    /// 判别值 `allow`
+    #[serde(rename = "allow")]
+    Allow,
+    /// 判别值 `deny`
+    #[serde(rename = "deny")]
+    Deny,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct NetworkRequirements {
+    #[serde(rename = "allowLocalBinding")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_local_binding: Option<bool>,
+    /// Legacy compatibility view derived from `unix_sockets`.
+    #[serde(rename = "allowUnixSockets")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_unix_sockets: Option<Vec<String>>,
+    #[serde(rename = "allowUpstreamProxy")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allow_upstream_proxy: Option<bool>,
+    /// Legacy compatibility view derived from `domains`.
+    #[serde(rename = "allowedDomains")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allowed_domains: Option<Vec<String>>,
+    #[serde(rename = "dangerouslyAllowAllUnixSockets")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dangerously_allow_all_unix_sockets: Option<bool>,
+    #[serde(rename = "dangerouslyAllowNonLoopbackProxy")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dangerously_allow_non_loopback_proxy: Option<bool>,
+    /// Legacy compatibility view derived from `domains`.
+    #[serde(rename = "deniedDomains")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub denied_domains: Option<Vec<String>>,
+    /// Canonical network permission map for `experimental_network`.
+    #[serde(rename = "domains")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub domains: Option<std::collections::BTreeMap<String, NetworkDomainPermission>>,
+    #[serde(rename = "enabled")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+    #[serde(rename = "httpPort")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub http_port: Option<u16>,
+    /// When true, only managed allowlist entries are respected while managed network enforcement is active.
+    #[serde(rename = "managedAllowedDomainsOnly")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub managed_allowed_domains_only: Option<bool>,
+    #[serde(rename = "socksPort")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub socks_port: Option<u16>,
+    /// Canonical unix socket permission map for `experimental_network`.
+    #[serde(rename = "unixSockets")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unix_sockets: Option<std::collections::BTreeMap<String, NetworkUnixSocketPermission>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkUnixSocketPermission {
+    /// 判别值 `allow`
+    #[serde(rename = "allow")]
+    Allow,
+    /// 判别值 `deny`
+    #[serde(rename = "deny")]
+    Deny,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct NewThreadModelDefaults {
+    #[serde(rename = "model")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    #[serde(rename = "modelReasoningEffort")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_reasoning_effort: Option<ReasoningEffort>,
+    #[serde(rename = "serviceTier")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_tier: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NonSteerableTurnKind {
+    /// 判别值 `review`
+    #[serde(rename = "review")]
+    Review,
+    /// 判别值 `compact`
+    #[serde(rename = "compact")]
+    Compact,
+}
+
+pub type NullableGetAccountRateLimitsParams = Option<GetAccountRateLimitsParams>;
+
+pub type NullableGetAccountTokenUsageParams = Option<GetAccountTokenUsageParams>;
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct OverriddenMetadata {
+    #[serde(rename = "effectiveValue")]
+    pub effective_value: serde_json::Value,
+    #[serde(rename = "message")]
+    pub message: String,
+    #[serde(rename = "overridingLayer")]
+    pub overriding_layer: ConfigLayerMetadata,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ParsedCommand {
+    #[serde(rename = "read")]
+    Read {
+        #[serde(rename = "cmd")]
+        cmd: String,
+        #[serde(rename = "name")]
+        name: String,
+        /// (Best effort) Path to the file being read by the command. When possible, this is an absolute path, though when relative, it should be resolved against the `cwd`` that will be used to run the command to derive the absolute path.
+        #[serde(rename = "path")]
+        path: String,
+    },
+    #[serde(rename = "list_files")]
+    ListFiles {
+        #[serde(rename = "cmd")]
+        cmd: String,
+        #[serde(rename = "path")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        path: Option<String>,
+    },
+    #[serde(rename = "search")]
+    Search {
+        #[serde(rename = "cmd")]
+        cmd: String,
+        #[serde(rename = "path")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        path: Option<String>,
+        #[serde(rename = "query")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        query: Option<String>,
+    },
+    #[serde(rename = "unknown")]
+    Unknown {
+        #[serde(rename = "cmd")]
+        cmd: String,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PatchApplyStatus {
+    /// 判别值 `inProgress`
+    #[serde(rename = "inProgress")]
+    InProgress,
+    /// 判别值 `completed`
+    #[serde(rename = "completed")]
+    Completed,
+    /// 判别值 `failed`
+    #[serde(rename = "failed")]
+    Failed,
+    /// 判别值 `declined`
+    #[serde(rename = "declined")]
+    Declined,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum PatchChangeKind {
+    #[serde(rename = "add")]
+    Add,
+    #[serde(rename = "delete")]
+    Delete,
+    #[serde(rename = "update")]
+    Update {
+        #[serde(rename = "move_path")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        move_path: Option<String>,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PermissionGrantScope {
+    /// 判别值 `turn`
+    #[serde(rename = "turn")]
+    Turn,
+    /// 判别值 `session`
+    #[serde(rename = "session")]
+    Session,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PermissionProfileListParams {
+    /// Opaque pagination cursor returned by a previous call.
+    #[serde(rename = "cursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cursor: Option<String>,
+    /// Optional working directory to resolve project config layers.
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<String>,
+    /// Optional page size; defaults to the full result set.
+    #[serde(rename = "limit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u32>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PermissionProfileListResponse {
+    #[serde(rename = "data")]
+    pub data: Vec<PermissionProfileSummary>,
+    /// Opaque cursor to pass to the next call to continue after the last item. If None, there are no more items to return.
+    #[serde(rename = "nextCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PermissionProfileSummary {
+    /// Whether the effective requirements allow selecting this profile.
+    #[serde(rename = "allowed")]
+    pub allowed: bool,
+    /// Optional user-facing description for display in clients.
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    /// Available permission profile identifier.
+    #[serde(rename = "id")]
+    pub id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PermissionsRequestApprovalParams {
+    #[serde(rename = "cwd")]
+    pub cwd: LegacyAppPathString,
+    #[serde(rename = "environmentId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub environment_id: Option<String>,
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    #[serde(rename = "permissions")]
+    pub permissions: RequestPermissionProfile,
+    #[serde(rename = "reason")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reason: Option<String>,
+    /// Unix timestamp (in milliseconds) when this approval request started.
+    #[serde(rename = "startedAtMs")]
+    pub started_at_ms: i64,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PermissionsRequestApprovalResponse {
+    #[serde(rename = "permissions")]
+    pub permissions: GrantedPermissionProfile,
+    #[serde(rename = "scope")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub scope: Option<PermissionGrantScope>,
+    /// Review every subsequent command in this turn before normal sandboxed execution.
+    #[serde(rename = "strictAutoReview")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub strict_auto_review: Option<bool>,
+}
+
+/// Deprecated: `friendly` and `pragmatic` no longer select a style.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Personality {
+    /// 判别值 `none`
+    #[serde(rename = "none")]
+    None,
+    /// 判别值 `friendly`
+    #[serde(rename = "friendly")]
+    Friendly,
+    /// 判别值 `pragmatic`
+    #[serde(rename = "pragmatic")]
+    Pragmatic,
+}
+
+/// EXPERIMENTAL - proposed plan streaming deltas for plan items. Clients should not assume concatenated deltas match the completed plan item content.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PlanDeltaNotification {
+    #[serde(rename = "delta")]
+    pub delta: String,
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PlanType {
+    /// 判别值 `free`
+    #[serde(rename = "free")]
+    Free,
+    /// 判别值 `go`
+    #[serde(rename = "go")]
+    Go,
+    /// 判别值 `plus`
+    #[serde(rename = "plus")]
+    Plus,
+    /// 判别值 `pro`
+    #[serde(rename = "pro")]
+    Pro,
+    /// 判别值 `prolite`
+    #[serde(rename = "prolite")]
+    Prolite,
+    /// 判别值 `promax`
+    #[serde(rename = "promax")]
+    Promax,
+    /// 判别值 `team`
+    #[serde(rename = "team")]
+    Team,
+    /// 判别值 `self_serve_business_prolite`
+    #[serde(rename = "self_serve_business_prolite")]
+    SelfServeBusinessProlite,
+    /// 判别值 `self_serve_business_usage_based`
+    #[serde(rename = "self_serve_business_usage_based")]
+    SelfServeBusinessUsageBased,
+    /// 判别值 `business`
+    #[serde(rename = "business")]
+    Business,
+    /// 判别值 `ent26`
+    #[serde(rename = "ent26")]
+    Ent26,
+    /// 判别值 `enterprise_cbp_automation`
+    #[serde(rename = "enterprise_cbp_automation")]
+    EnterpriseCbpAutomation,
+    /// 判别值 `enterprise_cbp_usage_based`
+    #[serde(rename = "enterprise_cbp_usage_based")]
+    EnterpriseCbpUsageBased,
+    /// 判别值 `enterprise`
+    #[serde(rename = "enterprise")]
+    Enterprise,
+    /// 判别值 `edu`
+    #[serde(rename = "edu")]
+    Edu,
+    /// 判别值 `edu_plus`
+    #[serde(rename = "edu_plus")]
+    EduPlus,
+    /// 判别值 `edu_pro`
+    #[serde(rename = "edu_pro")]
+    EduPro,
+    /// 判别值 `unknown`
+    #[serde(rename = "unknown")]
+    Unknown,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PluginAuthPolicy {
+    /// 判别值 `ON_INSTALL`
+    #[serde(rename = "ON_INSTALL")]
+    ONINSTALL,
+    /// 判别值 `ON_USE`
+    #[serde(rename = "ON_USE")]
+    ONUSE,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum PluginAvailability {
+    #[serde(rename = "DISABLED_BY_ADMIN")]
+    DISABLEDBYADMIN,
+    /// Plugin-service currently sends `"ENABLED"` for available remote plugins. Codex app-server exposes `"AVAILABLE"` in its API; the alias keeps decoding compatible with that upstream response.
+    #[serde(rename = "AVAILABLE")]
+    AVAILABLE,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PluginDetail {
+    #[serde(rename = "appTemplates")]
+    pub app_templates: Vec<AppTemplateSummary>,
+    #[serde(rename = "apps")]
+    pub apps: Vec<AppSummary>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "hooks")]
+    pub hooks: Vec<PluginHookSummary>,
+    #[serde(rename = "marketplaceName")]
+    pub marketplace_name: String,
+    #[serde(rename = "marketplacePath")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub marketplace_path: Option<AbsolutePathBuf>,
+    #[serde(rename = "mcpServers")]
+    pub mcp_servers: Vec<String>,
+    /// The declared onboarding skill, when the plugin and visible skill are enabled.
+    #[serde(rename = "onboardingSkill")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub onboarding_skill: Option<SkillSummary>,
+    #[serde(rename = "scheduledTasks")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub scheduled_tasks: Option<Vec<ScheduledTaskSummary>>,
+    #[serde(rename = "shareUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub share_url: Option<String>,
+    #[serde(rename = "skills")]
+    pub skills: Vec<SkillSummary>,
+    #[serde(rename = "summary")]
+    pub summary: PluginSummary,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PluginDisabledReason {
+    /// 判别值 `disabled_by_admin`
+    #[serde(rename = "disabled_by_admin")]
+    DisabledByAdmin,
+    /// 判别值 `plan_not_eligible`
+    #[serde(rename = "plan_not_eligible")]
+    PlanNotEligible,
+    /// 判别值 `required_app_unavailable`
+    #[serde(rename = "required_app_unavailable")]
+    RequiredAppUnavailable,
+    /// 判别值 `unknown`
+    #[serde(rename = "unknown")]
+    Unknown,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PluginHookSummary {
+    #[serde(rename = "eventName")]
+    pub event_name: HookEventName,
+    #[serde(rename = "key")]
+    pub key: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginInstallParams {
+    /// Client-generated identifier used to correlate one installation attempt.
+    #[serde(rename = "installAttemptId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub install_attempt_id: Option<String>,
+    #[serde(rename = "marketplacePath")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub marketplace_path: Option<AbsolutePathBuf>,
+    #[serde(rename = "pluginName")]
+    pub plugin_name: String,
+    #[serde(rename = "remoteMarketplaceName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub remote_marketplace_name: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PluginInstallPolicy {
+    /// 判别值 `NOT_AVAILABLE`
+    #[serde(rename = "NOT_AVAILABLE")]
+    NOTAVAILABLE,
+    /// 判别值 `AVAILABLE`
+    #[serde(rename = "AVAILABLE")]
+    AVAILABLE,
+    /// 判别值 `INSTALLED_BY_DEFAULT`
+    #[serde(rename = "INSTALLED_BY_DEFAULT")]
+    INSTALLEDBYDEFAULT,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PluginInstallPolicySource {
+    /// 判别值 `WORKSPACE_SETTING`
+    #[serde(rename = "WORKSPACE_SETTING")]
+    WORKSPACESETTING,
+    /// 判别值 `IMPLICIT_CANONICAL_APP`
+    #[serde(rename = "IMPLICIT_CANONICAL_APP")]
+    IMPLICITCANONICALAPP,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PluginInstallResponse {
+    #[serde(rename = "appsNeedingAuth")]
+    pub apps_needing_auth: Vec<AppSummary>,
+    #[serde(rename = "authPolicy")]
+    pub auth_policy: PluginAuthPolicy,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginInstalledParams {
+    /// Optional working directories used to discover repo marketplaces.
+    #[serde(rename = "cwds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwds: Option<Vec<AbsolutePathBuf>>,
+    /// Additional uninstalled plugin names that should be returned when present locally. This is used by mention surfaces that intentionally expose install entrypoints.
+    #[serde(rename = "installSuggestionPluginNames")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub install_suggestion_plugin_names: Option<Vec<String>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginInstalledResponse {
+    #[serde(rename = "marketplaceLoadErrors")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub marketplace_load_errors: Option<Vec<MarketplaceLoadErrorInfo>>,
+    #[serde(rename = "marketplaces")]
+    pub marketplaces: Vec<PluginMarketplaceEntry>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginInterface {
+    #[serde(rename = "brandColor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub brand_color: Option<String>,
+    #[serde(rename = "capabilities")]
+    pub capabilities: Vec<String>,
+    #[serde(rename = "category")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub category: Option<String>,
+    /// Local composer icon path, resolved from the installed plugin package.
+    #[serde(rename = "composerIcon")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub composer_icon: Option<AbsolutePathBuf>,
+    /// Remote composer icon URL from the plugin catalog.
+    #[serde(rename = "composerIconUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub composer_icon_url: Option<String>,
+    /// Starter prompts for the plugin. Capped at 3 entries with a maximum of 128 characters per entry.
+    #[serde(rename = "defaultPrompt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_prompt: Option<Vec<String>>,
+    #[serde(rename = "developerName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub developer_name: Option<String>,
+    #[serde(rename = "displayName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub display_name: Option<String>,
+    /// Local logo path, resolved from the installed plugin package.
+    #[serde(rename = "logo")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub logo: Option<AbsolutePathBuf>,
+    /// Local dark-mode logo path, resolved from the installed plugin package.
+    #[serde(rename = "logoDark")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub logo_dark: Option<AbsolutePathBuf>,
+    /// Remote logo URL from the plugin catalog.
+    #[serde(rename = "logoUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub logo_url: Option<String>,
+    /// Remote dark-mode logo URL from the plugin catalog.
+    #[serde(rename = "logoUrlDark")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub logo_url_dark: Option<String>,
+    #[serde(rename = "longDescription")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub long_description: Option<String>,
+    #[serde(rename = "privacyPolicyUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub privacy_policy_url: Option<String>,
+    /// Remote screenshot URLs from the plugin catalog.
+    #[serde(rename = "screenshotUrls")]
+    pub screenshot_urls: Vec<String>,
+    /// Local screenshot paths, resolved from the installed plugin package.
+    #[serde(rename = "screenshots")]
+    pub screenshots: Vec<AbsolutePathBuf>,
+    #[serde(rename = "shortDescription")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub short_description: Option<String>,
+    #[serde(rename = "termsOfServiceUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub terms_of_service_url: Option<String>,
+    #[serde(rename = "websiteUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub website_url: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PluginListMarketplaceKind {
+    /// 判别值 `local`
+    #[serde(rename = "local")]
+    Local,
+    /// 判别值 `vertical`
+    #[serde(rename = "vertical")]
+    Vertical,
+    /// 判别值 `workspace-directory`
+    #[serde(rename = "workspace-directory")]
+    WorkspaceDirectory,
+    /// 判别值 `shared-with-me`
+    #[serde(rename = "shared-with-me")]
+    SharedWithMe,
+    /// 判别值 `created-by-me-remote`
+    #[serde(rename = "created-by-me-remote")]
+    CreatedByMeRemote,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginListParams {
+    /// Optional working directories used to discover repo marketplaces. When omitted, only home-scoped marketplaces and the official curated marketplace are considered.
+    #[serde(rename = "cwds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwds: Option<Vec<AbsolutePathBuf>>,
+    /// Whether the client requests a fresh remote plugin catalog fetch.
+    #[serde(rename = "forceRefetch")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub force_refetch: Option<bool>,
+    /// Optional marketplace kind filter. When omitted, only local marketplaces are queried, plus the default remote catalog when enabled by feature flag.
+    #[serde(rename = "marketplaceKinds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub marketplace_kinds: Option<Vec<PluginListMarketplaceKind>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginListResponse {
+    #[serde(rename = "featuredPluginIds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub featured_plugin_ids: Option<Vec<String>>,
+    #[serde(rename = "marketplaceLoadErrors")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub marketplace_load_errors: Option<Vec<MarketplaceLoadErrorInfo>>,
+    #[serde(rename = "marketplaces")]
+    pub marketplaces: Vec<PluginMarketplaceEntry>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginMarketplaceEntry {
+    #[serde(rename = "interface")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub interface: Option<MarketplaceInterface>,
+    #[serde(rename = "name")]
+    pub name: String,
+    /// Local marketplace file path when the marketplace is backed by a local file. Remote-only catalog marketplaces do not have a local path.
+    #[serde(rename = "path")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub path: Option<AbsolutePathBuf>,
+    #[serde(rename = "plugins")]
+    pub plugins: Vec<PluginSummary>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginReadParams {
+    #[serde(rename = "marketplacePath")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub marketplace_path: Option<AbsolutePathBuf>,
+    #[serde(rename = "pluginName")]
+    pub plugin_name: String,
+    #[serde(rename = "remoteMarketplaceName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub remote_marketplace_name: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PluginReadResponse {
+    #[serde(rename = "plugin")]
+    pub plugin: PluginDetail,
+}
+
+/// Runtime categories affected by this change, not just capabilities currently present. Flags describe declarations before runtime policy filtering. Updates OR the old and new bundle flags; enablement changes and cached reinstalls use the cached bundle; removals retain the old bundle's flags.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginReconcileChangedPlugin {
+    #[serde(rename = "hasApps")]
+    pub has_apps: bool,
+    #[serde(rename = "hasHooks")]
+    pub has_hooks: bool,
+    #[serde(rename = "hasMcps")]
+    pub has_mcps: bool,
+    /// Whether either bundle declares skill roots; not a validated inventory of enabled skills.
+    #[serde(rename = "hasSkills")]
+    pub has_skills: bool,
+    /// Local plugin ID (`name@marketplace`), matching `PluginSummary.id`.
+    #[serde(rename = "id")]
+    pub id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginReconcileParams {
+    /// Optional client-provided reason recorded with the reconciliation attempt.
+    #[serde(rename = "reason")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reason: Option<String>,
+}
+
+/// Bundle and installed-state changes observed by this pass, not a runtime-readiness acknowledgement or a cumulative diff since the client's last request. Other metadata-only changes are not listed.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginReconcileResponse {
+    /// Plugins affected by bundle changes, enablement changes, or removals. Installed-state changes compare against the previous cached snapshot, including cached reinstalls. Removal hints survive cache cleanup failures; unchanged plugins are omitted.
+    #[serde(rename = "changedPlugins")]
+    pub changed_plugins: Vec<PluginReconcileChangedPlugin>,
+    /// Subset of failures for which the requested bundle could not be materialized. A previously cached version may still be available.
+    #[serde(rename = "failedMaterializationRemotePluginIds")]
+    pub failed_materialization_remote_plugin_ids: Vec<String>,
+    /// Backend remote plugin IDs whose bundle or identity update failed.
+    #[serde(rename = "failedRemotePluginIds")]
+    pub failed_remote_plugin_ids: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PluginSearchScope {
+    /// 判别值 `global`
+    #[serde(rename = "global")]
+    Global,
+    /// 判别值 `workspace`
+    #[serde(rename = "workspace")]
+    Workspace,
+    /// 判别值 `personal`
+    #[serde(rename = "personal")]
+    Personal,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginShareCheckoutParams {
+    #[serde(rename = "remotePluginId")]
+    pub remote_plugin_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PluginShareCheckoutResponse {
+    #[serde(rename = "marketplaceName")]
+    pub marketplace_name: String,
+    #[serde(rename = "marketplacePath")]
+    pub marketplace_path: AbsolutePathBuf,
+    #[serde(rename = "pluginId")]
+    pub plugin_id: String,
+    #[serde(rename = "pluginName")]
+    pub plugin_name: String,
+    #[serde(rename = "pluginPath")]
+    pub plugin_path: AbsolutePathBuf,
+    #[serde(rename = "remotePluginId")]
+    pub remote_plugin_id: String,
+    #[serde(rename = "remoteVersion")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub remote_version: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginShareContext {
+    #[serde(rename = "canPublishToWorkspace")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub can_publish_to_workspace: Option<bool>,
+    #[serde(rename = "creatorAccountUserId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub creator_account_user_id: Option<String>,
+    #[serde(rename = "creatorName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub creator_name: Option<String>,
+    #[serde(rename = "discoverability")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub discoverability: Option<PluginShareDiscoverability>,
+    #[serde(rename = "remotePluginId")]
+    pub remote_plugin_id: String,
+    /// Version of the remote shared plugin release when available.
+    #[serde(rename = "remoteVersion")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub remote_version: Option<String>,
+    #[serde(rename = "sharePrincipals")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub share_principals: Option<Vec<PluginSharePrincipal>>,
+    #[serde(rename = "shareUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub share_url: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginShareDeleteParams {
+    #[serde(rename = "remotePluginId")]
+    pub remote_plugin_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginShareDeleteResponse {}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PluginShareDiscoverability {
+    /// 判别值 `LISTED`
+    #[serde(rename = "LISTED")]
+    LISTED,
+    /// 判别值 `UNLISTED`
+    #[serde(rename = "UNLISTED")]
+    UNLISTED,
+    /// 判别值 `PRIVATE`
+    #[serde(rename = "PRIVATE")]
+    PRIVATE,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PluginShareListItem {
+    #[serde(rename = "localPluginPath")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub local_plugin_path: Option<AbsolutePathBuf>,
+    #[serde(rename = "plugin")]
+    pub plugin: PluginSummary,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginShareListParams {}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginShareListResponse {
+    #[serde(rename = "data")]
+    pub data: Vec<PluginShareListItem>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PluginSharePrincipal {
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "principalId")]
+    pub principal_id: String,
+    #[serde(rename = "principalType")]
+    pub principal_type: PluginSharePrincipalType,
+    #[serde(rename = "role")]
+    pub role: PluginSharePrincipalRole,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PluginSharePrincipalRole {
+    /// 判别值 `reader`
+    #[serde(rename = "reader")]
+    Reader,
+    /// 判别值 `editor`
+    #[serde(rename = "editor")]
+    Editor,
+    /// 判别值 `owner`
+    #[serde(rename = "owner")]
+    Owner,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PluginSharePrincipalType {
+    /// 判别值 `user`
+    #[serde(rename = "user")]
+    User,
+    /// 判别值 `group`
+    #[serde(rename = "group")]
+    Group,
+    /// 判别值 `workspace`
+    #[serde(rename = "workspace")]
+    Workspace,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PluginShareSaveParams {
+    #[serde(rename = "discoverability")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub discoverability: Option<PluginShareDiscoverability>,
+    #[serde(rename = "pluginPath")]
+    pub plugin_path: AbsolutePathBuf,
+    #[serde(rename = "remotePluginId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub remote_plugin_id: Option<String>,
+    #[serde(rename = "shareTargets")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub share_targets: Option<Vec<PluginShareTarget>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginShareSaveResponse {
+    #[serde(rename = "canPublishToWorkspace")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub can_publish_to_workspace: Option<bool>,
+    #[serde(rename = "remotePluginId")]
+    pub remote_plugin_id: String,
+    #[serde(rename = "shareUrl")]
+    pub share_url: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PluginShareTarget {
+    #[serde(rename = "principalId")]
+    pub principal_id: String,
+    #[serde(rename = "principalType")]
+    pub principal_type: PluginSharePrincipalType,
+    #[serde(rename = "role")]
+    pub role: PluginShareTargetRole,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PluginShareTargetRole {
+    /// 判别值 `reader`
+    #[serde(rename = "reader")]
+    Reader,
+    /// 判别值 `editor`
+    #[serde(rename = "editor")]
+    Editor,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PluginShareUpdateDiscoverability {
+    /// 判别值 `UNLISTED`
+    #[serde(rename = "UNLISTED")]
+    UNLISTED,
+    /// 判别值 `PRIVATE`
+    #[serde(rename = "PRIVATE")]
+    PRIVATE,
+    /// 判别值 `LISTED`
+    #[serde(rename = "LISTED")]
+    LISTED,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PluginShareUpdateTargetsParams {
+    #[serde(rename = "discoverability")]
+    pub discoverability: PluginShareUpdateDiscoverability,
+    #[serde(rename = "remotePluginId")]
+    pub remote_plugin_id: String,
+    #[serde(rename = "shareTargets")]
+    pub share_targets: Vec<PluginShareTarget>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PluginShareUpdateTargetsResponse {
+    #[serde(rename = "discoverability")]
+    pub discoverability: PluginShareDiscoverability,
+    #[serde(rename = "principals")]
+    pub principals: Vec<PluginSharePrincipal>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginSkillReadParams {
+    #[serde(rename = "remoteMarketplaceName")]
+    pub remote_marketplace_name: String,
+    #[serde(rename = "remotePluginId")]
+    pub remote_plugin_id: String,
+    #[serde(rename = "skillName")]
+    pub skill_name: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginSkillReadResponse {
+    #[serde(rename = "contents")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub contents: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum PluginSource {
+    #[serde(rename = "local")]
+    Local {
+        #[serde(rename = "path")]
+        path: AbsolutePathBuf,
+    },
+    #[serde(rename = "git")]
+    Git {
+        #[serde(rename = "path")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        path: Option<String>,
+        #[serde(rename = "refName")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        ref_name: Option<String>,
+        #[serde(rename = "sha")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        sha: Option<String>,
+        #[serde(rename = "url")]
+        url: String,
+    },
+    #[serde(rename = "npm")]
+    Npm {
+        #[serde(rename = "package")]
+        package: String,
+        /// Optional HTTPS registry URL. Authentication stays in the user's npm config.
+        #[serde(rename = "registry")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        registry: Option<String>,
+        /// Optional npm version or version range.
+        #[serde(rename = "version")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        version: Option<String>,
+    },
+    /// The plugin is available in the remote catalog. Download metadata is kept server-side and is not exposed through the app-server API.
+    #[serde(rename = "remote")]
+    Remote,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PluginSummary {
+    #[serde(rename = "authPolicy")]
+    pub auth_policy: PluginAuthPolicy,
+    /// Availability state for installing and using the plugin.
+    #[serde(rename = "availability")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub availability: Option<PluginAvailability>,
+    /// Why the remote plugin is unavailable, when provided by plugin-service.
+    #[serde(rename = "disabledReason")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disabled_reason: Option<PluginDisabledReason>,
+    /// Raw plugin-service plan identifiers eligible to install the plugin.
+    #[serde(rename = "eligiblePlanTypes")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub eligible_plan_types: Option<Vec<String>>,
+    #[serde(rename = "enabled")]
+    pub enabled: bool,
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(rename = "installPolicy")]
+    pub install_policy: PluginInstallPolicy,
+    #[serde(rename = "installPolicySource")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub install_policy_source: Option<PluginInstallPolicySource>,
+    #[serde(rename = "installed")]
+    pub installed: bool,
+    /// Unix timestamp in seconds when the remote plugin was installed, when available.
+    #[serde(rename = "installedAt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub installed_at: Option<i64>,
+    #[serde(rename = "interface")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub interface: Option<PluginInterface>,
+    #[serde(rename = "keywords")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub keywords: Option<Vec<String>>,
+    /// Version of the locally materialized plugin package when available.
+    #[serde(rename = "localVersion")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub local_version: Option<String>,
+    #[serde(rename = "mustShowInstallationInterstitial")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub must_show_installation_interstitial: Option<bool>,
+    #[serde(rename = "name")]
+    pub name: String,
+    /// Backend remote plugin identifier when available.
+    #[serde(rename = "remotePluginId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub remote_plugin_id: Option<String>,
+    /// Remote sharing context associated with this plugin when available.
+    #[serde(rename = "shareContext")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub share_context: Option<PluginShareContext>,
+    #[serde(rename = "source")]
+    pub source: PluginSource,
+    /// Version advertised by the remote marketplace backend when available.
+    #[serde(rename = "version")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginUninstallParams {
+    #[serde(rename = "pluginId")]
+    pub plugin_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginUninstallResponse {}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PluginsMigration {
+    #[serde(rename = "marketplaceName")]
+    pub marketplace_name: String,
+    #[serde(rename = "pluginNames")]
+    pub plugin_names: Vec<String>,
+}
+
+/// Final process exit notification for `process/spawn`.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ProcessExitedNotification {
+    /// Process exit code.
+    #[serde(rename = "exitCode")]
+    pub exit_code: i32,
+    /// Client-supplied, connection-scoped `processHandle` from `process/spawn`.
+    #[serde(rename = "processHandle")]
+    pub process_handle: String,
+    /// Buffered stderr capture.
+    ///
+    /// Empty when stderr was streamed via `process/outputDelta`.
+    #[serde(rename = "stderr")]
+    pub stderr: String,
+    /// Whether stderr reached `outputBytesCap`.
+    ///
+    /// In streaming mode, stderr is empty and cap state is also reported on the final stderr `process/outputDelta` notification.
+    #[serde(rename = "stderrCapReached")]
+    pub stderr_cap_reached: bool,
+    /// Buffered stdout capture.
+    ///
+    /// Empty when stdout was streamed via `process/outputDelta`.
+    #[serde(rename = "stdout")]
+    pub stdout: String,
+    /// Whether stdout reached `outputBytesCap`.
+    ///
+    /// In streaming mode, stdout is empty and cap state is also reported on the final stdout `process/outputDelta` notification.
+    #[serde(rename = "stdoutCapReached")]
+    pub stdout_cap_reached: bool,
+}
+
+/// Base64-encoded output chunk emitted for a streaming `process/spawn` request.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ProcessOutputDeltaNotification {
+    /// True on the final streamed chunk for this stream when output was truncated by `outputBytesCap`.
+    #[serde(rename = "capReached")]
+    pub cap_reached: bool,
+    /// Base64-encoded output bytes.
+    #[serde(rename = "deltaBase64")]
+    pub delta_base64: String,
+    /// Client-supplied, connection-scoped `processHandle` from `process/spawn`.
+    #[serde(rename = "processHandle")]
+    pub process_handle: String,
+    /// Output stream this chunk belongs to.
+    #[serde(rename = "stream")]
+    pub stream: ProcessOutputStream,
+}
+
+/// Stream label for `process/outputDelta` notifications.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum ProcessOutputStream {
+    /// stdout stream. PTY mode multiplexes terminal output here.
+    #[serde(rename = "stdout")]
+    Stdout,
+    /// stderr stream.
+    #[serde(rename = "stderr")]
+    Stderr,
+}
+
+/// PTY size in character cells for `process/spawn` PTY sessions.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ProcessTerminalSize {
+    /// Terminal width in character cells.
+    #[serde(rename = "cols")]
+    pub cols: u16,
+    /// Terminal height in character cells.
+    #[serde(rename = "rows")]
+    pub rows: u16,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ProjectChangeType {
+    /// 判别值 `created`
+    #[serde(rename = "created")]
+    Created,
+    /// 判别值 `updated`
+    #[serde(rename = "updated")]
+    Updated,
+    /// 判别值 `deleted`
+    #[serde(rename = "deleted")]
+    Deleted,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ProjectChangedNotification {
+    #[serde(rename = "changeType")]
+    pub change_type: ProjectChangeType,
+    #[serde(rename = "projectId")]
+    pub project_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ProjectRoot {
+    #[serde(rename = "path")]
+    pub path: AbsolutePathBuf,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ProjectSortKey {
+    /// 判别值 `position`
+    #[serde(rename = "position")]
+    Position,
+    /// 判别值 `recencyAt`
+    #[serde(rename = "recencyAt")]
+    RecencyAt,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum RateLimitReachedType {
+    /// 判别值 `rate_limit_reached`
+    #[serde(rename = "rate_limit_reached")]
+    RateLimitReached,
+    /// 判别值 `workspace_owner_credits_depleted`
+    #[serde(rename = "workspace_owner_credits_depleted")]
+    WorkspaceOwnerCreditsDepleted,
+    /// 判别值 `workspace_member_credits_depleted`
+    #[serde(rename = "workspace_member_credits_depleted")]
+    WorkspaceMemberCreditsDepleted,
+    /// 判别值 `workspace_owner_usage_limit_reached`
+    #[serde(rename = "workspace_owner_usage_limit_reached")]
+    WorkspaceOwnerUsageLimitReached,
+    /// 判别值 `workspace_member_usage_limit_reached`
+    #[serde(rename = "workspace_member_usage_limit_reached")]
+    WorkspaceMemberUsageLimitReached,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RateLimitResetCredit {
+    /// Backend-provided display description for this credit, or `null` when unavailable.
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    /// Unix timestamp in seconds when the credit expires, or `null` if it does not expire.
+    #[serde(rename = "expiresAt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<i64>,
+    /// Unix timestamp in seconds when the credit was granted.
+    #[serde(rename = "grantedAt")]
+    pub granted_at: i64,
+    /// Opaque backend identifier for this reset credit.
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(rename = "resetType")]
+    pub reset_type: RateLimitResetType,
+    #[serde(rename = "status")]
+    pub status: RateLimitResetCreditStatus,
+    /// Backend-provided display title for this credit, or `null` when unavailable.
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum RateLimitResetCreditStatus {
+    /// 判别值 `available`
+    #[serde(rename = "available")]
+    Available,
+    /// 判别值 `redeeming`
+    #[serde(rename = "redeeming")]
+    Redeeming,
+    /// 判别值 `redeemed`
+    #[serde(rename = "redeemed")]
+    Redeemed,
+    /// 判别值 `unknown`
+    #[serde(rename = "unknown")]
+    Unknown,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct RateLimitResetCreditsSummary {
+    #[serde(rename = "availableCount")]
+    pub available_count: i64,
+    /// Detail rows for available reset credits, when the backend provides them.
+    ///
+    /// `null` means only `availableCount` is known, while an empty array means details were fetched and no available credits were returned. The backend may cap this list, so its length can be less than `availableCount`.
+    #[serde(rename = "credits")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub credits: Option<Vec<RateLimitResetCredit>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum RateLimitResetType {
+    /// 判别值 `codexRateLimits`
+    #[serde(rename = "codexRateLimits")]
+    CodexRateLimits,
+    /// 判别值 `unknown`
+    #[serde(rename = "unknown")]
+    Unknown,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct RateLimitSnapshot {
+    #[serde(rename = "credits")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub credits: Option<CreditsSnapshot>,
+    #[serde(rename = "individualLimit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub individual_limit: Option<SpendControlLimitSnapshot>,
+    #[serde(rename = "limitId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit_id: Option<String>,
+    #[serde(rename = "limitName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit_name: Option<String>,
+    /// Normal model whose display name and reasoning options describe this quota alias.
+    #[serde(rename = "normalModelSlug")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub normal_model_slug: Option<String>,
+    #[serde(rename = "planType")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub plan_type: Option<PlanType>,
+    #[serde(rename = "primary")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub primary: Option<RateLimitWindow>,
+    #[serde(rename = "rateLimitReachedType")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rate_limit_reached_type: Option<RateLimitReachedType>,
+    #[serde(rename = "secondary")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub secondary: Option<RateLimitWindow>,
+    /// Backend-reported spend-control state. `None` is unavailable, not a sparse-update recovery.
+    #[serde(rename = "spendControlReached")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub spend_control_reached: Option<bool>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct RateLimitWindow {
+    #[serde(rename = "resetsAt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub resets_at: Option<i64>,
+    #[serde(rename = "usedPercent")]
+    pub used_percent: i32,
+    #[serde(rename = "windowDurationMins")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub window_duration_mins: Option<i64>,
+}
+
+/// Internal-only notification containing the exact usage from one upstream Responses API completion.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct RawResponseCompletedNotification {
+    #[serde(rename = "responseId")]
+    pub response_id: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+    #[serde(rename = "usage")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub usage: Option<TokenUsageBreakdown>,
+    #[serde(rename = "usageMetadata")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub usage_metadata: Option<ResponseUsageMetadata>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RawResponseItemCompletedNotification {
+    #[serde(rename = "item")]
+    pub item: ResponseItem,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum RealtimeConversationVersion {
+    /// 判别值 `v1`
+    #[serde(rename = "v1")]
+    V1,
+    /// 判别值 `v2`
+    #[serde(rename = "v2")]
+    V2,
+    /// 判别值 `v3`
+    #[serde(rename = "v3")]
+    V3,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum RealtimeOutputModality {
+    /// 判别值 `text`
+    #[serde(rename = "text")]
+    Text,
+    /// 判别值 `audio`
+    #[serde(rename = "audio")]
+    Audio,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum RealtimeVoice {
+    /// 判别值 `alloy`
+    #[serde(rename = "alloy")]
+    Alloy,
+    /// 判别值 `arbor`
+    #[serde(rename = "arbor")]
+    Arbor,
+    /// 判别值 `ash`
+    #[serde(rename = "ash")]
+    Ash,
+    /// 判别值 `ballad`
+    #[serde(rename = "ballad")]
+    Ballad,
+    /// 判别值 `breeze`
+    #[serde(rename = "breeze")]
+    Breeze,
+    /// 判别值 `cedar`
+    #[serde(rename = "cedar")]
+    Cedar,
+    /// 判别值 `coral`
+    #[serde(rename = "coral")]
+    Coral,
+    /// 判别值 `cove`
+    #[serde(rename = "cove")]
+    Cove,
+    /// 判别值 `echo`
+    #[serde(rename = "echo")]
+    Echo,
+    /// 判别值 `ember`
+    #[serde(rename = "ember")]
+    Ember,
+    /// 判别值 `juniper`
+    #[serde(rename = "juniper")]
+    Juniper,
+    /// 判别值 `maple`
+    #[serde(rename = "maple")]
+    Maple,
+    /// 判别值 `marin`
+    #[serde(rename = "marin")]
+    Marin,
+    /// 判别值 `sage`
+    #[serde(rename = "sage")]
+    Sage,
+    /// 判别值 `shimmer`
+    #[serde(rename = "shimmer")]
+    Shimmer,
+    /// 判别值 `sol`
+    #[serde(rename = "sol")]
+    Sol,
+    /// 判别值 `spruce`
+    #[serde(rename = "spruce")]
+    Spruce,
+    /// 判别值 `vale`
+    #[serde(rename = "vale")]
+    Vale,
+    /// 判别值 `verse`
+    #[serde(rename = "verse")]
+    Verse,
+}
+
+/// A non-empty reasoning effort value advertised by the model.
+pub type ReasoningEffort = String;
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ReasoningEffortOption {
+    #[serde(rename = "description")]
+    pub description: String,
+    #[serde(rename = "reasoningEffort")]
+    pub reasoning_effort: ReasoningEffort,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ReasoningItemContent {
+    #[serde(rename = "reasoning_text")]
+    ReasoningText {
+        #[serde(rename = "text")]
+        text: String,
+    },
+    #[serde(rename = "text")]
+    Text {
+        #[serde(rename = "text")]
+        text: String,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ReasoningItemReasoningSummary {
+    #[serde(rename = "summary_text")]
+    SummaryText {
+        #[serde(rename = "text")]
+        text: String,
+    },
+}
+
+/// A summary of the reasoning performed by the model. This can be useful for debugging and understanding the model's reasoning process. See https://platform.openai.com/docs/guides/reasoning?api-mode=responses#reasoning-summaries
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum ReasoningSummary {
+    #[serde(rename = "auto")]
+    Auto,
+    #[serde(rename = "concise")]
+    Concise,
+    #[serde(rename = "detailed")]
+    Detailed,
+    /// Option to disable reasoning summaries.
+    #[serde(rename = "none")]
+    None,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ReasoningSummaryPartAddedNotification {
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    #[serde(rename = "summaryIndex")]
+    pub summary_index: i64,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ReasoningSummaryTextDeltaNotification {
+    #[serde(rename = "delta")]
+    pub delta: String,
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    #[serde(rename = "summaryIndex")]
+    pub summary_index: i64,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ReasoningTextDeltaNotification {
+    #[serde(rename = "contentIndex")]
+    pub content_index: i64,
+    #[serde(rename = "delta")]
+    pub delta: String,
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum RemoteControlConnectionStatus {
+    /// 判别值 `disabled`
+    #[serde(rename = "disabled")]
+    Disabled,
+    /// 判别值 `connecting`
+    #[serde(rename = "connecting")]
+    Connecting,
+    /// 判别值 `connected`
+    #[serde(rename = "connected")]
+    Connected,
+    /// 判别值 `errored`
+    #[serde(rename = "errored")]
+    Errored,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct RemoteControlDisableParams {
+    #[serde(rename = "ephemeral")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ephemeral: Option<bool>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct RemoteControlEnableParams {
+    #[serde(rename = "ephemeral")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ephemeral: Option<bool>,
+}
+
+/// Current remote-control connection status and remote identity exposed to clients.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RemoteControlStatusChangedNotification {
+    #[serde(rename = "environmentId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub environment_id: Option<String>,
+    #[serde(rename = "installationId")]
+    pub installation_id: String,
+    #[serde(rename = "serverName")]
+    pub server_name: String,
+    #[serde(rename = "status")]
+    pub status: RemoteControlConnectionStatus,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum RequestId {
+    Text(String),
+    Integer(i64),
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct RequestPermissionProfile {
+    #[serde(rename = "fileSystem")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub file_system: Option<AdditionalFileSystemPermissions>,
+    #[serde(rename = "network")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub network: Option<AdditionalNetworkPermissions>,
+}
+
+pub type ResidencyRequirement = String;
+
+/// A known resource that the server is capable of reading.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct Resource {
+    #[serde(rename = "_meta")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub _meta: Option<serde_json::Value>,
+    #[serde(rename = "annotations")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub annotations: Option<serde_json::Value>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "icons")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icons: Option<Vec<serde_json::Value>>,
+    #[serde(rename = "mimeType")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mime_type: Option<String>,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "size")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size: Option<i64>,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(rename = "uri")]
+    pub uri: String,
+}
+
+/// Contents returned when reading a resource from an MCP server.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ResourceContent {
+    ResourceContentVariant0(ResourceContentVariant0),
+    ResourceContentVariant1(ResourceContentVariant1),
+}
+
+/// A template description for resources available on the server.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ResourceTemplate {
+    #[serde(rename = "annotations")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub annotations: Option<serde_json::Value>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "mimeType")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mime_type: Option<String>,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(rename = "uriTemplate")]
+    pub uri_template: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ResponseItem {
+    #[serde(rename = "message")]
+    Message {
+        #[serde(rename = "content")]
+        content: Vec<ContentItem>,
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+        #[serde(rename = "phase")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        phase: Option<MessagePhase>,
+        #[serde(rename = "role")]
+        role: String,
+    },
+    #[serde(rename = "agent_message")]
+    AgentMessage {
+        #[serde(rename = "author")]
+        author: String,
+        #[serde(rename = "content")]
+        content: Vec<AgentMessageInputContent>,
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+        #[serde(rename = "recipient")]
+        recipient: String,
+    },
+    #[serde(rename = "reasoning")]
+    Reasoning {
+        #[serde(rename = "content")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        content: Option<Vec<ReasoningItemContent>>,
+        #[serde(rename = "encrypted_content")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        encrypted_content: Option<String>,
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+        #[serde(rename = "summary")]
+        summary: Vec<ReasoningItemReasoningSummary>,
+    },
+    #[serde(rename = "local_shell_call")]
+    LocalShellCall {
+        #[serde(rename = "action")]
+        action: LocalShellAction,
+        /// Set when using the Responses API.
+        #[serde(rename = "call_id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        call_id: Option<String>,
+        /// Legacy id field retained for compatibility with older payloads.
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+        #[serde(rename = "status")]
+        status: LocalShellStatus,
+    },
+    #[serde(rename = "function_call")]
+    FunctionCall {
+        #[serde(rename = "arguments")]
+        arguments: String,
+        #[serde(rename = "call_id")]
+        call_id: String,
+        #[serde(rename = "encrypted_function_args")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        encrypted_function_args: Option<Vec<String>>,
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+        #[serde(rename = "name")]
+        name: String,
+        #[serde(rename = "namespace")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        namespace: Option<String>,
+    },
+    #[serde(rename = "tool_search_call")]
+    ToolSearchCall {
+        #[serde(rename = "arguments")]
+        arguments: serde_json::Value,
+        #[serde(rename = "call_id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        call_id: Option<String>,
+        #[serde(rename = "execution")]
+        execution: String,
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+        #[serde(rename = "status")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        status: Option<String>,
+    },
+    #[serde(rename = "function_call_output")]
+    FunctionCallOutput {
+        #[serde(rename = "call_id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        call_id: Option<String>,
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+        #[serde(rename = "name")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        name: Option<String>,
+        #[serde(rename = "namespace")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        namespace: Option<String>,
+        #[serde(rename = "output")]
+        output: FunctionCallOutputBody,
+    },
+    #[serde(rename = "custom_tool_call")]
+    CustomToolCall {
+        #[serde(rename = "call_id")]
+        call_id: String,
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "input")]
+        input: String,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+        #[serde(rename = "name")]
+        name: String,
+        #[serde(rename = "namespace")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        namespace: Option<String>,
+        #[serde(rename = "status")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        status: Option<String>,
+    },
+    #[serde(rename = "custom_tool_call_output")]
+    CustomToolCallOutput {
+        #[serde(rename = "call_id")]
+        call_id: String,
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+        #[serde(rename = "name")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        name: Option<String>,
+        #[serde(rename = "output")]
+        output: FunctionCallOutputBody,
+    },
+    #[serde(rename = "tool_search_output")]
+    ToolSearchOutput {
+        #[serde(rename = "call_id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        call_id: Option<String>,
+        #[serde(rename = "execution")]
+        execution: String,
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+        #[serde(rename = "status")]
+        status: String,
+        #[serde(rename = "tools")]
+        tools: Vec<serde_json::Value>,
+    },
+    #[serde(rename = "web_search_call")]
+    WebSearchCall {
+        #[serde(rename = "action")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        action: Option<ResponsesApiWebSearchAction>,
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+        #[serde(rename = "status")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        status: Option<String>,
+    },
+    #[serde(rename = "image_generation_call")]
+    ImageGenerationCall {
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+        #[serde(rename = "result")]
+        result: String,
+        #[serde(rename = "revised_prompt")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        revised_prompt: Option<String>,
+        #[serde(rename = "status")]
+        status: String,
+    },
+    #[serde(rename = "compaction")]
+    Compaction {
+        #[serde(rename = "encrypted_content")]
+        encrypted_content: String,
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+    },
+    /// A durable input control interpreted by the backend at its position in history.
+    #[serde(rename = "configuration_update")]
+    ConfigurationUpdate {
+        #[serde(rename = "reasoning")]
+        reasoning: ConfigurationReasoning,
+    },
+    #[serde(rename = "compaction_trigger")]
+    CompactionTrigger,
+    #[serde(rename = "context_compaction")]
+    ContextCompaction {
+        #[serde(rename = "encrypted_content")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        encrypted_content: Option<String>,
+        #[serde(rename = "id")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        id: Option<String>,
+        #[serde(rename = "internal_chat_message_metadata_passthrough")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
+    },
+    #[serde(rename = "other")]
+    Other,
+}
+
+/// Usage metadata reported for one upstream response.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ResponseUsageMetadata {
+    #[serde(rename = "amount")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub amount: Option<String>,
+    #[serde(rename = "metadata")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ResponsesApiWebSearchAction {
+    #[serde(rename = "search")]
+    Search {
+        #[serde(rename = "queries")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        queries: Option<Vec<String>>,
+        #[serde(rename = "query")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        query: Option<String>,
+    },
+    #[serde(rename = "open_page")]
+    OpenPage {
+        #[serde(rename = "url")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        url: Option<String>,
+    },
+    #[serde(rename = "find_in_page")]
+    FindInPage {
+        #[serde(rename = "pattern")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pattern: Option<String>,
+        #[serde(rename = "url")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        url: Option<String>,
+    },
+    #[serde(rename = "other")]
+    Other,
+}
+
+/// User's decision in response to an ExecApprovalRequest.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum ReviewDecision {
+    /// User has approved this command and the agent should execute it.
+    #[serde(rename = "approved")]
+    Approved,
+    /// User has approved this command and wants to apply the proposed execpolicy amendment so future matching commands are permitted.
+    #[serde(rename = "approved_execpolicy_amendment")]
+    ApprovedExecpolicyAmendment(ReviewDecisionApprovedExecpolicyAmendment),
+    /// User has approved this request and wants future prompts in the same session-scoped approval cache to be automatically approved for the remainder of the session.
+    #[serde(rename = "approved_for_session")]
+    ApprovedForSession,
+    /// User has approved this MCP tool call and wants to amend its policy so matching future calls are automatically approved across sessions.
+    #[serde(rename = "approved_mcp_policy_amendment")]
+    ApprovedMcpPolicyAmendment,
+    /// User chose to persist a network policy rule (allow/deny) for future requests to the same host.
+    #[serde(rename = "network_policy_amendment")]
+    NetworkPolicyAmendment(ReviewDecisionNetworkPolicyAmendment),
+    /// User has denied this command and the agent should not execute it, but it should continue the session and try something else.
+    #[serde(rename = "denied")]
+    Denied(ReviewDecisionDenied),
+    /// Automatic approval review timed out before reaching a decision.
+    #[serde(rename = "timed_out")]
+    TimedOut,
+    /// User has denied this command and the agent should not do anything until the user's next command.
+    #[serde(rename = "abort")]
+    Abort,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ReviewDelivery {
+    /// 判别值 `inline`
+    #[serde(rename = "inline")]
+    Inline,
+    /// 判别值 `detached`
+    #[serde(rename = "detached")]
+    Detached,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ReviewStartParams {
+    /// Where to run the review: inline (default) on the current thread or detached on a new thread (returned in `reviewThreadId`). Detached delivery is deprecated and emits `deprecationNotice`. Use `thread/start` followed by an inline review for a separate review thread.
+    #[serde(rename = "delivery")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub delivery: Option<ReviewDelivery>,
+    #[serde(rename = "target")]
+    pub target: ReviewTarget,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ReviewStartResponse {
+    /// Identifies the thread where the review runs.
+    ///
+    /// For inline reviews, this is the original thread id. For detached reviews, this is the id of the new review thread.
+    #[serde(rename = "reviewThreadId")]
+    pub review_thread_id: String,
+    #[serde(rename = "turn")]
+    pub turn: Turn,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ReviewTarget {
+    /// Review the working tree: staged, unstaged, and untracked files.
+    #[serde(rename = "uncommittedChanges")]
+    UncommittedChanges,
+    /// Review changes between the current branch and the given base branch.
+    #[serde(rename = "baseBranch")]
+    BaseBranch {
+        #[serde(rename = "branch")]
+        branch: String,
+    },
+    /// Review the changes introduced by a specific commit.
+    #[serde(rename = "commit")]
+    Commit {
+        #[serde(rename = "sha")]
+        sha: String,
+        /// Optional human-readable label (e.g., commit subject) for UIs.
+        #[serde(rename = "title")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        title: Option<String>,
+    },
+    /// Arbitrary instructions, equivalent to the old free-form prompt.
+    #[serde(rename = "custom")]
+    Custom {
+        #[serde(rename = "instructions")]
+        instructions: String,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SandboxMode {
+    /// 判别值 `read-only`
+    #[serde(rename = "read-only")]
+    ReadOnly,
+    /// 判别值 `workspace-write`
+    #[serde(rename = "workspace-write")]
+    WorkspaceWrite,
+    /// 判别值 `danger-full-access`
+    #[serde(rename = "danger-full-access")]
+    DangerFullAccess,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum SandboxPolicy {
+    #[serde(rename = "dangerFullAccess")]
+    DangerFullAccess,
+    #[serde(rename = "readOnly")]
+    ReadOnly {
+        #[serde(rename = "networkAccess")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        network_access: Option<bool>,
+    },
+    #[serde(rename = "externalSandbox")]
+    ExternalSandbox {
+        #[serde(rename = "networkAccess")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        network_access: Option<NetworkAccess>,
+    },
+    #[serde(rename = "workspaceWrite")]
+    WorkspaceWrite {
+        #[serde(rename = "excludeSlashTmp")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        exclude_slash_tmp: Option<bool>,
+        #[serde(rename = "excludeTmpdirEnvVar")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        exclude_tmpdir_env_var: Option<bool>,
+        #[serde(rename = "networkAccess")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        network_access: Option<bool>,
+        #[serde(rename = "writableRoots")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        writable_roots: Option<Vec<AbsolutePathBuf>>,
+    },
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SandboxWorkspaceWrite {
+    #[serde(rename = "exclude_slash_tmp")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exclude_slash_tmp: Option<bool>,
+    #[serde(rename = "exclude_tmpdir_env_var")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exclude_tmpdir_env_var: Option<bool>,
+    #[serde(rename = "network_access")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub network_access: Option<bool>,
+    #[serde(rename = "writable_roots")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub writable_roots: Option<Vec<String>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ScheduledTaskSchedule {
+    #[serde(rename = "hourly")]
+    Hourly {
+        #[serde(rename = "days")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        days: Option<Vec<ScheduledTaskWeekday>>,
+        #[serde(rename = "intervalHours")]
+        interval_hours: u32,
+    },
+    #[serde(rename = "daily")]
+    Daily {
+        #[serde(rename = "time")]
+        time: String,
+    },
+    #[serde(rename = "weekdays")]
+    Weekdays {
+        #[serde(rename = "time")]
+        time: String,
+    },
+    #[serde(rename = "weekly")]
+    Weekly {
+        #[serde(rename = "days")]
+        days: Vec<ScheduledTaskWeekday>,
+        #[serde(rename = "time")]
+        time: String,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ScheduledTaskSummary {
+    #[serde(rename = "key")]
+    pub key: String,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "prompt")]
+    pub prompt: String,
+    #[serde(rename = "schedule")]
+    pub schedule: ScheduledTaskSchedule,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScheduledTaskWeekday {
+    /// 判别值 `MO`
+    #[serde(rename = "MO")]
+    MO,
+    /// 判别值 `TU`
+    #[serde(rename = "TU")]
+    TU,
+    /// 判别值 `WE`
+    #[serde(rename = "WE")]
+    WE,
+    /// 判别值 `TH`
+    #[serde(rename = "TH")]
+    TH,
+    /// 判别值 `FR`
+    #[serde(rename = "FR")]
+    FR,
+    /// 判别值 `SA`
+    #[serde(rename = "SA")]
+    SA,
+    /// 判别值 `SU`
+    #[serde(rename = "SU")]
+    SU,
+}
+
+/// A user-selected root that can expose one or more runtime capabilities.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SelectedCapabilityRoot {
+    /// Stable identifier supplied by the capability selection platform.
+    #[serde(rename = "id")]
+    pub id: String,
+    /// Where the selected root can be resolved.
+    #[serde(rename = "location")]
+    pub location: CapabilityRootLocation,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SendAddCreditsNudgeEmailParams {
+    #[serde(rename = "creditType")]
+    pub credit_type: AddCreditsNudgeCreditType,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SendAddCreditsNudgeEmailResponse {
+    #[serde(rename = "status")]
+    pub status: AddCreditsNudgeEmailStatus,
+}
+
+/// Notification sent from the server to the client.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "method")]
+pub enum ServerNotification {
+    /// NEW NOTIFICATIONS
+    #[serde(rename = "error")]
+    Error {
+        #[serde(rename = "params")]
+        params: ErrorNotification,
+    },
+    #[serde(rename = "thread/started")]
+    ThreadStarted {
+        #[serde(rename = "params")]
+        params: ThreadStartedNotification,
+    },
+    #[serde(rename = "thread/status/changed")]
+    ThreadStatusChanged {
+        #[serde(rename = "params")]
+        params: ThreadStatusChangedNotification,
+    },
+    #[serde(rename = "thread/archived")]
+    ThreadArchived {
+        #[serde(rename = "params")]
+        params: ThreadArchivedNotification,
+    },
+    #[serde(rename = "thread/deleted")]
+    ThreadDeleted {
+        #[serde(rename = "params")]
+        params: ThreadDeletedNotification,
+    },
+    #[serde(rename = "thread/unarchived")]
+    ThreadUnarchived {
+        #[serde(rename = "params")]
+        params: ThreadUnarchivedNotification,
+    },
+    #[serde(rename = "thread/closed")]
+    ThreadClosed {
+        #[serde(rename = "params")]
+        params: ThreadClosedNotification,
+    },
+    #[serde(rename = "thread/reverted")]
+    ThreadReverted {
+        #[serde(rename = "params")]
+        params: ThreadRevertedNotification,
+    },
+    #[serde(rename = "skills/changed")]
+    SkillsChanged {
+        #[serde(rename = "params")]
+        params: SkillsChangedNotification,
+    },
+    #[serde(rename = "thread/name/updated")]
+    ThreadNameUpdated {
+        #[serde(rename = "params")]
+        params: ThreadNameUpdatedNotification,
+    },
+    #[serde(rename = "thread/attachment/updated")]
+    ThreadAttachmentUpdated {
+        #[serde(rename = "params")]
+        params: ThreadAttachmentUpdatedNotification,
+    },
+    #[serde(rename = "thread/goal/updated")]
+    ThreadGoalUpdated {
+        #[serde(rename = "params")]
+        params: ThreadGoalUpdatedNotification,
+    },
+    #[serde(rename = "thread/goal/cleared")]
+    ThreadGoalCleared {
+        #[serde(rename = "params")]
+        params: ThreadGoalClearedNotification,
+    },
+    #[serde(rename = "thread/queue/changed")]
+    ThreadQueueChanged {
+        #[serde(rename = "params")]
+        params: ThreadQueueChangedNotification,
+    },
+    #[serde(rename = "project/changed")]
+    ProjectChanged {
+        #[serde(rename = "params")]
+        params: ProjectChangedNotification,
+    },
+    #[serde(rename = "thread/project/updated")]
+    ThreadProjectUpdated {
+        #[serde(rename = "params")]
+        params: ThreadProjectUpdatedNotification,
+    },
+    #[serde(rename = "thread/environment/connected")]
+    ThreadEnvironmentConnected {
+        #[serde(rename = "params")]
+        params: EnvironmentConnectionNotification,
+    },
+    #[serde(rename = "thread/environment/disconnected")]
+    ThreadEnvironmentDisconnected {
+        #[serde(rename = "params")]
+        params: EnvironmentConnectionNotification,
+    },
+    #[serde(rename = "thread/settings/updated")]
+    ThreadSettingsUpdated {
+        #[serde(rename = "params")]
+        params: ThreadSettingsUpdatedNotification,
+    },
+    #[serde(rename = "thread/tokenUsage/updated")]
+    ThreadTokenUsageUpdated {
+        #[serde(rename = "params")]
+        params: ThreadTokenUsageUpdatedNotification,
+    },
+    #[serde(rename = "turn/started")]
+    TurnStarted {
+        #[serde(rename = "params")]
+        params: TurnStartedNotification,
+    },
+    #[serde(rename = "hook/started")]
+    HookStarted {
+        #[serde(rename = "params")]
+        params: HookStartedNotification,
+    },
+    #[serde(rename = "turn/completed")]
+    TurnCompleted {
+        #[serde(rename = "params")]
+        params: TurnCompletedNotification,
+    },
+    #[serde(rename = "hook/completed")]
+    HookCompleted {
+        #[serde(rename = "params")]
+        params: HookCompletedNotification,
+    },
+    #[serde(rename = "turn/diff/updated")]
+    TurnDiffUpdated {
+        #[serde(rename = "params")]
+        params: TurnDiffUpdatedNotification,
+    },
+    #[serde(rename = "turn/plan/updated")]
+    TurnPlanUpdated {
+        #[serde(rename = "params")]
+        params: TurnPlanUpdatedNotification,
+    },
+    #[serde(rename = "item/started")]
+    ItemStarted {
+        #[serde(rename = "params")]
+        params: ItemStartedNotification,
+    },
+    #[serde(rename = "item/autoApprovalReview/started")]
+    ItemAutoApprovalReviewStarted {
+        #[serde(rename = "params")]
+        params: ItemGuardianApprovalReviewStartedNotification,
+    },
+    #[serde(rename = "item/autoApprovalReview/completed")]
+    ItemAutoApprovalReviewCompleted {
+        #[serde(rename = "params")]
+        params: ItemGuardianApprovalReviewCompletedNotification,
+    },
+    #[serde(rename = "autoApprovalReview/strictReviewRequired")]
+    AutoApprovalReviewStrictReviewRequired {
+        #[serde(rename = "params")]
+        params: StrictReviewRequiredNotification,
+    },
+    #[serde(rename = "item/completed")]
+    ItemCompleted {
+        #[serde(rename = "params")]
+        params: ItemCompletedNotification,
+    },
+    #[serde(rename = "item/agentMessage/delta")]
+    ItemAgentMessageDelta {
+        #[serde(rename = "params")]
+        params: AgentMessageDeltaNotification,
+    },
+    /// EXPERIMENTAL - proposed plan streaming deltas for plan items.
+    #[serde(rename = "item/plan/delta")]
+    ItemPlanDelta {
+        #[serde(rename = "params")]
+        params: PlanDeltaNotification,
+    },
+    /// Stream base64-encoded stdout/stderr chunks for a running `command/exec` session.
+    #[serde(rename = "command/exec/outputDelta")]
+    CommandExecOutputDelta {
+        #[serde(rename = "params")]
+        params: CommandExecOutputDeltaNotification,
+    },
+    /// Stream base64-encoded stdout/stderr chunks for a running `process/spawn` session.
+    #[serde(rename = "process/outputDelta")]
+    ProcessOutputDelta {
+        #[serde(rename = "params")]
+        params: ProcessOutputDeltaNotification,
+    },
+    /// Final exit notification for a `process/spawn` session.
+    #[serde(rename = "process/exited")]
+    ProcessExited {
+        #[serde(rename = "params")]
+        params: ProcessExitedNotification,
+    },
+    #[serde(rename = "item/commandExecution/outputDelta")]
+    ItemCommandExecutionOutputDelta {
+        #[serde(rename = "params")]
+        params: CommandExecutionOutputDeltaNotification,
+    },
+    #[serde(rename = "item/commandExecution/terminalInteraction")]
+    ItemCommandExecutionTerminalInteraction {
+        #[serde(rename = "params")]
+        params: TerminalInteractionNotification,
+    },
+    /// Deprecated legacy apply_patch output stream notification.
+    #[serde(rename = "item/fileChange/outputDelta")]
+    ItemFileChangeOutputDelta {
+        #[serde(rename = "params")]
+        params: FileChangeOutputDeltaNotification,
+    },
+    #[serde(rename = "item/fileChange/patchUpdated")]
+    ItemFileChangePatchUpdated {
+        #[serde(rename = "params")]
+        params: FileChangePatchUpdatedNotification,
+    },
+    #[serde(rename = "serverRequest/resolved")]
+    ServerRequestResolved {
+        #[serde(rename = "params")]
+        params: ServerRequestResolvedNotification,
+    },
+    #[serde(rename = "item/mcpToolCall/progress")]
+    ItemMcpToolCallProgress {
+        #[serde(rename = "params")]
+        params: McpToolCallProgressNotification,
+    },
+    #[serde(rename = "mcpServer/oauthLogin/completed")]
+    McpServerOauthLoginCompleted {
+        #[serde(rename = "params")]
+        params: McpServerOauthLoginCompletedNotification,
+    },
+    #[serde(rename = "mcpServer/startupStatus/updated")]
+    McpServerStartupStatusUpdated {
+        #[serde(rename = "params")]
+        params: McpServerStatusUpdatedNotification,
+    },
+    #[serde(rename = "mcpServer/event/stream/notification")]
+    McpServerEventStreamNotification {
+        #[serde(rename = "params")]
+        params: McpServerEventStreamNotification,
+    },
+    #[serde(rename = "account/updated")]
+    AccountUpdated {
+        #[serde(rename = "params")]
+        params: AccountUpdatedNotification,
+    },
+    #[serde(rename = "account/gatewayOAuth/changed")]
+    AccountGatewayOAuthChanged {
+        #[serde(rename = "params")]
+        params: GatewayOAuthChangedNotification,
+    },
+    #[serde(rename = "account/rateLimits/updated")]
+    AccountRateLimitsUpdated {
+        #[serde(rename = "params")]
+        params: AccountRateLimitsUpdatedNotification,
+    },
+    #[serde(rename = "app/list/updated")]
+    AppListUpdated {
+        #[serde(rename = "params")]
+        params: AppListUpdatedNotification,
+    },
+    #[serde(rename = "remoteControl/status/changed")]
+    RemoteControlStatusChanged {
+        #[serde(rename = "params")]
+        params: RemoteControlStatusChangedNotification,
+    },
+    #[serde(rename = "externalAgentConfig/import/progress")]
+    ExternalAgentConfigImportProgress {
+        #[serde(rename = "params")]
+        params: ExternalAgentConfigImportProgressNotification,
+    },
+    #[serde(rename = "externalAgentConfig/import/completed")]
+    ExternalAgentConfigImportCompleted {
+        #[serde(rename = "params")]
+        params: ExternalAgentConfigImportCompletedNotification,
+    },
+    #[serde(rename = "fs/changed")]
+    FsChanged {
+        #[serde(rename = "params")]
+        params: FsChangedNotification,
+    },
+    #[serde(rename = "item/reasoning/summaryTextDelta")]
+    ItemReasoningSummaryTextDelta {
+        #[serde(rename = "params")]
+        params: ReasoningSummaryTextDeltaNotification,
+    },
+    #[serde(rename = "item/reasoning/summaryPartAdded")]
+    ItemReasoningSummaryPartAdded {
+        #[serde(rename = "params")]
+        params: ReasoningSummaryPartAddedNotification,
+    },
+    #[serde(rename = "item/reasoning/textDelta")]
+    ItemReasoningTextDelta {
+        #[serde(rename = "params")]
+        params: ReasoningTextDeltaNotification,
+    },
+    /// Deprecated: Use `ContextCompaction` item type instead.
+    #[serde(rename = "thread/compacted")]
+    ThreadCompacted {
+        #[serde(rename = "params")]
+        params: ContextCompactedNotification,
+    },
+    #[serde(rename = "model/rerouted")]
+    ModelRerouted {
+        #[serde(rename = "params")]
+        params: ModelReroutedNotification,
+    },
+    #[serde(rename = "model/verification")]
+    ModelVerification {
+        #[serde(rename = "params")]
+        params: ModelVerificationNotification,
+    },
+    #[serde(rename = "modelProvider/authRecoveryStarted")]
+    ModelProviderAuthRecoveryStarted {
+        #[serde(rename = "params")]
+        params: AuthRecoveryNotification,
+    },
+    #[serde(rename = "modelProvider/authRecoveryCompleted")]
+    ModelProviderAuthRecoveryCompleted {
+        #[serde(rename = "params")]
+        params: AuthRecoveryNotification,
+    },
+    #[serde(rename = "turn/moderationMetadata")]
+    TurnModerationMetadata {
+        #[serde(rename = "params")]
+        params: TurnModerationMetadataNotification,
+    },
+    #[serde(rename = "model/safetyBuffering/updated")]
+    ModelSafetyBufferingUpdated {
+        #[serde(rename = "params")]
+        params: ModelSafetyBufferingUpdatedNotification,
+    },
+    #[serde(rename = "warning")]
+    Warning {
+        #[serde(rename = "params")]
+        params: WarningNotification,
+    },
+    #[serde(rename = "guardianWarning")]
+    GuardianWarning {
+        #[serde(rename = "params")]
+        params: GuardianWarningNotification,
+    },
+    #[serde(rename = "deprecationNotice")]
+    DeprecationNotice {
+        #[serde(rename = "params")]
+        params: DeprecationNoticeNotification,
+    },
+    #[serde(rename = "configWarning")]
+    ConfigWarning {
+        #[serde(rename = "params")]
+        params: ConfigWarningNotification,
+    },
+    #[serde(rename = "fuzzyFileSearch/sessionUpdated")]
+    FuzzyFileSearchSessionUpdated {
+        #[serde(rename = "params")]
+        params: FuzzyFileSearchSessionUpdatedNotification,
+    },
+    #[serde(rename = "fuzzyFileSearch/sessionCompleted")]
+    FuzzyFileSearchSessionCompleted {
+        #[serde(rename = "params")]
+        params: FuzzyFileSearchSessionCompletedNotification,
+    },
+    #[serde(rename = "thread/realtime/started")]
+    ThreadRealtimeStarted {
+        #[serde(rename = "params")]
+        params: ThreadRealtimeStartedNotification,
+    },
+    #[serde(rename = "thread/realtime/itemAdded")]
+    ThreadRealtimeItemAdded {
+        #[serde(rename = "params")]
+        params: ThreadRealtimeItemAddedNotification,
+    },
+    #[serde(rename = "thread/realtime/item/started")]
+    ThreadRealtimeItemStarted {
+        #[serde(rename = "params")]
+        params: ThreadRealtimeItemStartedNotification,
+    },
+    #[serde(rename = "thread/realtime/item/transcript/delta")]
+    ThreadRealtimeItemTranscriptDelta {
+        #[serde(rename = "params")]
+        params: ThreadRealtimeItemTranscriptDeltaNotification,
+    },
+    #[serde(rename = "thread/realtime/item/completed")]
+    ThreadRealtimeItemCompleted {
+        #[serde(rename = "params")]
+        params: ThreadRealtimeItemCompletedNotification,
+    },
+    #[serde(rename = "thread/realtime/transcript/delta")]
+    ThreadRealtimeTranscriptDelta {
+        #[serde(rename = "params")]
+        params: ThreadRealtimeTranscriptDeltaNotification,
+    },
+    #[serde(rename = "thread/realtime/transcript/done")]
+    ThreadRealtimeTranscriptDone {
+        #[serde(rename = "params")]
+        params: ThreadRealtimeTranscriptDoneNotification,
+    },
+    #[serde(rename = "thread/realtime/outputAudio/delta")]
+    ThreadRealtimeOutputAudioDelta {
+        #[serde(rename = "params")]
+        params: ThreadRealtimeOutputAudioDeltaNotification,
+    },
+    #[serde(rename = "thread/realtime/sdp")]
+    ThreadRealtimeSdp {
+        #[serde(rename = "params")]
+        params: ThreadRealtimeSdpNotification,
+    },
+    #[serde(rename = "thread/realtime/error")]
+    ThreadRealtimeError {
+        #[serde(rename = "params")]
+        params: ThreadRealtimeErrorNotification,
+    },
+    #[serde(rename = "thread/realtime/closed")]
+    ThreadRealtimeClosed {
+        #[serde(rename = "params")]
+        params: ThreadRealtimeClosedNotification,
+    },
+    /// Notifies the user of world-writable directories on Windows, which cannot be protected by the sandbox.
+    #[serde(rename = "windows/worldWritableWarning")]
+    WindowsWorldWritableWarning {
+        #[serde(rename = "params")]
+        params: WindowsWorldWritableWarningNotification,
+    },
+    #[serde(rename = "windowsSandbox/setupCompleted")]
+    WindowsSandboxSetupCompleted {
+        #[serde(rename = "params")]
+        params: WindowsSandboxSetupCompletedNotification,
+    },
+    #[serde(rename = "account/login/completed")]
+    AccountLoginCompleted {
+        #[serde(rename = "params")]
+        params: AccountLoginCompletedNotification,
+    },
+}
+
+/// Request initiated from the server and sent to the client.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "method")]
+pub enum ServerRequest {
+    /// NEW APIs Sent when approval is requested for a specific command execution. This request is used for Turns started via turn/start.
+    #[serde(rename = "item/commandExecution/requestApproval")]
+    ItemCommandExecutionRequestApproval {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: CommandExecutionRequestApprovalParams,
+    },
+    /// Sent when approval is requested for a specific file change. This request is used for Turns started via turn/start.
+    #[serde(rename = "item/fileChange/requestApproval")]
+    ItemFileChangeRequestApproval {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: FileChangeRequestApprovalParams,
+    },
+    /// EXPERIMENTAL - Request input from the user for a tool call.
+    #[serde(rename = "item/tool/requestUserInput")]
+    ItemToolRequestUserInput {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ToolRequestUserInputParams,
+    },
+    /// Request input for an MCP server elicitation.
+    #[serde(rename = "mcpServer/elicitation/request")]
+    McpServerElicitationRequest {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: McpServerElicitationRequestParams,
+    },
+    /// Request approval for additional permissions from the user.
+    #[serde(rename = "item/permissions/requestApproval")]
+    ItemPermissionsRequestApproval {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: PermissionsRequestApprovalParams,
+    },
+    /// Execute a dynamic tool call on the client.
+    #[serde(rename = "item/tool/call")]
+    ItemToolCall {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: DynamicToolCallParams,
+    },
+    #[serde(rename = "account/chatgptAuthTokens/refresh")]
+    AccountChatgptAuthTokensRefresh {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ChatgptAuthTokensRefreshParams,
+    },
+    /// Generate a fresh upstream attestation result on demand.
+    #[serde(rename = "attestation/generate")]
+    AttestationGenerate {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: AttestationGenerateParams,
+    },
+    /// DEPRECATED APIs below Request to approve a patch. This request is used for Turns started via the legacy APIs (i.e. SendUserTurn, SendUserMessage).
+    #[serde(rename = "applyPatchApproval")]
+    ApplyPatchApproval {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ApplyPatchApprovalParams,
+    },
+    /// Request to exec a command. This request is used for Turns started via the legacy APIs (i.e. SendUserTurn, SendUserMessage).
+    #[serde(rename = "execCommandApproval")]
+    ExecCommandApproval {
+        #[serde(rename = "id")]
+        id: RequestId,
+        #[serde(rename = "params")]
+        params: ExecCommandApprovalParams,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ServerRequestResolvedNotification {
+    #[serde(rename = "requestId")]
+    pub request_id: RequestId,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SessionMigration {
+    #[serde(rename = "cwd")]
+    pub cwd: String,
+    #[serde(rename = "path")]
+    pub path: String,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum SessionSource {
+    #[serde(rename = "cli")]
+    Cli,
+    #[serde(rename = "vscode")]
+    Vscode,
+    #[serde(rename = "exec")]
+    Exec,
+    #[serde(rename = "appServer")]
+    AppServer,
+    #[serde(rename = "unknown")]
+    Unknown,
+    #[serde(rename = "custom")]
+    Custom(String),
+    #[serde(rename = "subAgent")]
+    SubAgent(SubAgentSource),
+}
+
+/// Settings for a collaboration mode.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct Settings {
+    #[serde(rename = "developer_instructions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub developer_instructions: Option<String>,
+    #[serde(rename = "model")]
+    pub model: String,
+    #[serde(rename = "reasoning_effort")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reasoning_effort: Option<ReasoningEffort>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillDependencies {
+    #[serde(rename = "tools")]
+    pub tools: Vec<SkillToolDependency>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillErrorInfo {
+    #[serde(rename = "message")]
+    pub message: String,
+    #[serde(rename = "path")]
+    pub path: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillInterface {
+    #[serde(rename = "brandColor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub brand_color: Option<String>,
+    #[serde(rename = "defaultPrompt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_prompt: Option<String>,
+    #[serde(rename = "displayName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub display_name: Option<String>,
+    #[serde(rename = "iconLarge")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon_large: Option<AbsolutePathBuf>,
+    /// Remote large icon URL from the plugin catalog.
+    #[serde(rename = "iconLargeUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon_large_url: Option<String>,
+    #[serde(rename = "iconSmall")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon_small: Option<AbsolutePathBuf>,
+    /// Remote small icon URL from the plugin catalog.
+    #[serde(rename = "iconSmallUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon_small_url: Option<String>,
+    #[serde(rename = "shortDescription")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub short_description: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SkillMetadata {
+    #[serde(rename = "dependencies")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dependencies: Option<SkillDependencies>,
+    #[serde(rename = "description")]
+    pub description: String,
+    #[serde(rename = "enabled")]
+    pub enabled: bool,
+    #[serde(rename = "interface")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub interface: Option<SkillInterface>,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "path")]
+    pub path: AbsolutePathBuf,
+    /// Owning plugin ID, matching `PluginSummary.id`, when known.
+    #[serde(rename = "pluginId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub plugin_id: Option<String>,
+    #[serde(rename = "scope")]
+    pub scope: SkillScope,
+    /// Legacy short_description from SKILL.md. Prefer SKILL.json interface.short_description.
+    #[serde(rename = "shortDescription")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub short_description: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillMigration {
+    #[serde(rename = "name")]
+    pub name: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SkillScope {
+    /// 判别值 `user`
+    #[serde(rename = "user")]
+    User,
+    /// 判别值 `repo`
+    #[serde(rename = "repo")]
+    Repo,
+    /// 判别值 `system`
+    #[serde(rename = "system")]
+    System,
+    /// 判别值 `admin`
+    #[serde(rename = "admin")]
+    Admin,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillSummary {
+    #[serde(rename = "description")]
+    pub description: String,
+    #[serde(rename = "enabled")]
+    pub enabled: bool,
+    #[serde(rename = "interface")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub interface: Option<SkillInterface>,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "path")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub path: Option<AbsolutePathBuf>,
+    #[serde(rename = "shortDescription")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub short_description: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillToolDependency {
+    #[serde(rename = "command")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub command: Option<String>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "transport")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub transport: Option<String>,
+    #[serde(rename = "type")]
+    pub r#type: String,
+    #[serde(rename = "url")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    #[serde(rename = "value")]
+    pub value: String,
+}
+
+/// Notification emitted when watched local skill files change.
+///
+/// Treat this as an invalidation signal and re-run `skills/list` with the client's current parameters when refreshed skill metadata is needed.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillsChangedNotification {}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillsConfigWriteParams {
+    #[serde(rename = "enabled")]
+    pub enabled: bool,
+    /// Name-based selector.
+    #[serde(rename = "name")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// Path-based selector.
+    #[serde(rename = "path")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub path: Option<AbsolutePathBuf>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillsConfigWriteResponse {
+    #[serde(rename = "effectiveEnabled")]
+    pub effective_enabled: bool,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillsExtraRootsSetParams {
+    #[serde(rename = "extraRoots")]
+    pub extra_roots: Vec<AbsolutePathBuf>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillsExtraRootsSetResponse {}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillsListEntry {
+    #[serde(rename = "cwd")]
+    pub cwd: String,
+    #[serde(rename = "errors")]
+    pub errors: Vec<SkillErrorInfo>,
+    #[serde(rename = "skills")]
+    pub skills: Vec<SkillMetadata>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillsListParams {
+    /// When empty, defaults to the current session working directory.
+    #[serde(rename = "cwds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwds: Option<Vec<String>>,
+    /// When true, bypass the skills cache and re-scan skills from disk.
+    #[serde(rename = "forceReload")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub force_reload: Option<bool>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SkillsListResponse {
+    #[serde(rename = "data")]
+    pub data: Vec<SkillsListEntry>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SortDirection {
+    /// 判别值 `asc`
+    #[serde(rename = "asc")]
+    Asc,
+    /// 判别值 `desc`
+    #[serde(rename = "desc")]
+    Desc,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SpendControlLimitSnapshot {
+    #[serde(rename = "limit")]
+    pub limit: String,
+    #[serde(rename = "remainingPercent")]
+    pub remaining_percent: i32,
+    #[serde(rename = "resetsAt")]
+    pub resets_at: i64,
+    #[serde(rename = "used")]
+    pub used: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct StrictReviewRequiredNotification {
+    /// Unix timestamp (in milliseconds) when this review started.
+    #[serde(rename = "startedAtMs")]
+    pub started_at_ms: i64,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SubAgentActivityKind {
+    /// 判别值 `started`
+    #[serde(rename = "started")]
+    Started,
+    /// 判别值 `interacted`
+    #[serde(rename = "interacted")]
+    Interacted,
+    /// 判别值 `interrupted`
+    #[serde(rename = "interrupted")]
+    Interrupted,
+    /// 判别值 `completed`
+    #[serde(rename = "completed")]
+    Completed,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum SubAgentSource {
+    #[serde(rename = "review")]
+    Review,
+    #[serde(rename = "compact")]
+    Compact,
+    #[serde(rename = "memory_consolidation")]
+    MemoryConsolidation,
+    #[serde(rename = "thread_spawn")]
+    ThreadSpawn(SubAgentSourceThreadSpawn),
+    #[serde(rename = "other")]
+    Other(String),
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SubagentMigration {
+    #[serde(rename = "name")]
+    pub name: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TerminalInteractionNotification {
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    #[serde(rename = "processId")]
+    pub process_id: String,
+    #[serde(rename = "stdin")]
+    pub stdin: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TextElement {
+    /// Byte range in the parent `text` buffer that this element occupies.
+    #[serde(rename = "byteRange")]
+    pub byte_range: ByteRange,
+    /// Optional human-readable placeholder for the element, displayed in the UI.
+    #[serde(rename = "placeholder")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub placeholder: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TextPosition {
+    /// 1-based column number (in Unicode scalar values).
+    #[serde(rename = "column")]
+    pub column: u64,
+    /// 1-based line number.
+    #[serde(rename = "line")]
+    pub line: u64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TextRange {
+    #[serde(rename = "end")]
+    pub end: TextPosition,
+    #[serde(rename = "start")]
+    pub start: TextPosition,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Thread {
+    /// Optional random unique nickname assigned to an AgentControl-spawned sub-agent.
+    #[serde(rename = "agentNickname")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub agent_nickname: Option<String>,
+    /// Optional role (agent_role) assigned to an AgentControl-spawned sub-agent.
+    #[serde(rename = "agentRole")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub agent_role: Option<String>,
+    /// Version of the CLI that created the thread.
+    #[serde(rename = "cliVersion")]
+    pub cli_version: String,
+    /// Unix timestamp (in seconds) when the thread was created.
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
+    /// Working directory captured for the thread.
+    #[serde(rename = "cwd")]
+    pub cwd: AbsolutePathBuf,
+    /// Whether the thread is ephemeral and should not be materialized on disk.
+    #[serde(rename = "ephemeral")]
+    pub ephemeral: bool,
+    /// Source thread id when this thread was created by forking another thread.
+    #[serde(rename = "forkedFromId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub forked_from_id: Option<String>,
+    /// Optional Git metadata captured when the thread was created.
+    #[serde(rename = "gitInfo")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub git_info: Option<GitInfo>,
+    /// Persisted thread history contract selected when this thread was created.
+    #[serde(rename = "historyMode")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub history_mode: Option<ThreadHistoryMode>,
+    /// Identifier for this thread. Codex-generated thread IDs are UUIDv7.
+    #[serde(rename = "id")]
+    pub id: String,
+    /// Current configured model when loaded, otherwise the latest persisted model. Null when unavailable. This is not per-turn execution telemetry.
+    #[serde(rename = "model")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    /// Model provider used for this thread (for example, 'openai').
+    #[serde(rename = "modelProvider")]
+    pub model_provider: String,
+    /// Optional user-facing thread title.
+    #[serde(rename = "name")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// Originator recorded when the thread was created, independent of its current client or executor. Null when the recorded originator is unavailable.
+    #[serde(rename = "originator")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub originator: Option<String>,
+    /// The ID of the parent thread. This will only be set if this thread is a subagent.
+    #[serde(rename = "parentThreadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub parent_thread_id: Option<String>,
+    /// [UNSTABLE] Path to the thread on disk.
+    #[serde(rename = "path")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
+    /// Usually the first user message in the thread, if available.
+    #[serde(rename = "preview")]
+    pub preview: String,
+    /// Canonical project assignment owned by app-server, if any.
+    #[serde(rename = "projectId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<String>,
+    /// Current configured reasoning effort when loaded, otherwise the latest persisted effort. Null when unset or unavailable. This is not per-turn execution telemetry.
+    #[serde(rename = "reasoningEffort")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reasoning_effort: Option<ReasoningEffort>,
+    /// Unix timestamp (in seconds) used for thread recency ordering.
+    #[serde(rename = "recencyAt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub recency_at: Option<i64>,
+    /// The independently persisted section selected for this thread, if any.
+    #[serde(rename = "section")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub section: Option<ThreadSection>,
+    /// Unix timestamp in seconds when the thread entered its current section.
+    #[serde(rename = "sectionEnteredAt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub section_entered_at: Option<i64>,
+    /// Session id shared by threads that belong to the same session tree.
+    #[serde(rename = "sessionId")]
+    pub session_id: String,
+    /// Origin of the thread (CLI, VSCode, codex exec, codex app-server, etc.).
+    #[serde(rename = "source")]
+    pub source: SessionSource,
+    /// Current runtime status for the thread.
+    #[serde(rename = "status")]
+    pub status: ThreadStatus,
+    /// Optional analytics source classification for this thread.
+    #[serde(rename = "threadSource")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_source: Option<ThreadSource>,
+    /// Only populated on `thread/resume`, `thread/fork`, and `thread/read` (when `includeTurns` is true) responses. For all other responses and notifications returning a Thread, the turns field will be an empty list.
+    #[serde(rename = "turns")]
+    pub turns: Vec<Turn>,
+    /// Unix timestamp (in seconds) when the thread was last updated.
+    #[serde(rename = "updatedAt")]
+    pub updated_at: i64,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ThreadActiveFlag {
+    /// 判别值 `waitingOnApproval`
+    #[serde(rename = "waitingOnApproval")]
+    WaitingOnApproval,
+    /// 判别值 `waitingOnUserInput`
+    #[serde(rename = "waitingOnUserInput")]
+    WaitingOnUserInput,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadApproveGuardianDeniedActionParams {
+    /// Serialized `codex_protocol::protocol::GuardianAssessmentEvent`.
+    #[serde(rename = "event")]
+    pub event: serde_json::Value,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadApproveGuardianDeniedActionResponse {}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadArchiveParams {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadArchiveResponse {}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadArchivedNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+/// An independently persisted attachment associated with a thread.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadAttachment {
+    #[serde(rename = "attachmentType")]
+    pub attachment_type: String,
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(rename = "identityKey")]
+    pub identity_key: String,
+    #[serde(rename = "payload")]
+    pub payload: serde_json::Value,
+}
+
+/// Result of attempting to associate an attachment with a thread.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ThreadAttachmentAddOutcome {
+    /// 判别值 `created`
+    #[serde(rename = "created")]
+    Created,
+    /// 判别值 `existing`
+    #[serde(rename = "existing")]
+    Existing,
+}
+
+/// Parameters for creating or locating an attachment on its owning thread.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadAttachmentAddParams {
+    #[serde(rename = "attachmentType")]
+    pub attachment_type: String,
+    #[serde(rename = "identityKey")]
+    pub identity_key: String,
+    #[serde(rename = "payload")]
+    pub payload: serde_json::Value,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+/// The created or existing attachment.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadAttachmentAddResponse {
+    #[serde(rename = "attachment")]
+    pub attachment: ThreadAttachment,
+    #[serde(rename = "outcome")]
+    pub outcome: ThreadAttachmentAddOutcome,
+}
+
+/// Parameters for listing attachments from one thread.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadAttachmentListParams {
+    #[serde(rename = "cursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cursor: Option<String>,
+    #[serde(rename = "limit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u32>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+/// One page of attachments associated with the requested thread.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadAttachmentListResponse {
+    #[serde(rename = "data")]
+    pub data: Vec<ThreadAttachment>,
+    #[serde(rename = "nextCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}
+
+/// The persisted attachment change represented by a notification.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ThreadAttachmentOperation {
+    /// 判别值 `created`
+    #[serde(rename = "created")]
+    Created,
+    /// 判别值 `deleted`
+    #[serde(rename = "deleted")]
+    Deleted,
+}
+
+/// Parameters for deleting an attachment by its stable thread-local identity.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadAttachmentRemoveParams {
+    #[serde(rename = "attachmentType")]
+    pub attachment_type: String,
+    #[serde(rename = "identityKey")]
+    pub identity_key: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+/// Successful deletion does not return additional attachment data.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadAttachmentRemoveResponse {}
+
+/// Notification published after a thread attachment is created or deleted.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadAttachmentUpdatedNotification {
+    #[serde(rename = "attachmentId")]
+    pub attachment_id: String,
+    #[serde(rename = "attachmentType")]
+    pub attachment_type: String,
+    #[serde(rename = "identityKey")]
+    pub identity_key: String,
+    #[serde(rename = "operation")]
+    pub operation: ThreadAttachmentOperation,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadClosedNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadCompactStartParams {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadCompactStartResponse {}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadDeleteParams {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadDeleteResponse {}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadDeletedNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+/// An environment selected by a loaded thread, independent of connection status.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadEnvironment {
+    #[serde(rename = "cwd")]
+    pub cwd: LegacyAppPathString,
+    #[serde(rename = "environmentId")]
+    pub environment_id: String,
+    #[serde(rename = "runtimeWorkspaceRoots")]
+    pub runtime_workspace_roots: Vec<LegacyAppPathString>,
+}
+
+/// Extra app-server data for a thread.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadExtra {}
+
+/// There are two ways to fork a thread: 1. By thread_id: load the thread from disk by thread_id and fork it into a new thread. 2. By path: load the thread from disk by path and fork it into a new thread.
+///
+/// If using a non-empty path, the thread_id param will be ignored. Empty string path values are treated as absent.
+///
+/// Prefer using thread_id whenever possible.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadForkParams {
+    #[serde(rename = "approvalPolicy")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approval_policy: Option<AskForApproval>,
+    /// Override where approval requests are routed for review on this thread and subsequent turns.
+    #[serde(rename = "approvalsReviewer")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approvals_reviewer: Option<ApprovalsReviewer>,
+    #[serde(rename = "baseInstructions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub base_instructions: Option<String>,
+    #[serde(rename = "config")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub config: Option<serde_json::Value>,
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<String>,
+    #[serde(rename = "developerInstructions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub developer_instructions: Option<String>,
+    #[serde(rename = "ephemeral")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ephemeral: Option<bool>,
+    /// When true, return only thread metadata and live fork state without populating `thread.turns`. This is useful when the client plans to call `thread/turns/list` immediately after forking. Full-history hydration is deprecated for paginated threads; use this with `thread/turns/list` and `thread/items/list` instead.
+    #[serde(rename = "excludeTurns")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exclude_turns: Option<bool>,
+    /// Optional last turn id to fork through, inclusive.
+    ///
+    /// When specified, turns after `last_turn_id` are omitted from the fork. The referenced turn cannot be in progress.
+    #[serde(rename = "lastTurnId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_turn_id: Option<String>,
+    /// Configuration overrides for the forked thread, if any.
+    #[serde(rename = "model")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    #[serde(rename = "modelProvider")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_provider: Option<String>,
+    #[serde(rename = "sandbox")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sandbox: Option<SandboxMode>,
+    #[serde(rename = "serviceTier")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_tier: Option<String>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    /// Optional client-supplied analytics source classification for this forked thread.
+    #[serde(rename = "threadSource")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_source: Option<ThreadSource>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadForkResponse {
+    #[serde(rename = "approvalPolicy")]
+    pub approval_policy: AskForApproval,
+    /// Reviewer currently used for approval requests on this thread.
+    #[serde(rename = "approvalsReviewer")]
+    pub approvals_reviewer: ApprovalsReviewer,
+    #[serde(rename = "cwd")]
+    pub cwd: AbsolutePathBuf,
+    /// Saved list of disabled plugin IDs. Does not yet filter plugin capabilities.
+    #[serde(rename = "disabledPluginIds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disabled_plugin_ids: Option<Vec<String>>,
+    /// Environment-native paths to instruction source files currently loaded for this thread.
+    #[serde(rename = "instructionSources")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub instruction_sources: Option<Vec<LegacyAppPathString>>,
+    #[serde(rename = "model")]
+    pub model: String,
+    #[serde(rename = "modelProvider")]
+    pub model_provider: String,
+    #[serde(rename = "reasoningEffort")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reasoning_effort: Option<ReasoningEffort>,
+    /// Legacy sandbox policy retained for compatibility. Experimental clients should prefer `activePermissionProfile` for profile provenance.
+    #[serde(rename = "sandbox")]
+    pub sandbox: SandboxPolicy,
+    #[serde(rename = "serviceTier")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_tier: Option<String>,
+    #[serde(rename = "thread")]
+    pub thread: Thread,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadGoal {
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
+    #[serde(rename = "objective")]
+    pub objective: String,
+    #[serde(rename = "status")]
+    pub status: ThreadGoalStatus,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "timeUsedSeconds")]
+    pub time_used_seconds: i64,
+    #[serde(rename = "tokenBudget")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub token_budget: Option<i64>,
+    #[serde(rename = "tokensUsed")]
+    pub tokens_used: i64,
+    #[serde(rename = "updatedAt")]
+    pub updated_at: i64,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadGoalClearParams {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadGoalClearResponse {
+    #[serde(rename = "cleared")]
+    pub cleared: bool,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadGoalClearedNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadGoalGetParams {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadGoalGetResponse {
+    #[serde(rename = "goal")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub goal: Option<ThreadGoal>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadGoalSetParams {
+    #[serde(rename = "objective")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub objective: Option<String>,
+    #[serde(rename = "status")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status: Option<ThreadGoalStatus>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "tokenBudget")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub token_budget: Option<i64>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadGoalSetResponse {
+    #[serde(rename = "goal")]
+    pub goal: ThreadGoal,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ThreadGoalStatus {
+    /// 判别值 `active`
+    #[serde(rename = "active")]
+    Active,
+    /// 判别值 `paused`
+    #[serde(rename = "paused")]
+    Paused,
+    /// 判别值 `blocked`
+    #[serde(rename = "blocked")]
+    Blocked,
+    /// 判别值 `usageLimited`
+    #[serde(rename = "usageLimited")]
+    UsageLimited,
+    /// 判别值 `budgetLimited`
+    #[serde(rename = "budgetLimited")]
+    BudgetLimited,
+    /// 判别值 `complete`
+    #[serde(rename = "complete")]
+    Complete,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadGoalUpdatedNotification {
+    #[serde(rename = "goal")]
+    pub goal: ThreadGoal,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub turn_id: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ThreadHistoryMode {
+    /// 判别值 `legacy`
+    #[serde(rename = "legacy")]
+    Legacy,
+    /// 判别值 `paginated`
+    #[serde(rename = "paginated")]
+    Paginated,
+}
+
+pub type ThreadId = String;
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadInjectItemsParams {
+    /// Raw Responses API items to append to the thread's model-visible history.
+    #[serde(rename = "items")]
+    pub items: Vec<serde_json::Value>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadInjectItemsResponse {}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ThreadItem {
+    #[serde(rename = "userMessage")]
+    UserMessage {
+        #[serde(rename = "clientId")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        client_id: Option<String>,
+        #[serde(rename = "content")]
+        content: Vec<UserInput>,
+        #[serde(rename = "id")]
+        id: String,
+    },
+    #[serde(rename = "hookPrompt")]
+    HookPrompt {
+        #[serde(rename = "fragments")]
+        fragments: Vec<HookPromptFragment>,
+        #[serde(rename = "id")]
+        id: String,
+    },
+    #[serde(rename = "agentMessage")]
+    AgentMessage {
+        #[serde(rename = "delivery")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        delivery: Option<AgentMessageDelivery>,
+        #[serde(rename = "id")]
+        id: String,
+        #[serde(rename = "memoryCitation")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        memory_citation: Option<MemoryCitation>,
+        #[serde(rename = "phase")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        phase: Option<MessagePhase>,
+        #[serde(rename = "questions")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        questions: Option<Vec<AsyncUserInputQuestion>>,
+        #[serde(rename = "text")]
+        text: String,
+    },
+    #[serde(rename = "functionCallOutput")]
+    FunctionCallOutput {
+        #[serde(rename = "id")]
+        id: String,
+        #[serde(rename = "name")]
+        name: String,
+        #[serde(rename = "namespace")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        namespace: Option<String>,
+        #[serde(rename = "output")]
+        output: FunctionCallOutputBody,
+    },
+    /// EXPERIMENTAL - proposed plan item content. The completed plan item is authoritative and may not match the concatenation of `PlanDelta` text.
+    #[serde(rename = "plan")]
+    Plan {
+        #[serde(rename = "id")]
+        id: String,
+        #[serde(rename = "text")]
+        text: String,
+    },
+    #[serde(rename = "reasoning")]
+    Reasoning {
+        #[serde(rename = "content")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        content: Option<Vec<String>>,
+        #[serde(rename = "id")]
+        id: String,
+        #[serde(rename = "summary")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        summary: Option<Vec<String>>,
+    },
+    #[serde(rename = "commandExecution")]
+    CommandExecution {
+        /// The command's output, aggregated from stdout and stderr.
+        #[serde(rename = "aggregatedOutput")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        aggregated_output: Option<String>,
+        /// The command to be executed.
+        #[serde(rename = "command")]
+        command: String,
+        /// A best-effort parsing of the command to understand the action(s) it will perform. This returns a list of CommandAction objects because a single shell command may be composed of many commands piped together.
+        #[serde(rename = "commandActions")]
+        command_actions: Vec<CommandAction>,
+        /// The command's working directory.
+        #[serde(rename = "cwd")]
+        cwd: LegacyAppPathString,
+        /// The duration of the command execution in milliseconds.
+        #[serde(rename = "durationMs")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        duration_ms: Option<i64>,
+        /// The command's exit code.
+        #[serde(rename = "exitCode")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        exit_code: Option<i32>,
+        #[serde(rename = "id")]
+        id: String,
+        /// Trusted first-party plugin id when this command resolves to one plugin script.
+        #[serde(rename = "pluginId")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        plugin_id: Option<String>,
+        /// Identifier for the underlying PTY process (when available).
+        #[serde(rename = "processId")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        process_id: Option<String>,
+        /// Safe plugin-relative path when this command resolves to one plugin script.
+        #[serde(rename = "scriptPath")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        script_path: Option<String>,
+        #[serde(rename = "source")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        source: Option<CommandExecutionSource>,
+        #[serde(rename = "status")]
+        status: CommandExecutionStatus,
+    },
+    #[serde(rename = "fileChange")]
+    FileChange {
+        #[serde(rename = "changes")]
+        changes: Vec<FileUpdateChange>,
+        #[serde(rename = "id")]
+        id: String,
+        #[serde(rename = "status")]
+        status: PatchApplyStatus,
+    },
+    #[serde(rename = "mcpToolCall")]
+    McpToolCall {
+        #[serde(rename = "appContext")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        app_context: Option<McpToolCallAppContext>,
+        #[serde(rename = "arguments")]
+        arguments: serde_json::Value,
+        /// The duration of the MCP tool call in milliseconds.
+        #[serde(rename = "durationMs")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        duration_ms: Option<i64>,
+        #[serde(rename = "error")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        error: Option<McpToolCallError>,
+        #[serde(rename = "id")]
+        id: String,
+        /// Legacy compatibility field; prefer `mcpAppUi.resourceUri` when available.
+        #[serde(rename = "mcpAppResourceUri")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        mcp_app_resource_uri: Option<String>,
+        /// Presentation captured from the invoked descriptor; absent in older history.
+        #[serde(rename = "mcpAppUi")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        mcp_app_ui: Option<McpAppUi>,
+        #[serde(rename = "pluginId")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        plugin_id: Option<String>,
+        #[serde(rename = "readOnlyHint")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        read_only_hint: Option<bool>,
+        #[serde(rename = "result")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        result: Option<McpToolCallResult>,
+        #[serde(rename = "server")]
+        server: String,
+        #[serde(rename = "status")]
+        status: McpToolCallStatus,
+        #[serde(rename = "tool")]
+        tool: String,
+    },
+    #[serde(rename = "dynamicToolCall")]
+    DynamicToolCall {
+        #[serde(rename = "arguments")]
+        arguments: serde_json::Value,
+        #[serde(rename = "contentItems")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        content_items: Option<Vec<DynamicToolCallOutputContentItem>>,
+        /// The duration of the dynamic tool call in milliseconds.
+        #[serde(rename = "durationMs")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        duration_ms: Option<i64>,
+        #[serde(rename = "id")]
+        id: String,
+        #[serde(rename = "namespace")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        namespace: Option<String>,
+        #[serde(rename = "status")]
+        status: DynamicToolCallStatus,
+        #[serde(rename = "success")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        success: Option<bool>,
+        #[serde(rename = "tool")]
+        tool: String,
+    },
+    #[serde(rename = "collabAgentToolCall")]
+    CollabAgentToolCall {
+        /// Last known status of the target agents, when available.
+        #[serde(rename = "agentsStates")]
+        agents_states: std::collections::BTreeMap<String, CollabAgentState>,
+        /// Unique identifier for this collab tool call.
+        #[serde(rename = "id")]
+        id: String,
+        /// Model requested for the spawned agent, when applicable.
+        #[serde(rename = "model")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        model: Option<String>,
+        /// Prompt text sent as part of the collab tool call, when available.
+        #[serde(rename = "prompt")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        prompt: Option<String>,
+        /// Reasoning effort requested for the spawned agent, when applicable.
+        #[serde(rename = "reasoningEffort")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        reasoning_effort: Option<ReasoningEffort>,
+        /// Thread ID of the receiving agent, when applicable. In case of spawn operation, this corresponds to the newly spawned agent.
+        #[serde(rename = "receiverThreadIds")]
+        receiver_thread_ids: Vec<String>,
+        /// Thread ID of the agent issuing the collab request.
+        #[serde(rename = "senderThreadId")]
+        sender_thread_id: String,
+        /// Current status of the collab tool call.
+        #[serde(rename = "status")]
+        status: CollabAgentToolCallStatus,
+        /// Name of the collab tool that was invoked.
+        #[serde(rename = "tool")]
+        tool: CollabAgentTool,
+    },
+    #[serde(rename = "subAgentActivity")]
+    SubAgentActivity {
+        #[serde(rename = "agentPath")]
+        agent_path: String,
+        #[serde(rename = "agentThreadId")]
+        agent_thread_id: String,
+        #[serde(rename = "id")]
+        id: String,
+        #[serde(rename = "kind")]
+        kind: SubAgentActivityKind,
+    },
+    #[serde(rename = "webSearch")]
+    WebSearch {
+        #[serde(rename = "action")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        action: Option<WebSearchAction>,
+        #[serde(rename = "id")]
+        id: String,
+        #[serde(rename = "query")]
+        query: String,
+        /// Structured search results returned out-of-band by standalone web search.
+        ///
+        /// These stay as opaque JSON at the extension/app-server boundary so new result fields and result types can pass through without a Codex release.
+        #[serde(rename = "results")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        results: Option<Vec<serde_json::Value>>,
+    },
+    #[serde(rename = "imageView")]
+    ImageView {
+        #[serde(rename = "id")]
+        id: String,
+        #[serde(rename = "path")]
+        path: LegacyAppPathString,
+    },
+    /// Display item emitted by the interruptible `clock.sleep` tool.
+    #[serde(rename = "sleep")]
+    Sleep {
+        #[serde(rename = "durationMs")]
+        duration_ms: u64,
+        #[serde(rename = "id")]
+        id: String,
+    },
+    #[serde(rename = "imageGeneration")]
+    ImageGeneration {
+        #[serde(rename = "failure")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        failure: Option<ImageGenerationFailure>,
+        #[serde(rename = "id")]
+        id: String,
+        #[serde(rename = "result")]
+        result: String,
+        #[serde(rename = "revisedPrompt")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        revised_prompt: Option<String>,
+        #[serde(rename = "savedPath")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        saved_path: Option<AbsolutePathBuf>,
+        #[serde(rename = "status")]
+        status: String,
+        #[serde(rename = "transparentBackground")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        transparent_background: Option<bool>,
+    },
+    #[serde(rename = "enteredReviewMode")]
+    EnteredReviewMode {
+        #[serde(rename = "id")]
+        id: String,
+        #[serde(rename = "review")]
+        review: String,
+    },
+    #[serde(rename = "exitedReviewMode")]
+    ExitedReviewMode {
+        #[serde(rename = "id")]
+        id: String,
+        #[serde(rename = "review")]
+        review: String,
+    },
+    #[serde(rename = "contextCompaction")]
+    ContextCompaction {
+        #[serde(rename = "id")]
+        id: String,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadItemEntry {
+    /// Unix timestamp (milliseconds) when the item completed, if recorded by the producer.
+    #[serde(rename = "completedAtMs")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub completed_at_ms: Option<i64>,
+    #[serde(rename = "item")]
+    pub item: ThreadItem,
+    /// Unix timestamp (milliseconds) when the item started, if recorded by the producer.
+    #[serde(rename = "startedAtMs")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub started_at_ms: Option<i64>,
+    /// Turn containing this item.
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadItemsListParams {
+    /// Opaque cursor to pass to the next call to continue after the last item.
+    #[serde(rename = "cursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cursor: Option<String>,
+    /// Optional item page size.
+    #[serde(rename = "limit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u32>,
+    /// Optional item pagination direction; defaults to ascending.
+    #[serde(rename = "sortDirection")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sort_direction: Option<SortDirection>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    /// Optional turn id to filter by. When omitted, returns items across the thread.
+    #[serde(rename = "turnId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub turn_id: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadItemsListResponse {
+    /// Opaque cursor to pass as `cursor` when reversing `sortDirection`. This is only populated when the page contains at least one item.
+    #[serde(rename = "backwardsCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub backwards_cursor: Option<String>,
+    #[serde(rename = "data")]
+    pub data: Vec<ThreadItemEntry>,
+    /// Opaque cursor to pass to the next call to continue after the last item. if None, there are no more items to return.
+    #[serde(rename = "nextCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ThreadListCwdFilter {
+    Text(String),
+    List(Vec<String>),
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadListParams {
+    /// Optional archived filter; when set to true, only archived threads are returned. If false or null, only non-archived threads are returned.
+    #[serde(rename = "archived")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub archived: Option<bool>,
+    /// Opaque pagination cursor returned by a previous call.
+    #[serde(rename = "cursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cursor: Option<String>,
+    /// Optional cwd filter or filters; when set, only threads whose session cwd exactly matches one of these paths are returned.
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<ThreadListCwdFilter>,
+    /// Optional page size; defaults to a reasonable server-side value.
+    #[serde(rename = "limit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u32>,
+    /// Optional provider filter; when set, only sessions recorded under these providers are returned. When present but empty, includes all providers.
+    #[serde(rename = "modelProviders")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_providers: Option<Vec<String>>,
+    /// Optional originator allowlist, matching any supplied value exactly. Supported by hosted backends only; the local app-server rejects a nonempty list. Omitted or empty lists leave originators unrestricted.
+    #[serde(rename = "originators")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub originators: Option<Vec<String>>,
+    /// Optional substring filter for the extracted thread title.
+    #[serde(rename = "searchTerm")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub search_term: Option<String>,
+    /// Omit to include every section, set to `null` for unsectioned threads, or provide a section ID to return only threads in that section.
+    #[serde(rename = "sectionId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub section_id: Option<String>,
+    /// Optional sort direction; defaults to descending (newest first).
+    #[serde(rename = "sortDirection")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sort_direction: Option<SortDirection>,
+    /// Optional sort key; defaults to created_at.
+    #[serde(rename = "sortKey")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sort_key: Option<ThreadSortKey>,
+    /// Optional source filter; when set, only sessions from these source kinds are returned. When omitted or empty, defaults to interactive sources.
+    #[serde(rename = "sourceKinds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_kinds: Option<Vec<ThreadSourceKind>>,
+    /// If true, return from the state DB without scanning JSONL rollouts to repair thread metadata. Omitted or false preserves scan-and-repair behavior.
+    #[serde(rename = "useStateDbOnly")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub use_state_db_only: Option<bool>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadListResponse {
+    /// Opaque cursor to pass as `cursor` when reversing `sortDirection`. This is only populated when the page contains at least one thread. Use it with the opposite `sortDirection`; for timestamp sorts it anchors at the start of the page timestamp so same-second updates are not skipped.
+    #[serde(rename = "backwardsCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub backwards_cursor: Option<String>,
+    #[serde(rename = "data")]
+    pub data: Vec<Thread>,
+    /// Opaque cursor to pass to the next call to continue after the last item. if None, there are no more items to return.
+    #[serde(rename = "nextCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadLoadedListParams {
+    /// Opaque pagination cursor returned by a previous call.
+    #[serde(rename = "cursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cursor: Option<String>,
+    /// Optional page size; defaults to no limit.
+    #[serde(rename = "limit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u32>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadLoadedListResponse {
+    /// Thread ids for sessions currently loaded in memory.
+    #[serde(rename = "data")]
+    pub data: Vec<String>,
+    /// Opaque cursor to pass to the next call to continue after the last item. if None, there are no more items to return.
+    #[serde(rename = "nextCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ThreadMemoryMode {
+    /// 判别值 `enabled`
+    #[serde(rename = "enabled")]
+    Enabled,
+    /// 判别值 `disabled`
+    #[serde(rename = "disabled")]
+    Disabled,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadMetadataGitInfoUpdateParams {
+    /// Omit to leave the stored branch unchanged, set to `null` to clear it, or provide a non-empty string to replace it.
+    #[serde(rename = "branch")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub branch: Option<String>,
+    /// Omit to leave the stored origin URL unchanged, set to `null` to clear it, or provide a non-empty string to replace it.
+    #[serde(rename = "originUrl")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub origin_url: Option<String>,
+    /// Omit to leave the stored commit unchanged, set to `null` to clear it, or provide a non-empty string to replace it.
+    #[serde(rename = "sha")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sha: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadMetadataUpdateParams {
+    /// Patch the stored Git metadata for this thread. Omit a field to leave it unchanged, set it to `null` to clear it, or provide a string to replace the stored value.
+    #[serde(rename = "gitInfo")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub git_info: Option<ThreadMetadataGitInfoUpdateParams>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadMetadataUpdateResponse {
+    #[serde(rename = "thread")]
+    pub thread: Thread,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadNameUpdatedNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "threadName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_name: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadProjectUpdatedNotification {
+    #[serde(rename = "projectId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<String>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadQueueChangedNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadReadParams {
+    /// When true, include turns and their items from rollout history. Full-history hydration is deprecated for paginated threads; prefer a metadata-only read and page with `thread/turns/list` and `thread/items/list`.
+    #[serde(rename = "includeTurns")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub include_turns: Option<bool>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadReadResponse {
+    #[serde(rename = "thread")]
+    pub thread: Thread,
+}
+
+/// EXPERIMENTAL - thread realtime audio chunk.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRealtimeAudioChunk {
+    #[serde(rename = "data")]
+    pub data: String,
+    #[serde(rename = "itemId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub item_id: Option<String>,
+    #[serde(rename = "numChannels")]
+    pub num_channels: u16,
+    #[serde(rename = "sampleRate")]
+    pub sample_rate: u32,
+    #[serde(rename = "samplesPerChannel")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub samples_per_channel: Option<u32>,
+}
+
+/// EXPERIMENTAL - how an existing agent item appears in a realtime conversation.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ThreadRealtimeBemItemPresentation {
+    #[serde(rename = "wholeItem")]
+    WholeItem,
+    #[serde(rename = "inlineMarkdown")]
+    InlineMarkdown,
+    #[serde(rename = "inlineVisualization")]
+    InlineVisualization {
+        #[serde(rename = "index")]
+        index: u32,
+    },
+}
+
+/// EXPERIMENTAL - emitted when thread realtime transport closes.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRealtimeClosedNotification {
+    #[serde(rename = "reason")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reason: Option<String>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+/// EXPERIMENTAL - emitted when thread realtime encounters an error.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRealtimeErrorNotification {
+    #[serde(rename = "message")]
+    pub message: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+/// EXPERIMENTAL - role-bearing text item included when a realtime V3 session starts.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRealtimeInitialItem {
+    #[serde(rename = "role")]
+    pub role: ConversationTextRole,
+    #[serde(rename = "text")]
+    pub text: String,
+}
+
+/// EXPERIMENTAL - a thread-scoped realtime item in the canonical timeline.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ThreadRealtimeItem {
+    #[serde(rename = "realtimeSessionStarted")]
+    RealtimeSessionStarted,
+    #[serde(rename = "transcriptSegment")]
+    TranscriptSegment {
+        #[serde(rename = "role")]
+        role: ThreadRealtimeTranscriptRole,
+        #[serde(rename = "text")]
+        text: String,
+    },
+    #[serde(rename = "bemItemPromoted")]
+    BemItemPromoted {
+        #[serde(rename = "item_id")]
+        item_id: String,
+        #[serde(rename = "presentation")]
+        presentation: ThreadRealtimeBemItemPresentation,
+        #[serde(rename = "turn_id")]
+        turn_id: String,
+    },
+    #[serde(rename = "realtimeSessionClosed")]
+    RealtimeSessionClosed {
+        #[serde(rename = "outcome")]
+        outcome: ThreadRealtimeSessionOutcome,
+    },
+}
+
+/// EXPERIMENTAL - raw non-audio thread realtime item emitted by the backend.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRealtimeItemAddedNotification {
+    #[serde(rename = "item")]
+    pub item: serde_json::Value,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+/// EXPERIMENTAL - a realtime timeline item published after canonical commit.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRealtimeItemCompletedNotification {
+    #[serde(rename = "item")]
+    pub item: ThreadRealtimeItem,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+/// EXPERIMENTAL - a realtime timeline item started before its content streams.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRealtimeItemStartedNotification {
+    #[serde(rename = "item")]
+    pub item: ThreadRealtimeItem,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+/// EXPERIMENTAL - text appended to an active realtime transcript item.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRealtimeItemTranscriptDeltaNotification {
+    #[serde(rename = "delta")]
+    pub delta: String,
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+/// EXPERIMENTAL - streamed output audio emitted by thread realtime.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRealtimeOutputAudioDeltaNotification {
+    #[serde(rename = "audio")]
+    pub audio: ThreadRealtimeAudioChunk,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+/// EXPERIMENTAL - emitted with the remote SDP for a WebRTC realtime session.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRealtimeSdpNotification {
+    #[serde(rename = "sdp")]
+    pub sdp: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ThreadRealtimeSessionOutcome {
+    /// 判别值 `ended`
+    #[serde(rename = "ended")]
+    Ended,
+    /// 判别值 `failed`
+    #[serde(rename = "failed")]
+    Failed,
+}
+
+/// EXPERIMENTAL - transport used by thread realtime.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ThreadRealtimeStartTransport {
+    #[serde(rename = "websocket")]
+    Websocket,
+    #[serde(rename = "webrtc")]
+    Webrtc {
+        /// SDP offer generated by a WebRTC RTCPeerConnection after configuring audio and the realtime events data channel.
+        #[serde(rename = "sdp")]
+        sdp: String,
+    },
+    #[serde(rename = "existingCall")]
+    ExistingCall {
+        /// Identifier of a realtime call already created and negotiated by the client.
+        #[serde(rename = "callId")]
+        call_id: String,
+    },
+}
+
+/// EXPERIMENTAL - emitted when thread realtime startup is accepted.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRealtimeStartedNotification {
+    #[serde(rename = "realtimeSessionId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub realtime_session_id: Option<String>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "version")]
+    pub version: RealtimeConversationVersion,
+}
+
+/// EXPERIMENTAL - flat transcript delta emitted whenever realtime transcript text changes.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRealtimeTranscriptDeltaNotification {
+    /// Live transcript delta from the realtime event.
+    #[serde(rename = "delta")]
+    pub delta: String,
+    #[serde(rename = "role")]
+    pub role: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+/// EXPERIMENTAL - final transcript text emitted when realtime completes a transcript part.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRealtimeTranscriptDoneNotification {
+    #[serde(rename = "role")]
+    pub role: String,
+    /// Final complete text for the transcript part.
+    #[serde(rename = "text")]
+    pub text: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ThreadRealtimeTranscriptRole {
+    /// 判别值 `user`
+    #[serde(rename = "user")]
+    User,
+    /// 判别值 `assistant`
+    #[serde(rename = "assistant")]
+    Assistant,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadResumeInitialTurnsPageParams {
+    /// How much item detail to include for each returned turn; defaults to summary.
+    #[serde(rename = "itemsView")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub items_view: Option<TurnItemsView>,
+    /// Optional turn page size.
+    #[serde(rename = "limit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u32>,
+    /// Optional turn pagination direction; defaults to descending.
+    #[serde(rename = "sortDirection")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sort_direction: Option<SortDirection>,
+}
+
+/// There are three ways to resume a thread: 1. By thread_id: load the thread from disk by thread_id and resume it. 2. By history: instantiate the thread from memory and resume it. 3. By path: load the thread from disk by path and resume it.
+///
+/// For non-running threads, the precedence is: history > non-empty path > thread_id. If using history or a non-empty path for a non-running thread, the thread_id param will be ignored.
+///
+/// If thread_id identifies a running thread, app-server rejoins that thread and treats a non-empty path as a consistency check against the active rollout path. Empty string path values are treated as absent.
+///
+/// Prefer using thread_id whenever possible.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadResumeParams {
+    #[serde(rename = "approvalPolicy")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approval_policy: Option<AskForApproval>,
+    /// Override where approval requests are routed for review on this thread and subsequent turns.
+    #[serde(rename = "approvalsReviewer")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approvals_reviewer: Option<ApprovalsReviewer>,
+    #[serde(rename = "baseInstructions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub base_instructions: Option<String>,
+    #[serde(rename = "config")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub config: Option<serde_json::Value>,
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<String>,
+    #[serde(rename = "developerInstructions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub developer_instructions: Option<String>,
+    /// When true, return only thread metadata and live-resume state without populating `thread.turns`. This is useful when the client plans to call `thread/turns/list` immediately after resuming. Full-history hydration is deprecated for paginated threads; use this with `thread/turns/list` and `thread/items/list` instead.
+    #[serde(rename = "excludeTurns")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exclude_turns: Option<bool>,
+    /// Configuration overrides for the resumed thread, if any.
+    #[serde(rename = "model")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    #[serde(rename = "modelProvider")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_provider: Option<String>,
+    /// @deprecated `friendly` and `pragmatic` no longer select a style. Changing this does not rewrite the thread's existing instructions.
+    #[serde(rename = "personality")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub personality: Option<Personality>,
+    #[serde(rename = "sandbox")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sandbox: Option<SandboxMode>,
+    #[serde(rename = "serviceTier")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_tier: Option<String>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadResumeResponse {
+    #[serde(rename = "approvalPolicy")]
+    pub approval_policy: AskForApproval,
+    /// Reviewer currently used for approval requests on this thread.
+    #[serde(rename = "approvalsReviewer")]
+    pub approvals_reviewer: ApprovalsReviewer,
+    /// Effective collaboration mode. Absent when resuming from an older server.
+    #[serde(rename = "collaborationMode")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub collaboration_mode: Option<CollaborationMode>,
+    #[serde(rename = "cwd")]
+    pub cwd: AbsolutePathBuf,
+    /// Saved list of disabled plugin IDs. Does not yet filter plugin capabilities.
+    #[serde(rename = "disabledPluginIds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disabled_plugin_ids: Option<Vec<String>>,
+    /// Environment-native paths to instruction source files currently loaded for this thread.
+    #[serde(rename = "instructionSources")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub instruction_sources: Option<Vec<LegacyAppPathString>>,
+    /// Opaque cursor for hydrating paginated items backwards.
+    ///
+    /// Pass this as `cursor` to `thread/items/list` with `sortDirection: "desc"`. The first page includes the item identified by the cursor.
+    #[serde(rename = "itemsBackwardsCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub items_backwards_cursor: Option<String>,
+    #[serde(rename = "model")]
+    pub model: String,
+    #[serde(rename = "modelProvider")]
+    pub model_provider: String,
+    #[serde(rename = "reasoningEffort")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reasoning_effort: Option<ReasoningEffort>,
+    /// Legacy sandbox policy retained for compatibility. Experimental clients should prefer `activePermissionProfile` for profile provenance.
+    #[serde(rename = "sandbox")]
+    pub sandbox: SandboxPolicy,
+    #[serde(rename = "serviceTier")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_tier: Option<String>,
+    #[serde(rename = "thread")]
+    pub thread: Thread,
+    /// Opaque cursor for hydrating paginated turns backwards.
+    ///
+    /// Pass this as `cursor` to `thread/turns/list` with `sortDirection: "desc"`. The first page includes the turn identified by the cursor.
+    #[serde(rename = "turnsBackwardsCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub turns_backwards_cursor: Option<String>,
+}
+
+/// Replace a paginated thread's durable history with the prefix before one turn.
+///
+/// This only changes persisted conversation history. It does not revert local file changes.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRevertParams {
+    /// Turn excluded from the replacement history, together with every later turn.
+    #[serde(rename = "beforeTurnId")]
+    pub before_turn_id: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRevertResponse {
+    /// Opaque cursor for hydrating paginated items backwards.
+    ///
+    /// Pass this as `cursor` to `thread/items/list` with `sortDirection: "desc"`. The first page includes the item identified by the cursor.
+    #[serde(rename = "itemsBackwardsCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub items_backwards_cursor: Option<String>,
+    /// Updated loaded thread metadata. `turns` is always empty; hydrate retained history through `thread/turns/list`.
+    #[serde(rename = "thread")]
+    pub thread: Thread,
+    /// Opaque cursor for hydrating paginated turns backwards.
+    ///
+    /// Pass this as `cursor` to `thread/turns/list` with `sortDirection: "desc"`. The first page includes the turn identified by the cursor.
+    #[serde(rename = "turnsBackwardsCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub turns_backwards_cursor: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadRevertedNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ThreadSearchSortKey {
+    /// 判别值 `created_at`
+    #[serde(rename = "created_at")]
+    CreatedAt,
+    /// 判别值 `updated_at`
+    #[serde(rename = "updated_at")]
+    UpdatedAt,
+    /// 判别值 `recency_at`
+    #[serde(rename = "recency_at")]
+    RecencyAt,
+}
+
+/// An independently persisted, user-visible thread section.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSection {
+    /// Optional appearance synchronized across clients.
+    #[serde(rename = "appearance")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub appearance: Option<ThreadSectionAppearance>,
+    /// Opaque UUIDv7 identity that remains stable when the section is renamed.
+    #[serde(rename = "id")]
+    pub id: String,
+    /// The current user-visible section name.
+    #[serde(rename = "name")]
+    pub name: String,
+}
+
+/// Extensible visual presentation for a custom thread section.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSectionAppearance {
+    #[serde(rename = "color")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub color: Option<String>,
+    #[serde(rename = "icon")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon: Option<String>,
+}
+
+/// Parameters for creating an independently persisted thread section.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSectionCreateParams {
+    #[serde(rename = "appearance")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub appearance: Option<ThreadSectionAppearance>,
+    /// The user-visible name of the section.
+    #[serde(rename = "name")]
+    pub name: String,
+}
+
+/// The independently persisted section created by the server.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSectionCreateResponse {
+    #[serde(rename = "section")]
+    pub section: ThreadSection,
+}
+
+/// Parameters for deleting an independently persisted thread section.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSectionDeleteParams {
+    /// The stable, server-generated identity of the section to delete.
+    #[serde(rename = "sectionId")]
+    pub section_id: String,
+}
+
+/// Successful deletion does not return additional section data.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSectionDeleteResponse {}
+
+/// Parameters for listing independently persisted thread sections.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSectionListParams {
+    /// Opaque pagination cursor returned by a previous call.
+    #[serde(rename = "cursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cursor: Option<String>,
+    /// Maximum number of sections to return.
+    #[serde(rename = "limit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u32>,
+}
+
+/// One page of independently persisted thread sections.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSectionListResponse {
+    #[serde(rename = "data")]
+    pub data: Vec<ThreadSection>,
+    /// Opaque cursor for the next page, or `null` when no sections remain.
+    #[serde(rename = "nextCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}
+
+/// Parameters for moving a thread within a server-owned section ordering.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSectionMoveParams {
+    /// Existing thread to insert before; omission or null appends to the section.
+    #[serde(rename = "beforeThreadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub before_thread_id: Option<String>,
+    /// Destination section, or `null` to remove the thread from its section.
+    #[serde(rename = "sectionId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub section_id: Option<String>,
+    /// Thread to move into, within, or out of a section.
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSectionMoveResponse {}
+
+/// Parameters for updating an independently persisted thread section.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSectionUpdateParams {
+    /// Omit to preserve appearance, use `null` to clear it, or provide a replacement.
+    #[serde(rename = "appearance")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub appearance: Option<ThreadSectionAppearance>,
+    /// The updated user-visible name of the section.
+    #[serde(rename = "name")]
+    pub name: String,
+    /// The stable, server-generated identity of the section to update.
+    #[serde(rename = "sectionId")]
+    pub section_id: String,
+}
+
+/// The independently persisted section after its name is updated.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSectionUpdateResponse {
+    #[serde(rename = "section")]
+    pub section: ThreadSection,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSetNameParams {
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSetNameResponse {}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSettings {
+    #[serde(rename = "activePermissionProfile")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub active_permission_profile: Option<ActivePermissionProfile>,
+    #[serde(rename = "approvalPolicy")]
+    pub approval_policy: AskForApproval,
+    #[serde(rename = "approvalsReviewer")]
+    pub approvals_reviewer: ApprovalsReviewer,
+    #[serde(rename = "collaborationMode")]
+    pub collaboration_mode: CollaborationMode,
+    #[serde(rename = "cwd")]
+    pub cwd: AbsolutePathBuf,
+    /// Saved list of disabled plugin IDs. Does not yet filter plugin capabilities.
+    #[serde(rename = "disabledPluginIds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disabled_plugin_ids: Option<Vec<String>>,
+    #[serde(rename = "effort")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub effort: Option<ReasoningEffort>,
+    #[serde(rename = "model")]
+    pub model: String,
+    #[serde(rename = "modelProvider")]
+    pub model_provider: String,
+    /// @deprecated Reports the saved setting; `friendly` and `pragmatic` no longer select a style.
+    #[serde(rename = "personality")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub personality: Option<Personality>,
+    #[serde(rename = "sandboxPolicy")]
+    pub sandbox_policy: SandboxPolicy,
+    #[serde(rename = "serviceTier")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_tier: Option<String>,
+    #[serde(rename = "summary")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub summary: Option<ReasoningSummary>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadSettingsUpdatedNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "threadSettings")]
+    pub thread_settings: ThreadSettings,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadShellCommandParams {
+    /// Shell command string evaluated by the thread's configured shell. Unlike `command/exec`, this intentionally preserves shell syntax such as pipes, redirects, and quoting. This runs unsandboxed with full access rather than inheriting the thread sandbox policy.
+    #[serde(rename = "command")]
+    pub command: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    /// Maximum execution time in milliseconds. Defaults to one hour when omitted or null. Must be non-negative; zero requests an immediate timeout, not unlimited execution. Does not affect the immediate RPC acknowledgement.
+    #[serde(rename = "timeoutMs")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub timeout_ms: Option<i64>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadShellCommandResponse {}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ThreadSortKey {
+    /// 判别值 `created_at`
+    #[serde(rename = "created_at")]
+    CreatedAt,
+    /// 判别值 `updated_at`
+    #[serde(rename = "updated_at")]
+    UpdatedAt,
+    /// 判别值 `recency_at`
+    #[serde(rename = "recency_at")]
+    RecencyAt,
+    /// 判别值 `section_position`
+    #[serde(rename = "section_position")]
+    SectionPosition,
+}
+
+pub type ThreadSource = String;
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ThreadSourceKind {
+    /// 判别值 `cli`
+    #[serde(rename = "cli")]
+    Cli,
+    /// 判别值 `vscode`
+    #[serde(rename = "vscode")]
+    Vscode,
+    /// 判别值 `exec`
+    #[serde(rename = "exec")]
+    Exec,
+    /// 判别值 `appServer`
+    #[serde(rename = "appServer")]
+    AppServer,
+    /// 判别值 `subAgent`
+    #[serde(rename = "subAgent")]
+    SubAgent,
+    /// 判别值 `subAgentReview`
+    #[serde(rename = "subAgentReview")]
+    SubAgentReview,
+    /// 判别值 `subAgentCompact`
+    #[serde(rename = "subAgentCompact")]
+    SubAgentCompact,
+    /// 判别值 `subAgentThreadSpawn`
+    #[serde(rename = "subAgentThreadSpawn")]
+    SubAgentThreadSpawn,
+    /// 判别值 `subAgentOther`
+    #[serde(rename = "subAgentOther")]
+    SubAgentOther,
+    /// 判别值 `unknown`
+    #[serde(rename = "unknown")]
+    Unknown,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadStartParams {
+    #[serde(rename = "approvalPolicy")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approval_policy: Option<AskForApproval>,
+    /// Override where approval requests are routed for review on this thread and subsequent turns.
+    #[serde(rename = "approvalsReviewer")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approvals_reviewer: Option<ApprovalsReviewer>,
+    #[serde(rename = "baseInstructions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub base_instructions: Option<String>,
+    #[serde(rename = "config")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub config: Option<serde_json::Value>,
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<String>,
+    #[serde(rename = "developerInstructions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub developer_instructions: Option<String>,
+    #[serde(rename = "ephemeral")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ephemeral: Option<bool>,
+    #[serde(rename = "model")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    #[serde(rename = "modelProvider")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_provider: Option<String>,
+    /// @deprecated `friendly` and `pragmatic` no longer select a style.
+    #[serde(rename = "personality")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub personality: Option<Personality>,
+    #[serde(rename = "sandbox")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sandbox: Option<SandboxMode>,
+    #[serde(rename = "serviceName")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_name: Option<String>,
+    #[serde(rename = "serviceTier")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_tier: Option<String>,
+    #[serde(rename = "sessionStartSource")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub session_start_source: Option<ThreadStartSource>,
+    /// Optional client-supplied analytics source classification for this thread.
+    #[serde(rename = "threadSource")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_source: Option<ThreadSource>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadStartResponse {
+    #[serde(rename = "approvalPolicy")]
+    pub approval_policy: AskForApproval,
+    /// Reviewer currently used for approval requests on this thread.
+    #[serde(rename = "approvalsReviewer")]
+    pub approvals_reviewer: ApprovalsReviewer,
+    #[serde(rename = "cwd")]
+    pub cwd: AbsolutePathBuf,
+    /// Saved list of disabled plugin IDs. Does not yet filter plugin capabilities.
+    #[serde(rename = "disabledPluginIds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disabled_plugin_ids: Option<Vec<String>>,
+    /// Environment-native paths to instruction source files currently loaded for this thread.
+    #[serde(rename = "instructionSources")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub instruction_sources: Option<Vec<LegacyAppPathString>>,
+    #[serde(rename = "model")]
+    pub model: String,
+    #[serde(rename = "modelProvider")]
+    pub model_provider: String,
+    #[serde(rename = "reasoningEffort")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reasoning_effort: Option<ReasoningEffort>,
+    /// Legacy sandbox policy retained for compatibility. Experimental clients should prefer `activePermissionProfile` for profile provenance.
+    #[serde(rename = "sandbox")]
+    pub sandbox: SandboxPolicy,
+    #[serde(rename = "serviceTier")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_tier: Option<String>,
+    #[serde(rename = "thread")]
+    pub thread: Thread,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ThreadStartSource {
+    /// 判别值 `startup`
+    #[serde(rename = "startup")]
+    Startup,
+    /// 判别值 `clear`
+    #[serde(rename = "clear")]
+    Clear,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadStartedNotification {
+    #[serde(rename = "thread")]
+    pub thread: Thread,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ThreadStatus {
+    #[serde(rename = "notLoaded")]
+    NotLoaded,
+    #[serde(rename = "idle")]
+    Idle,
+    #[serde(rename = "systemError")]
+    SystemError,
+    #[serde(rename = "active")]
+    Active {
+        #[serde(rename = "activeFlags")]
+        active_flags: Vec<ThreadActiveFlag>,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadStatusChangedNotification {
+    #[serde(rename = "status")]
+    pub status: ThreadStatus,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadTokenUsage {
+    #[serde(rename = "last")]
+    pub last: TokenUsageBreakdown,
+    #[serde(rename = "modelContextWindow")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_context_window: Option<i64>,
+    #[serde(rename = "total")]
+    pub total: TokenUsageBreakdown,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadTokenUsageUpdatedNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "tokenUsage")]
+    pub token_usage: ThreadTokenUsage,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadTurnsListParams {
+    /// Opaque cursor to pass to the next call to continue after the last turn.
+    #[serde(rename = "cursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cursor: Option<String>,
+    /// How much item detail to include for each returned turn; defaults to summary.
+    #[serde(rename = "itemsView")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub items_view: Option<TurnItemsView>,
+    /// Optional turn page size.
+    #[serde(rename = "limit")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u32>,
+    /// Optional turn pagination direction; defaults to descending.
+    #[serde(rename = "sortDirection")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sort_direction: Option<SortDirection>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadTurnsListResponse {
+    /// Opaque cursor to pass as `cursor` when reversing `sortDirection`. This is only populated when the page contains at least one turn. Use it with the opposite `sortDirection` to include the anchor turn again and catch updates to that turn.
+    #[serde(rename = "backwardsCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub backwards_cursor: Option<String>,
+    #[serde(rename = "data")]
+    pub data: Vec<Turn>,
+    /// Opaque cursor to pass to the next call to continue after the last turn. if None, there are no more turns to return.
+    #[serde(rename = "nextCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadUnarchiveParams {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadUnarchiveResponse {
+    #[serde(rename = "thread")]
+    pub thread: Thread,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadUnarchivedNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadUnsubscribeParams {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ThreadUnsubscribeResponse {
+    #[serde(rename = "status")]
+    pub status: ThreadUnsubscribeStatus,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ThreadUnsubscribeStatus {
+    /// 判别值 `notLoaded`
+    #[serde(rename = "notLoaded")]
+    NotLoaded,
+    /// 判别值 `notSubscribed`
+    #[serde(rename = "notSubscribed")]
+    NotSubscribed,
+    /// 判别值 `unsubscribed`
+    #[serde(rename = "unsubscribed")]
+    Unsubscribed,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadUsage {
+    #[serde(rename = "estimatedUsageCreditsMicros")]
+    pub estimated_usage_credits_micros: i64,
+    #[serde(rename = "estimatedUsageUsdMicros")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub estimated_usage_usd_micros: Option<i64>,
+    #[serde(rename = "groups")]
+    pub groups: Vec<ThreadUsageBreakdownGroup>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ThreadUsageBreakdownGroup {
+    #[serde(rename = "cachedInputTokens")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cached_input_tokens: Option<i64>,
+    #[serde(rename = "estimatedUsageCreditsMicros")]
+    pub estimated_usage_credits_micros: i64,
+    #[serde(rename = "inputTokens")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub input_tokens: Option<i64>,
+    #[serde(rename = "model")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    #[serde(rename = "netNewInputTokens")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub net_new_input_tokens: Option<i64>,
+    #[serde(rename = "outputTokens")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub output_tokens: Option<i64>,
+    #[serde(rename = "reasoningEffort")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reasoning_effort: Option<String>,
+    #[serde(rename = "speed")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub speed: Option<String>,
+    #[serde(rename = "totalTokens")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub total_tokens: Option<i64>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TokenUsageBreakdown {
+    #[serde(rename = "cacheWriteInputTokens")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cache_write_input_tokens: Option<i64>,
+    #[serde(rename = "cachedInputTokens")]
+    pub cached_input_tokens: i64,
+    #[serde(rename = "inputTokens")]
+    pub input_tokens: i64,
+    #[serde(rename = "outputTokens")]
+    pub output_tokens: i64,
+    #[serde(rename = "reasoningOutputTokens")]
+    pub reasoning_output_tokens: i64,
+    #[serde(rename = "totalTokens")]
+    pub total_tokens: i64,
+}
+
+/// Definition for a tool the client can call.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct Tool {
+    #[serde(rename = "_meta")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub _meta: Option<serde_json::Value>,
+    #[serde(rename = "annotations")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub annotations: Option<serde_json::Value>,
+    #[serde(rename = "description")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(rename = "icons")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icons: Option<Vec<serde_json::Value>>,
+    #[serde(rename = "inputSchema")]
+    pub input_schema: serde_json::Value,
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "outputSchema")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub output_schema: Option<serde_json::Value>,
+    #[serde(rename = "title")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+}
+
+/// A model-facing surface on which a tool can be exposed.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum ToolExposureSurface {
+    /// Nested tools available to Code Mode scripts.
+    #[serde(rename = "code_mode")]
+    CodeMode,
+    /// Tools discovered later through tool search.
+    #[serde(rename = "deferred")]
+    Deferred,
+    /// Tools present in the model's initial tool list.
+    #[serde(rename = "direct")]
+    Direct,
+}
+
+/// EXPERIMENTAL. Captures a user's answer to a request_user_input question.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ToolRequestUserInputAnswer {
+    #[serde(rename = "answers")]
+    pub answers: Vec<String>,
+}
+
+/// EXPERIMENTAL. Defines a single selectable option for request_user_input.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ToolRequestUserInputOption {
+    #[serde(rename = "description")]
+    pub description: String,
+    #[serde(rename = "label")]
+    pub label: String,
+}
+
+/// EXPERIMENTAL. Params sent with a request_user_input event.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ToolRequestUserInputParams {
+    /// @deprecated Use `isBlocking` to decide whether the request should block.
+    #[serde(rename = "autoResolutionMs")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub auto_resolution_ms: Option<u64>,
+    #[serde(rename = "isBlocking")]
+    pub is_blocking: bool,
+    #[serde(rename = "itemId")]
+    pub item_id: String,
+    #[serde(rename = "questions")]
+    pub questions: Vec<ToolRequestUserInputQuestion>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+/// EXPERIMENTAL. Represents one request_user_input question and its required options.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ToolRequestUserInputQuestion {
+    #[serde(rename = "header")]
+    pub header: String,
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(rename = "isOther")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_other: Option<bool>,
+    #[serde(rename = "isSecret")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_secret: Option<bool>,
+    #[serde(rename = "options")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub options: Option<Vec<ToolRequestUserInputOption>>,
+    #[serde(rename = "question")]
+    pub question: String,
+}
+
+/// EXPERIMENTAL. Response payload mapping question ids to answers.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ToolRequestUserInputResponse {
+    #[serde(rename = "answers")]
+    pub answers: std::collections::BTreeMap<String, ToolRequestUserInputAnswer>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ToolsV2 {
+    #[serde(rename = "web_search")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub web_search: Option<WebSearchToolConfig>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Turn {
+    /// Unix timestamp (in seconds) when the turn completed.
+    #[serde(rename = "completedAt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub completed_at: Option<i64>,
+    /// Duration between turn start and completion in milliseconds, if known.
+    #[serde(rename = "durationMs")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub duration_ms: Option<i64>,
+    /// Only populated when the Turn's status is failed.
+    #[serde(rename = "error")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<TurnError>,
+    /// Identifier for this turn. Codex-generated turn IDs are UUIDv7.
+    #[serde(rename = "id")]
+    pub id: String,
+    /// Thread items currently included in this turn payload.
+    #[serde(rename = "items")]
+    pub items: Vec<ThreadItem>,
+    /// Describes how much of `items` has been loaded for this turn.
+    #[serde(rename = "itemsView")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub items_view: Option<TurnItemsView>,
+    /// Unix timestamp (in seconds) when the turn started.
+    #[serde(rename = "startedAt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub started_at: Option<i64>,
+    #[serde(rename = "status")]
+    pub status: TurnStatus,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TurnCompletedNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turn")]
+    pub turn: Turn,
+}
+
+/// Notification that the turn-level unified diff has changed. Contains the latest aggregated diff across all file changes in the turn.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TurnDiffUpdatedNotification {
+    #[serde(rename = "diff")]
+    pub diff: String,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TurnEnvironmentParams {
+    #[serde(rename = "cwd")]
+    pub cwd: LegacyAppPathString,
+    #[serde(rename = "environmentId")]
+    pub environment_id: String,
+    /// Environment-native runtime workspace roots. Omitted defaults to `cwd`.
+    #[serde(rename = "runtimeWorkspaceRoots")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub runtime_workspace_roots: Option<Vec<LegacyAppPathString>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TurnError {
+    #[serde(rename = "additionalDetails")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub additional_details: Option<String>,
+    #[serde(rename = "codexErrorInfo")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub codex_error_info: Option<CodexErrorInfo>,
+    #[serde(rename = "message")]
+    pub message: String,
+    /// Optional public explanation and continuation instruction for a misalignment block.
+    #[serde(rename = "misalignment")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub misalignment: Option<MisalignmentErrorDetails>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TurnInterruptParams {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TurnInterruptResponse {}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum TurnItemsView {
+    /// `items` was not loaded for this turn. The field is intentionally empty.
+    #[serde(rename = "notLoaded")]
+    NotLoaded,
+    /// `items` contains only a display summary for this turn.
+    #[serde(rename = "summary")]
+    Summary,
+    /// `items` contains every ThreadItem available from persisted app-server history for this turn.
+    #[serde(rename = "full")]
+    Full,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TurnModerationMetadataNotification {
+    #[serde(rename = "metadata")]
+    pub metadata: serde_json::Value,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TurnPlanStep {
+    #[serde(rename = "status")]
+    pub status: TurnPlanStepStatus,
+    #[serde(rename = "step")]
+    pub step: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TurnPlanStepStatus {
+    /// 判别值 `pending`
+    #[serde(rename = "pending")]
+    Pending,
+    /// 判别值 `inProgress`
+    #[serde(rename = "inProgress")]
+    InProgress,
+    /// 判别值 `completed`
+    #[serde(rename = "completed")]
+    Completed,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TurnPlanUpdatedNotification {
+    #[serde(rename = "explanation")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub explanation: Option<String>,
+    #[serde(rename = "plan")]
+    pub plan: Vec<TurnPlanStep>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TurnStartParams {
+    /// Override the approval policy for this turn and subsequent turns.
+    #[serde(rename = "approvalPolicy")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approval_policy: Option<AskForApproval>,
+    /// Override where approval requests are routed for review on this turn and subsequent turns.
+    #[serde(rename = "approvalsReviewer")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approvals_reviewer: Option<ApprovalsReviewer>,
+    #[serde(rename = "clientUserMessageId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub client_user_message_id: Option<String>,
+    /// Override the working directory for this turn and subsequent turns.
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<String>,
+    /// Replace this thread's disabled plugin IDs. Omitted/null preserves the list; [] clears it.
+    #[serde(rename = "disabledPluginIds")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disabled_plugin_ids: Option<Vec<String>>,
+    /// Override the reasoning effort for this turn and subsequent turns.
+    #[serde(rename = "effort")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub effort: Option<ReasoningEffort>,
+    #[serde(rename = "input")]
+    pub input: Vec<UserInput>,
+    /// Override the model for this turn and subsequent turns.
+    #[serde(rename = "model")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    /// Optional JSON Schema used to constrain the final assistant message for this turn.
+    #[serde(rename = "outputSchema")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub output_schema: Option<serde_json::Value>,
+    /// @deprecated `friendly` and `pragmatic` no longer select a style. Changing this does not rewrite the thread's existing instructions.
+    #[serde(rename = "personality")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub personality: Option<Personality>,
+    /// Override the sandbox policy for this turn and subsequent turns.
+    #[serde(rename = "sandboxPolicy")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sandbox_policy: Option<SandboxPolicy>,
+    /// Override the service tier for this turn and subsequent turns.
+    #[serde(rename = "serviceTier")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_tier: Option<String>,
+    /// Override the service tier only when this request starts a new turn. Use "default" for standard speed. Omitted or null inherits the thread's tier. Does not change the thread's tier or a turn being steered.
+    #[serde(rename = "serviceTierForTurn")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_tier_for_turn: Option<String>,
+    /// Override the reasoning summary for this turn and subsequent turns.
+    #[serde(rename = "summary")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub summary: Option<ReasoningSummary>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "toolOutput")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tool_output: Option<TurnToolOutput>,
+    /// Optional source classification for the caller that starts this turn. Ignored when this request steers an already-active turn.
+    #[serde(rename = "turnTrigger")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub turn_trigger: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TurnStartResponse {
+    #[serde(rename = "turn")]
+    pub turn: Turn,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TurnStartedNotification {
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+    #[serde(rename = "turn")]
+    pub turn: Turn,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TurnStatus {
+    /// 判别值 `completed`
+    #[serde(rename = "completed")]
+    Completed,
+    /// 判别值 `interrupted`
+    #[serde(rename = "interrupted")]
+    Interrupted,
+    /// 判别值 `failed`
+    #[serde(rename = "failed")]
+    Failed,
+    /// 判别值 `inProgress`
+    #[serde(rename = "inProgress")]
+    InProgress,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TurnSteerParams {
+    #[serde(rename = "clientUserMessageId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub client_user_message_id: Option<String>,
+    /// Required active turn id precondition. The request fails when it does not match the currently active turn.
+    #[serde(rename = "expectedTurnId")]
+    pub expected_turn_id: String,
+    #[serde(rename = "input")]
+    pub input: Vec<UserInput>,
+    #[serde(rename = "threadId")]
+    pub thread_id: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TurnSteerResponse {
+    #[serde(rename = "turnId")]
+    pub turn_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TurnToolOutput {
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "namespace")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub namespace: Option<String>,
+    #[serde(rename = "output")]
+    pub output: FunctionCallOutputBody,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct TurnsPage {
+    #[serde(rename = "backwardsCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub backwards_cursor: Option<String>,
+    #[serde(rename = "data")]
+    pub data: Vec<Turn>,
+    #[serde(rename = "nextCursor")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum UserInput {
+    #[serde(rename = "text")]
+    Text {
+        #[serde(rename = "text")]
+        text: String,
+        /// UI-defined spans within `text` used to render or persist special elements.
+        #[serde(rename = "text_elements")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        text_elements: Option<Vec<TextElement>>,
+    },
+    #[serde(rename = "image")]
+    Image {
+        #[serde(rename = "detail")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        detail: Option<ImageDetail>,
+    },
+    #[serde(rename = "localImage")]
+    LocalImage {
+        #[serde(rename = "detail")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        detail: Option<ImageDetail>,
+        #[serde(rename = "path")]
+        path: String,
+    },
+    #[serde(rename = "audio")]
+    Audio {
+        #[serde(rename = "url")]
+        url: String,
+    },
+    #[serde(rename = "localAudio")]
+    LocalAudio {
+        #[serde(rename = "path")]
+        path: String,
+    },
+    #[serde(rename = "skill")]
+    Skill {
+        #[serde(rename = "name")]
+        name: String,
+        #[serde(rename = "path")]
+        path: String,
+    },
+    #[serde(rename = "mention")]
+    Mention {
+        #[serde(rename = "name")]
+        name: String,
+        #[serde(rename = "path")]
+        path: String,
+    },
+}
+
+/// Controls output length/detail on GPT-5 models via the Responses API. Serialized with lowercase values to match the OpenAI API.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Verbosity {
+    /// 判别值 `low`
+    #[serde(rename = "low")]
+    Low,
+    /// 判别值 `medium`
+    #[serde(rename = "medium")]
+    Medium,
+    /// 判别值 `high`
+    #[serde(rename = "high")]
+    High,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct W3cTraceContext {
+    #[serde(rename = "traceparent")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub traceparent: Option<String>,
+    #[serde(rename = "tracestate")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tracestate: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct WarningNotification {
+    /// Concise warning message for the user.
+    #[serde(rename = "message")]
+    pub message: String,
+    /// Optional thread target when the warning applies to a specific thread.
+    #[serde(rename = "threadId")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum WebSearchAction {
+    #[serde(rename = "search")]
+    Search {
+        #[serde(rename = "queries")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        queries: Option<Vec<String>>,
+        #[serde(rename = "query")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        query: Option<String>,
+    },
+    #[serde(rename = "openPage")]
+    OpenPage {
+        #[serde(rename = "url")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        url: Option<String>,
+    },
+    #[serde(rename = "findInPage")]
+    FindInPage {
+        #[serde(rename = "pattern")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pattern: Option<String>,
+        #[serde(rename = "url")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        url: Option<String>,
+    },
+    #[serde(rename = "other")]
+    Other,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum WebSearchContextSize {
+    /// 判别值 `low`
+    #[serde(rename = "low")]
+    Low,
+    /// 判别值 `medium`
+    #[serde(rename = "medium")]
+    Medium,
+    /// 判别值 `high`
+    #[serde(rename = "high")]
+    High,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct WebSearchLocation {
+    #[serde(rename = "city")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub city: Option<String>,
+    #[serde(rename = "country")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub country: Option<String>,
+    #[serde(rename = "region")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub region: Option<String>,
+    #[serde(rename = "timezone")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub timezone: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum WebSearchMode {
+    /// 判别值 `disabled`
+    #[serde(rename = "disabled")]
+    Disabled,
+    /// 判别值 `cached`
+    #[serde(rename = "cached")]
+    Cached,
+    /// 判别值 `indexed`
+    #[serde(rename = "indexed")]
+    Indexed,
+    /// 判别值 `live`
+    #[serde(rename = "live")]
+    Live,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct WebSearchToolConfig {
+    #[serde(rename = "allowed_domains")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allowed_domains: Option<Vec<String>>,
+    #[serde(rename = "context_size")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_size: Option<WebSearchContextSize>,
+    #[serde(rename = "location")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub location: Option<WebSearchLocation>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum WindowsSandboxImplementation {
+    /// 判别值 `elevated`
+    #[serde(rename = "elevated")]
+    Elevated,
+    /// 判别值 `unelevated`
+    #[serde(rename = "unelevated")]
+    Unelevated,
+    /// 判别值 `mxc`
+    #[serde(rename = "mxc")]
+    Mxc,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum WindowsSandboxReadiness {
+    /// 判别值 `ready`
+    #[serde(rename = "ready")]
+    Ready,
+    /// 判别值 `notConfigured`
+    #[serde(rename = "notConfigured")]
+    NotConfigured,
+    /// 判别值 `updateRequired`
+    #[serde(rename = "updateRequired")]
+    UpdateRequired,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct WindowsSandboxReadinessResponse {
+    #[serde(rename = "status")]
+    pub status: WindowsSandboxReadiness,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct WindowsSandboxSetupCompletedNotification {
+    #[serde(rename = "error")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+    #[serde(rename = "mode")]
+    pub mode: WindowsSandboxSetupMode,
+    #[serde(rename = "success")]
+    pub success: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum WindowsSandboxSetupMode {
+    /// 判别值 `elevated`
+    #[serde(rename = "elevated")]
+    Elevated,
+    /// 判别值 `unelevated`
+    #[serde(rename = "unelevated")]
+    Unelevated,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct WindowsSandboxSetupStartParams {
+    #[serde(rename = "cwd")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cwd: Option<AbsolutePathBuf>,
+    #[serde(rename = "mode")]
+    pub mode: WindowsSandboxSetupMode,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct WindowsSandboxSetupStartResponse {
+    #[serde(rename = "started")]
+    pub started: bool,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct WindowsWorldWritableWarningNotification {
+    #[serde(rename = "extraCount")]
+    pub extra_count: u64,
+    #[serde(rename = "failedScan")]
+    pub failed_scan: bool,
+    #[serde(rename = "samplePaths")]
+    pub sample_paths: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct WorkspaceMessage {
+    /// Unix timestamp (in seconds) when the message was archived.
+    #[serde(rename = "archivedAt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub archived_at: Option<i64>,
+    /// Unix timestamp (in seconds) when the message was created.
+    #[serde(rename = "createdAt")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<i64>,
+    #[serde(rename = "messageBody")]
+    pub message_body: String,
+    #[serde(rename = "messageId")]
+    pub message_id: String,
+    #[serde(rename = "messageType")]
+    pub message_type: WorkspaceMessageType,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum WorkspaceMessageType {
+    /// 判别值 `headline`
+    #[serde(rename = "headline")]
+    Headline,
+    /// 判别值 `announcement`
+    #[serde(rename = "announcement")]
+    Announcement,
+    /// 判别值 `unknown`
+    #[serde(rename = "unknown")]
+    Unknown,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct WorkspaceRouting {
+    #[serde(rename = "accountRoutingOverride")]
+    pub account_routing_override: AccountRoutingOverride,
+    #[serde(rename = "backendOrigin")]
+    pub backend_origin: String,
+    #[serde(rename = "chatgptAccountId")]
+    pub chatgpt_account_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum WriteStatus {
+    /// 判别值 `ok`
+    #[serde(rename = "ok")]
+    Ok,
+    /// 判别值 `okOverridden`
+    #[serde(rename = "okOverridden")]
+    OkOverridden,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct AskForApprovalGranular {
+    #[serde(rename = "mcp_elicitations")]
+    pub mcp_elicitations: bool,
+    #[serde(rename = "request_permissions")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub request_permissions: Option<bool>,
+    #[serde(rename = "rules")]
+    pub rules: bool,
+    #[serde(rename = "sandbox_approval")]
+    pub sandbox_approval: bool,
+    #[serde(rename = "skill_approval")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub skill_approval: Option<bool>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CodexErrorInfoHttpConnectionFailed {
+    #[serde(rename = "httpStatusCode")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub http_status_code: Option<u16>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CodexErrorInfoResponseStreamConnectionFailed {
+    #[serde(rename = "httpStatusCode")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub http_status_code: Option<u16>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CodexErrorInfoResponseStreamDisconnected {
+    #[serde(rename = "httpStatusCode")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub http_status_code: Option<u16>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CodexErrorInfoResponseTooManyFailedAttempts {
+    #[serde(rename = "httpStatusCode")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub http_status_code: Option<u16>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CodexErrorInfoActiveTurnNotSteerable {
+    #[serde(rename = "turnKind")]
+    pub turn_kind: NonSteerableTurnKind,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecutionApprovalDecisionAcceptWithExecpolicyAmendment {
+    #[serde(rename = "execpolicy_amendment")]
+    pub execpolicy_amendment: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CommandExecutionApprovalDecisionApplyNetworkPolicyAmendment {
+    #[serde(rename = "network_policy_amendment")]
+    pub network_policy_amendment: NetworkPolicyAmendment,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ResourceContentVariant0 {
+    #[serde(rename = "_meta")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub _meta: Option<serde_json::Value>,
+    #[serde(rename = "mimeType")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mime_type: Option<String>,
+    #[serde(rename = "text")]
+    pub text: String,
+    /// The URI of this resource.
+    #[serde(rename = "uri")]
+    pub uri: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ResourceContentVariant1 {
+    #[serde(rename = "_meta")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub _meta: Option<serde_json::Value>,
+    #[serde(rename = "blob")]
+    pub blob: String,
+    #[serde(rename = "mimeType")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mime_type: Option<String>,
+    /// The URI of this resource.
+    #[serde(rename = "uri")]
+    pub uri: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ReviewDecisionApprovedExecpolicyAmendment {
+    #[serde(rename = "proposed_execpolicy_amendment")]
+    pub proposed_execpolicy_amendment: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ReviewDecisionNetworkPolicyAmendment {
+    #[serde(rename = "network_policy_amendment")]
+    pub network_policy_amendment: NetworkPolicyAmendment,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ReviewDecisionDenied {
+    #[serde(rename = "rejection")]
+    pub rejection: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SubAgentSourceThreadSpawn {
+    #[serde(rename = "agent_nickname")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub agent_nickname: Option<String>,
+    #[serde(rename = "agent_path")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub agent_path: Option<AgentPath>,
+    #[serde(rename = "agent_role")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub agent_role: Option<String>,
+    #[serde(rename = "depth")]
+    pub depth: i32,
+    #[serde(rename = "parent_thread_id")]
+    pub parent_thread_id: ThreadId,
+}

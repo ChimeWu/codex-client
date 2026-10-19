@@ -1,0 +1,232 @@
+// 由 protocol-codegen 生成，请勿手工修改。
+// 重新生成：
+//   codex app-server generate-json-schema --out <dir>
+//   cargo run -p codex-client-cw --bin protocol-codegen -- <dir> src/generated
+
+//! 入站消息的类型化封装。
+
+use super::types::*;
+use serde::{Deserialize, Serialize};
+
+/// 服务端推送的通知。不需要回复。
+///
+/// 只包含本客户端生成时已知的方法。服务端随时可能新增，因此解析失败
+/// **不是**错误——调用方应当保留原始 JSON 继续走，而不是让连接失败。
+#[allow(clippy::large_enum_variant)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "method", content = "params")]
+pub enum ServerNotification {
+    /// NEW NOTIFICATIONS
+    #[serde(rename = "error")]
+    Error(ErrorNotification),
+    #[serde(rename = "thread/started")]
+    ThreadStarted(ThreadStartedNotification),
+    #[serde(rename = "thread/status/changed")]
+    ThreadStatusChanged(ThreadStatusChangedNotification),
+    #[serde(rename = "thread/archived")]
+    ThreadArchived(ThreadArchivedNotification),
+    #[serde(rename = "thread/deleted")]
+    ThreadDeleted(ThreadDeletedNotification),
+    #[serde(rename = "thread/unarchived")]
+    ThreadUnarchived(ThreadUnarchivedNotification),
+    #[serde(rename = "thread/closed")]
+    ThreadClosed(ThreadClosedNotification),
+    #[serde(rename = "thread/reverted")]
+    ThreadReverted(ThreadRevertedNotification),
+    #[serde(rename = "skills/changed")]
+    SkillsChanged(SkillsChangedNotification),
+    #[serde(rename = "thread/name/updated")]
+    ThreadNameUpdated(ThreadNameUpdatedNotification),
+    #[serde(rename = "thread/attachment/updated")]
+    ThreadAttachmentUpdated(ThreadAttachmentUpdatedNotification),
+    #[serde(rename = "thread/goal/updated")]
+    ThreadGoalUpdated(ThreadGoalUpdatedNotification),
+    #[serde(rename = "thread/goal/cleared")]
+    ThreadGoalCleared(ThreadGoalClearedNotification),
+    #[serde(rename = "thread/queue/changed")]
+    ThreadQueueChanged(ThreadQueueChangedNotification),
+    #[serde(rename = "project/changed")]
+    ProjectChanged(ProjectChangedNotification),
+    #[serde(rename = "thread/project/updated")]
+    ThreadProjectUpdated(ThreadProjectUpdatedNotification),
+    #[serde(rename = "thread/environment/connected")]
+    ThreadEnvironmentConnected(EnvironmentConnectionNotification),
+    #[serde(rename = "thread/environment/disconnected")]
+    ThreadEnvironmentDisconnected(EnvironmentConnectionNotification),
+    #[serde(rename = "thread/settings/updated")]
+    ThreadSettingsUpdated(ThreadSettingsUpdatedNotification),
+    #[serde(rename = "thread/tokenUsage/updated")]
+    ThreadTokenUsageUpdated(ThreadTokenUsageUpdatedNotification),
+    #[serde(rename = "turn/started")]
+    TurnStarted(TurnStartedNotification),
+    #[serde(rename = "hook/started")]
+    HookStarted(HookStartedNotification),
+    #[serde(rename = "turn/completed")]
+    TurnCompleted(TurnCompletedNotification),
+    #[serde(rename = "hook/completed")]
+    HookCompleted(HookCompletedNotification),
+    #[serde(rename = "turn/diff/updated")]
+    TurnDiffUpdated(TurnDiffUpdatedNotification),
+    #[serde(rename = "turn/plan/updated")]
+    TurnPlanUpdated(TurnPlanUpdatedNotification),
+    #[serde(rename = "item/started")]
+    ItemStarted(ItemStartedNotification),
+    #[serde(rename = "item/autoApprovalReview/started")]
+    ItemAutoApprovalReviewStarted(ItemGuardianApprovalReviewStartedNotification),
+    #[serde(rename = "item/autoApprovalReview/completed")]
+    ItemAutoApprovalReviewCompleted(ItemGuardianApprovalReviewCompletedNotification),
+    #[serde(rename = "autoApprovalReview/strictReviewRequired")]
+    AutoApprovalReviewStrictReviewRequired(StrictReviewRequiredNotification),
+    #[serde(rename = "item/completed")]
+    ItemCompleted(ItemCompletedNotification),
+    #[serde(rename = "item/agentMessage/delta")]
+    ItemAgentMessageDelta(AgentMessageDeltaNotification),
+    /// EXPERIMENTAL - proposed plan streaming deltas for plan items.
+    #[serde(rename = "item/plan/delta")]
+    ItemPlanDelta(PlanDeltaNotification),
+    /// Stream base64-encoded stdout/stderr chunks for a running `command/exec` session.
+    #[serde(rename = "command/exec/outputDelta")]
+    CommandExecOutputDelta(CommandExecOutputDeltaNotification),
+    /// Stream base64-encoded stdout/stderr chunks for a running `process/spawn` session.
+    #[serde(rename = "process/outputDelta")]
+    ProcessOutputDelta(ProcessOutputDeltaNotification),
+    /// Final exit notification for a `process/spawn` session.
+    #[serde(rename = "process/exited")]
+    ProcessExited(ProcessExitedNotification),
+    #[serde(rename = "item/commandExecution/outputDelta")]
+    ItemCommandExecutionOutputDelta(CommandExecutionOutputDeltaNotification),
+    #[serde(rename = "item/commandExecution/terminalInteraction")]
+    ItemCommandExecutionTerminalInteraction(TerminalInteractionNotification),
+    /// Deprecated legacy apply_patch output stream notification.
+    #[serde(rename = "item/fileChange/outputDelta")]
+    ItemFileChangeOutputDelta(FileChangeOutputDeltaNotification),
+    #[serde(rename = "item/fileChange/patchUpdated")]
+    ItemFileChangePatchUpdated(FileChangePatchUpdatedNotification),
+    #[serde(rename = "serverRequest/resolved")]
+    ServerRequestResolved(ServerRequestResolvedNotification),
+    #[serde(rename = "item/mcpToolCall/progress")]
+    ItemMcpToolCallProgress(McpToolCallProgressNotification),
+    #[serde(rename = "mcpServer/oauthLogin/completed")]
+    McpServerOauthLoginCompleted(McpServerOauthLoginCompletedNotification),
+    #[serde(rename = "mcpServer/startupStatus/updated")]
+    McpServerStartupStatusUpdated(McpServerStatusUpdatedNotification),
+    #[serde(rename = "mcpServer/event/stream/notification")]
+    McpServerEventStreamNotification(McpServerEventStreamNotification),
+    #[serde(rename = "account/updated")]
+    AccountUpdated(AccountUpdatedNotification),
+    #[serde(rename = "account/gatewayOAuth/changed")]
+    AccountGatewayOAuthChanged(GatewayOAuthChangedNotification),
+    #[serde(rename = "account/rateLimits/updated")]
+    AccountRateLimitsUpdated(AccountRateLimitsUpdatedNotification),
+    #[serde(rename = "app/list/updated")]
+    AppListUpdated(AppListUpdatedNotification),
+    #[serde(rename = "remoteControl/status/changed")]
+    RemoteControlStatusChanged(RemoteControlStatusChangedNotification),
+    #[serde(rename = "externalAgentConfig/import/progress")]
+    ExternalAgentConfigImportProgress(ExternalAgentConfigImportProgressNotification),
+    #[serde(rename = "externalAgentConfig/import/completed")]
+    ExternalAgentConfigImportCompleted(ExternalAgentConfigImportCompletedNotification),
+    #[serde(rename = "fs/changed")]
+    FsChanged(FsChangedNotification),
+    #[serde(rename = "item/reasoning/summaryTextDelta")]
+    ItemReasoningSummaryTextDelta(ReasoningSummaryTextDeltaNotification),
+    #[serde(rename = "item/reasoning/summaryPartAdded")]
+    ItemReasoningSummaryPartAdded(ReasoningSummaryPartAddedNotification),
+    #[serde(rename = "item/reasoning/textDelta")]
+    ItemReasoningTextDelta(ReasoningTextDeltaNotification),
+    /// Deprecated: Use `ContextCompaction` item type instead.
+    #[serde(rename = "thread/compacted")]
+    ThreadCompacted(ContextCompactedNotification),
+    #[serde(rename = "model/rerouted")]
+    ModelRerouted(ModelReroutedNotification),
+    #[serde(rename = "model/verification")]
+    ModelVerification(ModelVerificationNotification),
+    #[serde(rename = "modelProvider/authRecoveryStarted")]
+    ModelProviderAuthRecoveryStarted(AuthRecoveryNotification),
+    #[serde(rename = "modelProvider/authRecoveryCompleted")]
+    ModelProviderAuthRecoveryCompleted(AuthRecoveryNotification),
+    #[serde(rename = "turn/moderationMetadata")]
+    TurnModerationMetadata(TurnModerationMetadataNotification),
+    #[serde(rename = "model/safetyBuffering/updated")]
+    ModelSafetyBufferingUpdated(ModelSafetyBufferingUpdatedNotification),
+    #[serde(rename = "warning")]
+    Warning(WarningNotification),
+    #[serde(rename = "guardianWarning")]
+    GuardianWarning(GuardianWarningNotification),
+    #[serde(rename = "deprecationNotice")]
+    DeprecationNotice(DeprecationNoticeNotification),
+    #[serde(rename = "configWarning")]
+    ConfigWarning(ConfigWarningNotification),
+    #[serde(rename = "fuzzyFileSearch/sessionUpdated")]
+    FuzzyFileSearchSessionUpdated(FuzzyFileSearchSessionUpdatedNotification),
+    #[serde(rename = "fuzzyFileSearch/sessionCompleted")]
+    FuzzyFileSearchSessionCompleted(FuzzyFileSearchSessionCompletedNotification),
+    #[serde(rename = "thread/realtime/started")]
+    ThreadRealtimeStarted(ThreadRealtimeStartedNotification),
+    #[serde(rename = "thread/realtime/itemAdded")]
+    ThreadRealtimeItemAdded(ThreadRealtimeItemAddedNotification),
+    #[serde(rename = "thread/realtime/item/started")]
+    ThreadRealtimeItemStarted(ThreadRealtimeItemStartedNotification),
+    #[serde(rename = "thread/realtime/item/transcript/delta")]
+    ThreadRealtimeItemTranscriptDelta(ThreadRealtimeItemTranscriptDeltaNotification),
+    #[serde(rename = "thread/realtime/item/completed")]
+    ThreadRealtimeItemCompleted(ThreadRealtimeItemCompletedNotification),
+    #[serde(rename = "thread/realtime/transcript/delta")]
+    ThreadRealtimeTranscriptDelta(ThreadRealtimeTranscriptDeltaNotification),
+    #[serde(rename = "thread/realtime/transcript/done")]
+    ThreadRealtimeTranscriptDone(ThreadRealtimeTranscriptDoneNotification),
+    #[serde(rename = "thread/realtime/outputAudio/delta")]
+    ThreadRealtimeOutputAudioDelta(ThreadRealtimeOutputAudioDeltaNotification),
+    #[serde(rename = "thread/realtime/sdp")]
+    ThreadRealtimeSdp(ThreadRealtimeSdpNotification),
+    #[serde(rename = "thread/realtime/error")]
+    ThreadRealtimeError(ThreadRealtimeErrorNotification),
+    #[serde(rename = "thread/realtime/closed")]
+    ThreadRealtimeClosed(ThreadRealtimeClosedNotification),
+    /// Notifies the user of world-writable directories on Windows, which cannot be protected by the sandbox.
+    #[serde(rename = "windows/worldWritableWarning")]
+    WindowsWorldWritableWarning(WindowsWorldWritableWarningNotification),
+    #[serde(rename = "windowsSandbox/setupCompleted")]
+    WindowsSandboxSetupCompleted(WindowsSandboxSetupCompletedNotification),
+    #[serde(rename = "account/login/completed")]
+    AccountLoginCompleted(AccountLoginCompletedNotification),
+}
+
+/// 服务端反向发起的请求。**必须回复**，否则服务端会一直阻塞等待。
+///
+/// 只包含本客户端生成时已知的方法。服务端随时可能新增，因此解析失败
+/// **不是**错误——调用方应当保留原始 JSON 继续走，而不是让连接失败。
+#[allow(clippy::large_enum_variant)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "method", content = "params")]
+pub enum ServerRequest {
+    /// NEW APIs Sent when approval is requested for a specific command execution. This request is used for Turns started via turn/start.
+    #[serde(rename = "item/commandExecution/requestApproval")]
+    ItemCommandExecutionRequestApproval(CommandExecutionRequestApprovalParams),
+    /// Sent when approval is requested for a specific file change. This request is used for Turns started via turn/start.
+    #[serde(rename = "item/fileChange/requestApproval")]
+    ItemFileChangeRequestApproval(FileChangeRequestApprovalParams),
+    /// EXPERIMENTAL - Request input from the user for a tool call.
+    #[serde(rename = "item/tool/requestUserInput")]
+    ItemToolRequestUserInput(ToolRequestUserInputParams),
+    /// Request input for an MCP server elicitation.
+    #[serde(rename = "mcpServer/elicitation/request")]
+    McpServerElicitationRequest(McpServerElicitationRequestParams),
+    /// Request approval for additional permissions from the user.
+    #[serde(rename = "item/permissions/requestApproval")]
+    ItemPermissionsRequestApproval(PermissionsRequestApprovalParams),
+    /// Execute a dynamic tool call on the client.
+    #[serde(rename = "item/tool/call")]
+    ItemToolCall(DynamicToolCallParams),
+    #[serde(rename = "account/chatgptAuthTokens/refresh")]
+    AccountChatgptAuthTokensRefresh(ChatgptAuthTokensRefreshParams),
+    /// Generate a fresh upstream attestation result on demand.
+    #[serde(rename = "attestation/generate")]
+    AttestationGenerate(AttestationGenerateParams),
+    /// DEPRECATED APIs below Request to approve a patch. This request is used for Turns started via the legacy APIs (i.e. SendUserTurn, SendUserMessage).
+    #[serde(rename = "applyPatchApproval")]
+    ApplyPatchApproval(ApplyPatchApprovalParams),
+    /// Request to exec a command. This request is used for Turns started via the legacy APIs (i.e. SendUserTurn, SendUserMessage).
+    #[serde(rename = "execCommandApproval")]
+    ExecCommandApproval(ExecCommandApprovalParams),
+}

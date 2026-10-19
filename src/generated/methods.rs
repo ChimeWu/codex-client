@@ -1,0 +1,793 @@
+// 由 protocol-codegen 生成，请勿手工修改。
+// 重新生成：
+//   codex app-server generate-json-schema --out <dir>
+//   cargo run -p codex-client-cw --bin protocol-codegen -- <dir> src/generated
+
+//! 每个客户端请求的参数类型与它对应的方法名、响应类型。
+//!
+//! 共 104 个方法：
+//!
+//! - `initialize` → [`InitializeParams`]
+//! - `thread/start` → [`ThreadStartParams`]
+//! - `thread/resume` → [`ThreadResumeParams`]
+//! - `thread/fork` → [`ThreadForkParams`]
+//! - `thread/archive` → [`ThreadArchiveParams`]
+//! - `thread/delete` → [`ThreadDeleteParams`]
+//! - `thread/unsubscribe` → [`ThreadUnsubscribeParams`]
+//! - `thread/name/set` → [`ThreadSetNameParams`]
+//! - `thread/goal/set` → [`ThreadGoalSetParams`]
+//! - `thread/goal/get` → [`ThreadGoalGetParams`]
+//! - `thread/goal/clear` → [`ThreadGoalClearParams`]
+//! - `thread/metadata/update` → [`ThreadMetadataUpdateParams`]
+//! - `thread/attachment/add` → [`ThreadAttachmentAddParams`]
+//! - `thread/attachment/list` → [`ThreadAttachmentListParams`]
+//! - `thread/attachment/remove` → [`ThreadAttachmentRemoveParams`]
+//! - `thread/section/move` → [`ThreadSectionMoveParams`]
+//! - `thread/unarchive` → [`ThreadUnarchiveParams`]
+//! - `thread/compact/start` → [`ThreadCompactStartParams`]
+//! - `thread/shellCommand` → [`ThreadShellCommandParams`]
+//! - `thread/approveGuardianDeniedAction` → [`ThreadApproveGuardianDeniedActionParams`]
+//! - `thread/revert` → [`ThreadRevertParams`]
+//! - `thread/list` → [`ThreadListParams`]
+//! - `threadSection/list` → [`ThreadSectionListParams`]
+//! - `threadSection/create` → [`ThreadSectionCreateParams`]
+//! - `threadSection/update` → [`ThreadSectionUpdateParams`]
+//! - `threadSection/delete` → [`ThreadSectionDeleteParams`]
+//! - `thread/loaded/list` → [`ThreadLoadedListParams`]
+//! - `thread/read` → [`ThreadReadParams`]
+//! - `thread/turns/list` → [`ThreadTurnsListParams`]
+//! - `thread/items/list` → [`ThreadItemsListParams`]
+//! - `thread/inject_items` → [`ThreadInjectItemsParams`]
+//! - `skills/list` → [`SkillsListParams`]
+//! - `skills/extraRoots/set` → [`SkillsExtraRootsSetParams`]
+//! - `hooks/list` → [`HooksListParams`]
+//! - `marketplace/add` → [`MarketplaceAddParams`]
+//! - `marketplace/remove` → [`MarketplaceRemoveParams`]
+//! - `marketplace/upgrade` → [`MarketplaceUpgradeParams`]
+//! - `plugin/list` → [`PluginListParams`]
+//! - `plugin/installed` → [`PluginInstalledParams`]
+//! - `plugin/reconcile` → [`PluginReconcileParams`]
+//! - `plugin/read` → [`PluginReadParams`]
+//! - `plugin/skill/read` → [`PluginSkillReadParams`]
+//! - `plugin/share/save` → [`PluginShareSaveParams`]
+//! - `plugin/share/updateTargets` → [`PluginShareUpdateTargetsParams`]
+//! - `plugin/share/list` → [`PluginShareListParams`]
+//! - `plugin/share/checkout` → [`PluginShareCheckoutParams`]
+//! - `plugin/share/delete` → [`PluginShareDeleteParams`]
+//! - `app/read` → [`AppsReadParams`]
+//! - `app/list` → [`AppsListParams`]
+//! - `app/installed` → [`AppsInstalledParams`]
+//! - `fs/readFile` → [`FsReadFileParams`]
+//! - `fs/writeFile` → [`FsWriteFileParams`]
+//! - `fs/createDirectory` → [`FsCreateDirectoryParams`]
+//! - `fs/getMetadata` → [`FsGetMetadataParams`]
+//! - `fs/readDirectory` → [`FsReadDirectoryParams`]
+//! - `fs/remove` → [`FsRemoveParams`]
+//! - `fs/copy` → [`FsCopyParams`]
+//! - `fs/watch` → [`FsWatchParams`]
+//! - `fs/unwatch` → [`FsUnwatchParams`]
+//! - `skills/config/write` → [`SkillsConfigWriteParams`]
+//! - `plugin/install` → [`PluginInstallParams`]
+//! - `plugin/uninstall` → [`PluginUninstallParams`]
+//! - `turn/start` → [`TurnStartParams`]
+//! - `turn/steer` → [`TurnSteerParams`]
+//! - `turn/interrupt` → [`TurnInterruptParams`]
+//! - `review/start` → [`ReviewStartParams`]
+//! - `model/list` → [`ModelListParams`]
+//! - `account/gatewayOAuth/read` → [`AccountGatewayOAuthReadParams`]
+//! - `account/gatewayOAuth/login` → [`AccountGatewayOAuthLoginParams`]
+//! - `account/gatewayOAuth/cancel` → [`AccountGatewayOAuthCancelParams`]
+//! - `modelProvider/capabilities/read` → [`ModelProviderCapabilitiesReadParams`]
+//! - `experimentalFeature/list` → [`ExperimentalFeatureListParams`]
+//! - `permissionProfile/list` → [`PermissionProfileListParams`]
+//! - `experimentalFeature/enablement/set` → [`ExperimentalFeatureEnablementSetParams`]
+//! - `mcpServer/oauth/login` → [`McpServerOauthLoginParams`]
+//! - `config/mcpServer/reload` → [`ConfigMcpServerReloadParams`]
+//! - `mcpServerStatus/list` → [`ListMcpServerStatusParams`]
+//! - `mcpServer/resource/read` → [`McpResourceReadParams`]
+//! - `mcpServer/tool/call` → [`McpServerToolCallParams`]
+//! - `windowsSandbox/setupStart` → [`WindowsSandboxSetupStartParams`]
+//! - `windowsSandbox/readiness` → [`WindowsSandboxReadinessParams`]
+//! - `account/login/start` → [`LoginAccountParams`]
+//! - `account/login/cancel` → [`CancelLoginAccountParams`]
+//! - `account/logout` → [`AccountLogoutParams`]
+//! - `account/rateLimits/read` → `Option<GetAccountRateLimitsParams>`
+//! - `account/rateLimitResetCredit/consume` → [`ConsumeAccountRateLimitResetCreditParams`]
+//! - `account/usage/read` → `Option<GetAccountTokenUsageParams>`
+//! - `account/workspaceMessages/read` → [`AccountWorkspaceMessagesReadParams`]
+//! - `account/sendAddCreditsNudgeEmail` → [`SendAddCreditsNudgeEmailParams`]
+//! - `feedback/upload` → [`FeedbackUploadParams`]
+//! - `command/exec` → [`CommandExecParams`]
+//! - `command/exec/write` → [`CommandExecWriteParams`]
+//! - `command/exec/terminate` → [`CommandExecTerminateParams`]
+//! - `command/exec/resize` → [`CommandExecResizeParams`]
+//! - `config/read` → [`ConfigReadParams`]
+//! - `externalAgentConfig/detect` → [`ExternalAgentConfigDetectParams`]
+//! - `externalAgentConfig/import` → [`ExternalAgentConfigImportParams`]
+//! - `externalAgentConfig/import/recordHistory` → [`ExternalAgentConfigImportHistoryRecordParams`]
+//! - `externalAgentConfig/import/readHistories` → [`ExternalAgentConfigImportReadHistoriesParams`]
+//! - `config/value/write` → [`ConfigValueWriteParams`]
+//! - `config/batchWrite` → [`ConfigBatchWriteParams`]
+//! - `configRequirements/read` → [`ConfigRequirementsReadParams`]
+//! - `account/read` → [`GetAccountParams`]
+//! - `fuzzyFileSearch` → [`FuzzyFileSearchParams`]
+
+use super::types::*;
+use serde::Serialize;
+use serde::de::DeserializeOwned;
+
+/// 一个客户端 → 服务端的请求。
+///
+/// 实现在参数类型上：参数类型唯一确定方法名和响应类型，因此
+/// `client.request(ThreadStartParams { .. })` 的返回类型是确定的，
+/// 不需要额外指定方法。
+pub trait Request: Serialize {
+    const METHOD: &'static str;
+    type Response: DeserializeOwned;
+}
+
+/// `initialize`
+impl Request for InitializeParams {
+    const METHOD: &'static str = "initialize";
+    type Response = InitializeResponse;
+}
+
+/// NEW APIs
+/// `thread/start`
+impl Request for ThreadStartParams {
+    const METHOD: &'static str = "thread/start";
+    type Response = ThreadStartResponse;
+}
+
+/// `thread/resume`
+impl Request for ThreadResumeParams {
+    const METHOD: &'static str = "thread/resume";
+    type Response = ThreadResumeResponse;
+}
+
+/// `thread/fork`
+impl Request for ThreadForkParams {
+    const METHOD: &'static str = "thread/fork";
+    type Response = ThreadForkResponse;
+}
+
+/// `thread/archive`
+impl Request for ThreadArchiveParams {
+    const METHOD: &'static str = "thread/archive";
+    type Response = ThreadArchiveResponse;
+}
+
+/// `thread/delete`
+impl Request for ThreadDeleteParams {
+    const METHOD: &'static str = "thread/delete";
+    type Response = ThreadDeleteResponse;
+}
+
+/// `thread/unsubscribe`
+impl Request for ThreadUnsubscribeParams {
+    const METHOD: &'static str = "thread/unsubscribe";
+    type Response = ThreadUnsubscribeResponse;
+}
+
+/// `thread/name/set`
+impl Request for ThreadSetNameParams {
+    const METHOD: &'static str = "thread/name/set";
+    type Response = ThreadSetNameResponse;
+}
+
+/// `thread/goal/set`
+impl Request for ThreadGoalSetParams {
+    const METHOD: &'static str = "thread/goal/set";
+    type Response = ThreadGoalSetResponse;
+}
+
+/// `thread/goal/get`
+impl Request for ThreadGoalGetParams {
+    const METHOD: &'static str = "thread/goal/get";
+    type Response = ThreadGoalGetResponse;
+}
+
+/// `thread/goal/clear`
+impl Request for ThreadGoalClearParams {
+    const METHOD: &'static str = "thread/goal/clear";
+    type Response = ThreadGoalClearResponse;
+}
+
+/// `thread/metadata/update`
+impl Request for ThreadMetadataUpdateParams {
+    const METHOD: &'static str = "thread/metadata/update";
+    type Response = ThreadMetadataUpdateResponse;
+}
+
+/// `thread/attachment/add`
+impl Request for ThreadAttachmentAddParams {
+    const METHOD: &'static str = "thread/attachment/add";
+    type Response = ThreadAttachmentAddResponse;
+}
+
+/// `thread/attachment/list`
+impl Request for ThreadAttachmentListParams {
+    const METHOD: &'static str = "thread/attachment/list";
+    type Response = ThreadAttachmentListResponse;
+}
+
+/// `thread/attachment/remove`
+impl Request for ThreadAttachmentRemoveParams {
+    const METHOD: &'static str = "thread/attachment/remove";
+    type Response = ThreadAttachmentRemoveResponse;
+}
+
+/// `thread/section/move`
+impl Request for ThreadSectionMoveParams {
+    const METHOD: &'static str = "thread/section/move";
+    type Response = ThreadSectionMoveResponse;
+}
+
+/// `thread/unarchive`
+impl Request for ThreadUnarchiveParams {
+    const METHOD: &'static str = "thread/unarchive";
+    type Response = ThreadUnarchiveResponse;
+}
+
+/// `thread/compact/start`
+impl Request for ThreadCompactStartParams {
+    const METHOD: &'static str = "thread/compact/start";
+    type Response = ThreadCompactStartResponse;
+}
+
+/// `thread/shellCommand`
+impl Request for ThreadShellCommandParams {
+    const METHOD: &'static str = "thread/shellCommand";
+    type Response = ThreadShellCommandResponse;
+}
+
+/// `thread/approveGuardianDeniedAction`
+impl Request for ThreadApproveGuardianDeniedActionParams {
+    const METHOD: &'static str = "thread/approveGuardianDeniedAction";
+    type Response = ThreadApproveGuardianDeniedActionResponse;
+}
+
+/// `thread/revert`
+impl Request for ThreadRevertParams {
+    const METHOD: &'static str = "thread/revert";
+    type Response = ThreadRevertResponse;
+}
+
+/// `thread/list`
+impl Request for ThreadListParams {
+    const METHOD: &'static str = "thread/list";
+    type Response = ThreadListResponse;
+}
+
+/// `threadSection/list`
+impl Request for ThreadSectionListParams {
+    const METHOD: &'static str = "threadSection/list";
+    type Response = ThreadSectionListResponse;
+}
+
+/// `threadSection/create`
+impl Request for ThreadSectionCreateParams {
+    const METHOD: &'static str = "threadSection/create";
+    type Response = ThreadSectionCreateResponse;
+}
+
+/// `threadSection/update`
+impl Request for ThreadSectionUpdateParams {
+    const METHOD: &'static str = "threadSection/update";
+    type Response = ThreadSectionUpdateResponse;
+}
+
+/// `threadSection/delete`
+impl Request for ThreadSectionDeleteParams {
+    const METHOD: &'static str = "threadSection/delete";
+    type Response = ThreadSectionDeleteResponse;
+}
+
+/// `thread/loaded/list`
+impl Request for ThreadLoadedListParams {
+    const METHOD: &'static str = "thread/loaded/list";
+    type Response = ThreadLoadedListResponse;
+}
+
+/// `thread/read`
+impl Request for ThreadReadParams {
+    const METHOD: &'static str = "thread/read";
+    type Response = ThreadReadResponse;
+}
+
+/// `thread/turns/list`
+impl Request for ThreadTurnsListParams {
+    const METHOD: &'static str = "thread/turns/list";
+    type Response = ThreadTurnsListResponse;
+}
+
+/// `thread/items/list`
+impl Request for ThreadItemsListParams {
+    const METHOD: &'static str = "thread/items/list";
+    type Response = ThreadItemsListResponse;
+}
+
+/// Append raw Responses API items to the thread history without starting a user turn.
+/// `thread/inject_items`
+impl Request for ThreadInjectItemsParams {
+    const METHOD: &'static str = "thread/inject_items";
+    type Response = ThreadInjectItemsResponse;
+}
+
+/// `skills/list`
+impl Request for SkillsListParams {
+    const METHOD: &'static str = "skills/list";
+    type Response = SkillsListResponse;
+}
+
+/// `skills/extraRoots/set`
+impl Request for SkillsExtraRootsSetParams {
+    const METHOD: &'static str = "skills/extraRoots/set";
+    type Response = SkillsExtraRootsSetResponse;
+}
+
+/// `hooks/list`
+impl Request for HooksListParams {
+    const METHOD: &'static str = "hooks/list";
+    type Response = HooksListResponse;
+}
+
+/// `marketplace/add`
+impl Request for MarketplaceAddParams {
+    const METHOD: &'static str = "marketplace/add";
+    type Response = MarketplaceAddResponse;
+}
+
+/// `marketplace/remove`
+impl Request for MarketplaceRemoveParams {
+    const METHOD: &'static str = "marketplace/remove";
+    type Response = MarketplaceRemoveResponse;
+}
+
+/// `marketplace/upgrade`
+impl Request for MarketplaceUpgradeParams {
+    const METHOD: &'static str = "marketplace/upgrade";
+    type Response = MarketplaceUpgradeResponse;
+}
+
+/// `plugin/list`
+impl Request for PluginListParams {
+    const METHOD: &'static str = "plugin/list";
+    type Response = PluginListResponse;
+}
+
+/// `plugin/installed`
+impl Request for PluginInstalledParams {
+    const METHOD: &'static str = "plugin/installed";
+    type Response = PluginInstalledResponse;
+}
+
+/// `plugin/reconcile`
+impl Request for PluginReconcileParams {
+    const METHOD: &'static str = "plugin/reconcile";
+    type Response = PluginReconcileResponse;
+}
+
+/// `plugin/read`
+impl Request for PluginReadParams {
+    const METHOD: &'static str = "plugin/read";
+    type Response = PluginReadResponse;
+}
+
+/// `plugin/skill/read`
+impl Request for PluginSkillReadParams {
+    const METHOD: &'static str = "plugin/skill/read";
+    type Response = PluginSkillReadResponse;
+}
+
+/// `plugin/share/save`
+impl Request for PluginShareSaveParams {
+    const METHOD: &'static str = "plugin/share/save";
+    type Response = PluginShareSaveResponse;
+}
+
+/// `plugin/share/updateTargets`
+impl Request for PluginShareUpdateTargetsParams {
+    const METHOD: &'static str = "plugin/share/updateTargets";
+    type Response = PluginShareUpdateTargetsResponse;
+}
+
+/// `plugin/share/list`
+impl Request for PluginShareListParams {
+    const METHOD: &'static str = "plugin/share/list";
+    type Response = PluginShareListResponse;
+}
+
+/// `plugin/share/checkout`
+impl Request for PluginShareCheckoutParams {
+    const METHOD: &'static str = "plugin/share/checkout";
+    type Response = PluginShareCheckoutResponse;
+}
+
+/// `plugin/share/delete`
+impl Request for PluginShareDeleteParams {
+    const METHOD: &'static str = "plugin/share/delete";
+    type Response = PluginShareDeleteResponse;
+}
+
+/// `app/read`
+impl Request for AppsReadParams {
+    const METHOD: &'static str = "app/read";
+    type Response = AppsReadResponse;
+}
+
+/// `app/list`
+impl Request for AppsListParams {
+    const METHOD: &'static str = "app/list";
+    type Response = AppsListResponse;
+}
+
+/// `app/installed`
+impl Request for AppsInstalledParams {
+    const METHOD: &'static str = "app/installed";
+    type Response = AppsInstalledResponse;
+}
+
+/// `fs/readFile`
+impl Request for FsReadFileParams {
+    const METHOD: &'static str = "fs/readFile";
+    type Response = FsReadFileResponse;
+}
+
+/// `fs/writeFile`
+impl Request for FsWriteFileParams {
+    const METHOD: &'static str = "fs/writeFile";
+    type Response = FsWriteFileResponse;
+}
+
+/// `fs/createDirectory`
+impl Request for FsCreateDirectoryParams {
+    const METHOD: &'static str = "fs/createDirectory";
+    type Response = FsCreateDirectoryResponse;
+}
+
+/// `fs/getMetadata`
+impl Request for FsGetMetadataParams {
+    const METHOD: &'static str = "fs/getMetadata";
+    type Response = FsGetMetadataResponse;
+}
+
+/// `fs/readDirectory`
+impl Request for FsReadDirectoryParams {
+    const METHOD: &'static str = "fs/readDirectory";
+    type Response = FsReadDirectoryResponse;
+}
+
+/// `fs/remove`
+impl Request for FsRemoveParams {
+    const METHOD: &'static str = "fs/remove";
+    type Response = FsRemoveResponse;
+}
+
+/// `fs/copy`
+impl Request for FsCopyParams {
+    const METHOD: &'static str = "fs/copy";
+    type Response = FsCopyResponse;
+}
+
+/// `fs/watch`
+impl Request for FsWatchParams {
+    const METHOD: &'static str = "fs/watch";
+    type Response = FsWatchResponse;
+}
+
+/// `fs/unwatch`
+impl Request for FsUnwatchParams {
+    const METHOD: &'static str = "fs/unwatch";
+    type Response = FsUnwatchResponse;
+}
+
+/// `skills/config/write`
+impl Request for SkillsConfigWriteParams {
+    const METHOD: &'static str = "skills/config/write";
+    type Response = SkillsConfigWriteResponse;
+}
+
+/// `plugin/install`
+impl Request for PluginInstallParams {
+    const METHOD: &'static str = "plugin/install";
+    type Response = PluginInstallResponse;
+}
+
+/// `plugin/uninstall`
+impl Request for PluginUninstallParams {
+    const METHOD: &'static str = "plugin/uninstall";
+    type Response = PluginUninstallResponse;
+}
+
+/// `turn/start`
+impl Request for TurnStartParams {
+    const METHOD: &'static str = "turn/start";
+    type Response = TurnStartResponse;
+}
+
+/// `turn/steer`
+impl Request for TurnSteerParams {
+    const METHOD: &'static str = "turn/steer";
+    type Response = TurnSteerResponse;
+}
+
+/// `turn/interrupt`
+impl Request for TurnInterruptParams {
+    const METHOD: &'static str = "turn/interrupt";
+    type Response = TurnInterruptResponse;
+}
+
+/// `review/start`
+impl Request for ReviewStartParams {
+    const METHOD: &'static str = "review/start";
+    type Response = ReviewStartResponse;
+}
+
+/// `model/list`
+impl Request for ModelListParams {
+    const METHOD: &'static str = "model/list";
+    type Response = ModelListResponse;
+}
+
+/// `account/gatewayOAuth/read` 的参数：这个方法没有参数，序列化为 `null`。
+#[derive(Clone, Copy, Debug, Default, Serialize)]
+pub struct AccountGatewayOAuthReadParams;
+
+/// `account/gatewayOAuth/read`
+impl Request for AccountGatewayOAuthReadParams {
+    const METHOD: &'static str = "account/gatewayOAuth/read";
+    type Response = GatewayOAuthReadResponse;
+}
+
+/// `account/gatewayOAuth/login` 的参数：这个方法没有参数，序列化为 `null`。
+#[derive(Clone, Copy, Debug, Default, Serialize)]
+pub struct AccountGatewayOAuthLoginParams;
+
+/// `account/gatewayOAuth/login`
+impl Request for AccountGatewayOAuthLoginParams {
+    const METHOD: &'static str = "account/gatewayOAuth/login";
+    type Response = GatewayOAuthLoginResponse;
+}
+
+/// `account/gatewayOAuth/cancel` 的参数：这个方法没有参数，序列化为 `null`。
+#[derive(Clone, Copy, Debug, Default, Serialize)]
+pub struct AccountGatewayOAuthCancelParams;
+
+/// `account/gatewayOAuth/cancel`
+impl Request for AccountGatewayOAuthCancelParams {
+    const METHOD: &'static str = "account/gatewayOAuth/cancel";
+    type Response = GatewayOAuthCancelResponse;
+}
+
+/// `modelProvider/capabilities/read`
+impl Request for ModelProviderCapabilitiesReadParams {
+    const METHOD: &'static str = "modelProvider/capabilities/read";
+    type Response = ModelProviderCapabilitiesReadResponse;
+}
+
+/// `experimentalFeature/list`
+impl Request for ExperimentalFeatureListParams {
+    const METHOD: &'static str = "experimentalFeature/list";
+    type Response = ExperimentalFeatureListResponse;
+}
+
+/// `permissionProfile/list`
+impl Request for PermissionProfileListParams {
+    const METHOD: &'static str = "permissionProfile/list";
+    type Response = PermissionProfileListResponse;
+}
+
+/// `experimentalFeature/enablement/set`
+impl Request for ExperimentalFeatureEnablementSetParams {
+    const METHOD: &'static str = "experimentalFeature/enablement/set";
+    type Response = ExperimentalFeatureEnablementSetResponse;
+}
+
+/// `mcpServer/oauth/login`
+impl Request for McpServerOauthLoginParams {
+    const METHOD: &'static str = "mcpServer/oauth/login";
+    type Response = McpServerOauthLoginResponse;
+}
+
+/// `config/mcpServer/reload` 的参数：这个方法没有参数，序列化为 `null`。
+#[derive(Clone, Copy, Debug, Default, Serialize)]
+pub struct ConfigMcpServerReloadParams;
+
+/// `config/mcpServer/reload`
+impl Request for ConfigMcpServerReloadParams {
+    const METHOD: &'static str = "config/mcpServer/reload";
+    type Response = McpServerRefreshResponse;
+}
+
+/// `mcpServerStatus/list`
+impl Request for ListMcpServerStatusParams {
+    const METHOD: &'static str = "mcpServerStatus/list";
+    type Response = ListMcpServerStatusResponse;
+}
+
+/// `mcpServer/resource/read`
+impl Request for McpResourceReadParams {
+    const METHOD: &'static str = "mcpServer/resource/read";
+    type Response = McpResourceReadResponse;
+}
+
+/// `mcpServer/tool/call`
+impl Request for McpServerToolCallParams {
+    const METHOD: &'static str = "mcpServer/tool/call";
+    type Response = McpServerToolCallResponse;
+}
+
+/// `windowsSandbox/setupStart`
+impl Request for WindowsSandboxSetupStartParams {
+    const METHOD: &'static str = "windowsSandbox/setupStart";
+    type Response = WindowsSandboxSetupStartResponse;
+}
+
+/// `windowsSandbox/readiness` 的参数：这个方法没有参数，序列化为 `null`。
+#[derive(Clone, Copy, Debug, Default, Serialize)]
+pub struct WindowsSandboxReadinessParams;
+
+/// `windowsSandbox/readiness`
+impl Request for WindowsSandboxReadinessParams {
+    const METHOD: &'static str = "windowsSandbox/readiness";
+    type Response = WindowsSandboxReadinessResponse;
+}
+
+/// `account/login/start`
+impl Request for LoginAccountParams {
+    const METHOD: &'static str = "account/login/start";
+    type Response = LoginAccountResponse;
+}
+
+/// `account/login/cancel`
+impl Request for CancelLoginAccountParams {
+    const METHOD: &'static str = "account/login/cancel";
+    type Response = CancelLoginAccountResponse;
+}
+
+/// `account/logout` 的参数：这个方法没有参数，序列化为 `null`。
+#[derive(Clone, Copy, Debug, Default, Serialize)]
+pub struct AccountLogoutParams;
+
+/// `account/logout`
+impl Request for AccountLogoutParams {
+    const METHOD: &'static str = "account/logout";
+    type Response = LogoutAccountResponse;
+}
+
+/// `account/rateLimits/read`
+impl Request for Option<GetAccountRateLimitsParams> {
+    const METHOD: &'static str = "account/rateLimits/read";
+    type Response = GetAccountRateLimitsResponse;
+}
+
+/// `account/rateLimitResetCredit/consume`
+impl Request for ConsumeAccountRateLimitResetCreditParams {
+    const METHOD: &'static str = "account/rateLimitResetCredit/consume";
+    type Response = ConsumeAccountRateLimitResetCreditResponse;
+}
+
+/// `account/usage/read`
+impl Request for Option<GetAccountTokenUsageParams> {
+    const METHOD: &'static str = "account/usage/read";
+    type Response = GetAccountTokenUsageResponse;
+}
+
+/// `account/workspaceMessages/read` 的参数：这个方法没有参数，序列化为 `null`。
+#[derive(Clone, Copy, Debug, Default, Serialize)]
+pub struct AccountWorkspaceMessagesReadParams;
+
+/// `account/workspaceMessages/read`
+impl Request for AccountWorkspaceMessagesReadParams {
+    const METHOD: &'static str = "account/workspaceMessages/read";
+    type Response = GetWorkspaceMessagesResponse;
+}
+
+/// `account/sendAddCreditsNudgeEmail`
+impl Request for SendAddCreditsNudgeEmailParams {
+    const METHOD: &'static str = "account/sendAddCreditsNudgeEmail";
+    type Response = SendAddCreditsNudgeEmailResponse;
+}
+
+/// `feedback/upload`
+impl Request for FeedbackUploadParams {
+    const METHOD: &'static str = "feedback/upload";
+    type Response = FeedbackUploadResponse;
+}
+
+/// Execute a standalone command (argv vector) under the server's sandbox.
+/// `command/exec`
+impl Request for CommandExecParams {
+    const METHOD: &'static str = "command/exec";
+    type Response = CommandExecResponse;
+}
+
+/// Write stdin bytes to a running `command/exec` session or close stdin.
+/// `command/exec/write`
+impl Request for CommandExecWriteParams {
+    const METHOD: &'static str = "command/exec/write";
+    type Response = CommandExecWriteResponse;
+}
+
+/// Terminate a running `command/exec` session by client-supplied `processId`.
+/// `command/exec/terminate`
+impl Request for CommandExecTerminateParams {
+    const METHOD: &'static str = "command/exec/terminate";
+    type Response = CommandExecTerminateResponse;
+}
+
+/// Resize a running PTY-backed `command/exec` session by client-supplied `processId`.
+/// `command/exec/resize`
+impl Request for CommandExecResizeParams {
+    const METHOD: &'static str = "command/exec/resize";
+    type Response = CommandExecResizeResponse;
+}
+
+/// `config/read`
+impl Request for ConfigReadParams {
+    const METHOD: &'static str = "config/read";
+    type Response = ConfigReadResponse;
+}
+
+/// `externalAgentConfig/detect`
+impl Request for ExternalAgentConfigDetectParams {
+    const METHOD: &'static str = "externalAgentConfig/detect";
+    type Response = ExternalAgentConfigDetectResponse;
+}
+
+/// `externalAgentConfig/import`
+impl Request for ExternalAgentConfigImportParams {
+    const METHOD: &'static str = "externalAgentConfig/import";
+    type Response = ExternalAgentConfigImportResponse;
+}
+
+/// `externalAgentConfig/import/recordHistory`
+impl Request for ExternalAgentConfigImportHistoryRecordParams {
+    const METHOD: &'static str = "externalAgentConfig/import/recordHistory";
+    type Response = ExternalAgentConfigImportHistoryRecordResponse;
+}
+
+/// `externalAgentConfig/import/readHistories` 的参数：这个方法没有参数，序列化为 `null`。
+#[derive(Clone, Copy, Debug, Default, Serialize)]
+pub struct ExternalAgentConfigImportReadHistoriesParams;
+
+/// `externalAgentConfig/import/readHistories`
+impl Request for ExternalAgentConfigImportReadHistoriesParams {
+    const METHOD: &'static str = "externalAgentConfig/import/readHistories";
+    type Response = ExternalAgentConfigImportHistoriesReadResponse;
+}
+
+/// `config/value/write`
+impl Request for ConfigValueWriteParams {
+    const METHOD: &'static str = "config/value/write";
+    type Response = ConfigWriteResponse;
+}
+
+/// `config/batchWrite`
+impl Request for ConfigBatchWriteParams {
+    const METHOD: &'static str = "config/batchWrite";
+    type Response = ConfigWriteResponse;
+}
+
+/// `configRequirements/read` 的参数：这个方法没有参数，序列化为 `null`。
+#[derive(Clone, Copy, Debug, Default, Serialize)]
+pub struct ConfigRequirementsReadParams;
+
+/// `configRequirements/read`
+impl Request for ConfigRequirementsReadParams {
+    const METHOD: &'static str = "configRequirements/read";
+    type Response = ConfigRequirementsReadResponse;
+}
+
+/// `account/read`
+impl Request for GetAccountParams {
+    const METHOD: &'static str = "account/read";
+    type Response = GetAccountResponse;
+}
+
+/// `fuzzyFileSearch`
+impl Request for FuzzyFileSearchParams {
+    const METHOD: &'static str = "fuzzyFileSearch";
+    type Response = FuzzyFileSearchResponse;
+}

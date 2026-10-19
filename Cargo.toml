@@ -1,0 +1,36 @@
+[package]
+name = "codex-client-cw"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Typed Rust client for the Codex App Server over a Unix-domain WebSocket."
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+documentation = "https://docs.rs/codex-client-cw"
+keywords = ["codex", "app-server", "json-rpc", "client"]
+categories = ["api-bindings", "asynchronous"]
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "protocol-codegen"
+path = "src/bin/protocol-codegen/main.rs"
+
+[features]
+# 可脚本化的 fake App Server。建立在本客户端之上的应用用它测自己的逻辑，
+# 不需要真实 daemon，也不消耗额度。
+testing = []
+
+[dependencies]
+anyhow = "1"
+futures-util = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt", "sync", "time", "net"] }
+tokio-tungstenite = "0.28"
+tracing = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "fs", "test-util"] }
+uuid = { version = "1", features = ["v4"] }
