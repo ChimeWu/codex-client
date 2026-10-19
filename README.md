@@ -2,7 +2,7 @@
 
 [Chinese (Simplified)](docs/zh-CN/README.md)
 
-A Rust client for the Codex App Server. It provides typed protocol methods and streams thread events over a shared connection.
+A Rust client for the Codex App Server. It provides typed protocol methods and delivers all server events through one receiver.
 
 ## Install
 
@@ -16,11 +16,11 @@ The Codex App Server daemon must be running before connecting. Start it with `co
 ## Example
 
 ```rust
-use codex_client_cw::{AppServerClient, types::ModelListParams};
+use codex_client_cw::{AppServerClient, AppServerEvent, types::ModelListParams};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = AppServerClient::builder(
+    let (client, mut events) = AppServerClient::builder(
         "unix:///Users/me/.codex/app-server-control/app-server-control.sock",
     )
     .build();
@@ -28,6 +28,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let models = client.request(ModelListParams::default()).await?;
     for model in models.data {
         println!("{} ({})", model.id, model.display_name);
+    }
+
+    while let Some(event) = events.recv().await {
+        match event {
+            AppServerEvent::Notification(notification) => println!("{notification:?}"),
+            AppServerEvent::Request { method, reply, .. } => {
+                eprintln!("No handler for server request {method}; refusing it");
+                drop(reply);
+            }
+            _ => {}
+        }
     }
 
     Ok(())
@@ -38,11 +49,13 @@ Replace the socket path with the one reported by your daemon.
 
 ## Features
 
-- Typed access to App Server requests, notifications, and server requests.
-- Thread event streams from `start_thread` and `resume_thread`.
-- A shared connection for concurrent requests and multiple threads.
+- Typed access to App Server requests and generated notification/request payloads.
+- One event receiver for connection state, notifications, requests, and unknown messages.
+- A shared connection for concurrent requests.
 - `client.call` for methods added after the bundled protocol schema.
-- Unknown inbound protocol messages are preserved as JSON.
+- Caller-owned message dispatch and thread subscription lifecycle.
+
+The event receiver is unbounded and must be drained to avoid memory growth. The client reconnects but does not restore subscriptions or replay in-flight requests; applications should resubscribe after `Connected`.
 
 The client does not make approval or sandbox policy decisions. Callers should decide which App Server capabilities to expose and construct sandbox policies on the trusted side.
 

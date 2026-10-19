@@ -6,11 +6,11 @@
 
 `codex-client-cw` is a general-purpose Rust client for the Codex App Server. It connects over a WebSocket on a Unix domain socket to an **already-running** App Server. It does not start, stop, or supervise the daemon, and it contains no Telegram or other product-specific logic.
 
-The client provides generic JSON-RPC calls, thread message streams, and protocol types. Callers own approval and sandbox policy, message presentation, and decisions about which capabilities to expose. Keep those product decisions out of this crate.
+The client provides generic JSON-RPC calls, one receiver for all server events, and protocol types. Callers own message dispatch, thread subscriptions, approval and sandbox policy, message presentation, and decisions about which capabilities to expose. Keep those product decisions out of this crate.
 
 ## Repository layout
 
-- `src/client/`: client actor, connection management, request handling, and event routing.
+- `src/client/`: client actor, connection management, RPC handling, and the unified event stream.
 - `src/generated/`: checked-in protocol types and protocol surface inventory generated from the App Server JSON Schema.
 - `src/bin/protocol-codegen/`: protocol type generator.
 - `src/tests.rs`: serialization tests and ignored tests that require a real daemon.
@@ -23,6 +23,9 @@ The client provides generic JSON-RPC calls, thread message streams, and protocol
 - Treat `src/generated/` as generated output. Read `docs/protocol-codegen.md` before changing the schema or generator; do not hand-edit generated files to patch generation results.
 - When protocol output changes, review `src/generated/SURFACE.md` and the Rust type diffs for method, response, and field changes.
 - Keep dependencies and implementation focused on the client role. Check whether the standard library or an existing dependency is sufficient before adding a dependency.
+- Preserve generated App Server message types in the public API. Do not add thread-based event classification or convenience routing; consumers dispatch the single event stream themselves.
+- Keep the actor limited to transport, RPC response correlation, and event delivery. Do not restore subscriptions or replay requests after reconnect.
+- The event stream is unbounded and single-consumer. Keep server requests paired with their one-shot reply handles; dropping a handle sends a conservative refusal.
 - Do not add a fake App Server, fake-server test support, or a public `testing` feature. Default tests must not require a running Codex daemon.
 - Keep real-daemon tests marked `#[ignore]`. They may connect only to a daemon started by the caller; tests must never start or stop it.
 - Write project documentation, source comments, and log messages in English. Preserve API names, protocol method names, and identifiers.

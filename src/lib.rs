@@ -1,28 +1,39 @@
-//! A typed Rust client for the Codex App Server.
+//! A Rust client for the Codex App Server.
 //!
-//! The App Server must already be running. Create a client with its Unix socket endpoint,
-//! then use generated parameter types to call protocol methods:
+//! The App Server must already be running. The client returns one receiver for every
+//! server event; applications own message dispatch and any thread subscription lifecycle.
 //!
 //! ```no_run
 //! # use codex_client_cw::{AppServerClient, types::ModelListParams};
 //! # async fn example() -> codex_client_cw::Result<()> {
-//! let client = AppServerClient::builder(
+//! let (client, mut events) = AppServerClient::builder(
 //!     "unix:///Users/me/.codex/app-server-control/app-server-control.sock",
 //! ).build();
 //! let models = client.request(ModelListParams::default()).await?;
 //! for model in models.data {
 //!     println!("{} ({})", model.id, model.display_name);
 //! }
+//! while let Some(event) = events.recv().await {
+//!     match event {
+//!         codex_client_cw::AppServerEvent::Notification(notification) => {
+//!             // Dispatch by generated notification variant, including threadId fields.
+//!             println!("notification: {notification:?}");
+//!         }
+//!         codex_client_cw::AppServerEvent::Request { reply, .. } => drop(reply),
+//!         _ => {}
+//!     }
+//! }
 //! # Ok(())
 //! # }
 //! ```
 //!
-//! `start_thread` and `resume_thread` return a receiver for that thread's events. Keep the
-//! receiver while handling a turn, and answer server requests through [`ReplySender`].
-//! Dropping a reply handle sends a conservative refusal.
+//! Server requests arrive with a one-shot [`ReplySender`]. Dropping it sends a conservative
+//! refusal. Subscribe and unsubscribe by using the generated request types and process all
+//! notifications from the returned receiver.
 //!
-//! The client reconnects and restores active subscriptions, but it does not replay
-//! in-flight requests. A failed request may already have been processed by the server.
+//! The client reconnects but does not replay in-flight requests or restore subscriptions.
+//! A failed request may already have been processed by the server. The unbounded event
+//! receiver must be drained to avoid unbounded memory growth.
 //! Connection setup has a timeout; RPCs do not have a shared deadline.
 //!
 //! Callers choose which App Server capabilities to expose and are responsible for
@@ -41,7 +52,7 @@ mod protocol;
 #[cfg(test)]
 mod tests;
 
-pub use client::inbound::{GlobalMessage, ReplySender, ThreadMessage};
+pub use client::inbound::{AppServerEvent, ReplySender};
 pub use client::{AppServerClient, AppServerClientBuilder};
 pub use error::{Error, Result, ServerError};
 pub use generated::events::{ServerNotification, ServerRequest};
@@ -50,6 +61,4 @@ pub use generated::events::{ServerNotification, ServerRequest};
 // `types`.
 pub use generated::methods::{self as requests, Request};
 pub use generated::types;
-pub use protocol::{
-    GlobalNotification, GlobalRequest, ThreadNotification, ThreadRequest, reconnect_delay,
-};
+pub use protocol::reconnect_delay;
