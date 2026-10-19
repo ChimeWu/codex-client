@@ -47,6 +47,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 Replace the socket path with the one reported by your daemon.
 
+## Thread guide
+
+For thread creation and resume, turns, event dispatch, server requests, and reconnect handling, see the [thread guide](docs/thread-guide.md). A runnable example is available at [`examples/thread.rs`](examples/thread.rs).
+
 ## Features
 
 - Typed access to App Server requests and generated notification/request payloads.

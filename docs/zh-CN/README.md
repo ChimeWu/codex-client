@@ -47,6 +47,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 请将 socket 路径替换为 daemon 返回的实际路径。
 
+## Thread 使用指南
+
+关于 thread 创建与恢复、turn、事件分发、服务端请求和重连处理，请阅读 [thread 使用指南](thread-guide.md)。完整可运行示例见 [`examples/thread.rs`](../../examples/thread.rs)。
+
 ## 功能
 
 - 类型化访问 App Server 请求、通知和服务端请求载荷。
